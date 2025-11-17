@@ -13,7 +13,8 @@
     "test:jest": "jest",
     "test:jest:watch": "jest --watch",
     "test:jest:coverage": "jest --coverage",
-    "verify:supabase": "tsx scripts/verify-supabase.ts"
+    "verify:supabase": "tsx scripts/verify-supabase.ts",
+    "db:run-sql": "tsx scripts/run-sql-with-env.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

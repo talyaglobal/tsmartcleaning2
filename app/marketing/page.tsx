@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { ArrowRight, CheckCircle2, ShieldCheck } from 'lucide-react'
+import { BrandLogoClient } from '@/components/BrandLogoClient'
 
 export default function MarketingPage() {
   return (
@@ -418,7 +419,7 @@ export default function MarketingPage() {
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-5 gap-8">
             <div>
-              <BrandLogo />
+              <BrandLogoClient />
               <ul className="flex gap-3 mt-6 text-muted-foreground text-sm">
                 <li><Link href="#" className="hover:text-foreground transition-colors">Facebook</Link></li>
                 <li><Link href="#" className="hover:text-foreground transition-colors">Instagram</Link></li>
