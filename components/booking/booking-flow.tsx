@@ -12,6 +12,7 @@ import { Calendar, Clock, MapPin, CheckCircle2, Home, Building2, Briefcase } fro
 import { useRouter } from 'next/navigation'
 import { createAnonSupabase } from '@/lib/supabase'
 import { calculateSalesTax } from '@/lib/usa-compliance'
+import { getAverageServicePrice } from '@/lib/cleaning-service-prices'
 
 export function BookingFlow() {
   const router = useRouter()
@@ -38,7 +39,7 @@ export function BookingFlow() {
   const [availabilityError, setAvailabilityError] = useState<string | null>(null)
 
   // Services fetched from DB
-  const [services, setServices] = useState<Array<{ id: string, name: string, base_price: number, description?: string }>>([])
+  const [services, setServices] = useState<Array<{ id: string, name: string, base_price: number, description?: string, category?: string, unit?: string }>>([])
   const [servicesLoading, setServicesLoading] = useState(false)
   const [servicesError, setServicesError] = useState<string | null>(null)
   useEffect(() => {
@@ -64,12 +65,25 @@ export function BookingFlow() {
         if (!signal.aborted) {
           const list = Array.isArray(data?.services) ? data.services : []
           setServices(
-            list.map((s: any) => ({
-              id: s.id,
-              name: s.name || 'Service',
-              base_price: Number(s.base_price) || 0,
-              description: s.description || undefined,
-            }))
+            list.map((s: any) => {
+              // Get pricing from the comprehensive price list guide
+              const guidePrice = getAverageServicePrice(
+                s.category || serviceType,
+                s.name || '',
+                s.unit
+              )
+              // Use guide price if available, otherwise fall back to database price
+              const finalPrice = guidePrice !== null ? guidePrice : (Number(s.base_price) || 0)
+              
+              return {
+                id: s.id,
+                name: s.name || 'Service',
+                base_price: finalPrice,
+                description: s.description || undefined,
+                category: s.category || serviceType,
+                unit: s.unit || undefined,
+              }
+            })
           )
         }
       })
@@ -294,7 +308,7 @@ export function BookingFlow() {
   }, [selectedTime])
 
   useEffect(() => {
-    if (step !== 3 || !userId) return
+    if (step !== 4 || !userId) return
     const controller = new AbortController()
     const { signal } = controller
     setLoyaltyLoading(true)
@@ -426,18 +440,18 @@ export function BookingFlow() {
   return (
     <div>
       {/* Progress Steps */}
-      <div className="flex items-center justify-center mb-8 gap-4">
-        {[0, 1, 2, 3].map((num) => (
-          <div key={num} className="flex items-center gap-4">
+      <div className="flex items-center justify-center mb-8 gap-2 md:gap-4">
+        {[0, 1, 2, 3, 4].map((num) => (
+          <div key={num} className="flex items-center gap-2 md:gap-4">
             <div
-              className={`h-10 w-10 rounded-full flex items-center justify-center font-medium ${
+              className={`h-10 w-10 rounded-full flex items-center justify-center font-medium text-sm ${
                 step >= num ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
               }`}
             >
               {step > num ? <CheckCircle2 className="h-5 w-5" /> : num + 1}
             </div>
-            {num < 3 && (
-              <div className={`h-1 w-16 ${step > num ? 'bg-primary' : 'bg-muted'}`} />
+            {num < 4 && (
+              <div className={`h-1 w-8 md:w-16 ${step > num ? 'bg-primary' : 'bg-muted'}`} />
             )}
           </div>
         ))}
@@ -835,8 +849,107 @@ export function BookingFlow() {
         </Card>
       )}
 
-      {/* Step 3: Confirm */}
+      {/* Step 3: Insurance Selection */}
       {step === 3 && (
+        <Card className="p-6">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold mb-3">Protect Your Property</h2>
+            <p className="text-muted-foreground text-lg">
+              Add comprehensive coverage for peace of mind
+            </p>
+          </div>
+          <div className="space-y-6">
+            {/* Insurance Options */}
+            <div className="grid md:grid-cols-3 gap-4">
+              <label
+                className={`cursor-pointer rounded-lg border-2 p-6 flex flex-col justify-between transition-all hover:shadow-lg ${
+                  selectedInsurance === 'basic' ? 'border-primary ring-2 ring-primary bg-primary/5' : 'border-muted'
+                }`}
+                onClick={() => setSelectedInsurance('basic')}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-2xl">🛡️</span>
+                  <input type="radio" name="insurance" checked={selectedInsurance === 'basic'} readOnly className="accent-[var(--color-primary)] w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg mb-2">Basic</h3>
+                  <p className="text-sm text-muted-foreground mb-3">Up to $5K coverage</p>
+                  <p className="text-xs text-muted-foreground mb-4">$100 deductible</p>
+                  <div className="text-2xl font-bold">$95.90<span className="text-sm font-normal text-muted-foreground">/yr</span></div>
+                </div>
+              </label>
+              <label
+                className={`cursor-pointer rounded-lg border-2 p-6 flex flex-col justify-between transition-all hover:shadow-lg relative ${
+                  selectedInsurance === 'premium' ? 'border-primary ring-2 ring-primary bg-primary/5' : 'border-muted'
+                }`}
+                onClick={() => setSelectedInsurance('premium')}
+              >
+                <div className="absolute top-3 right-3">
+                  <Badge className="bg-primary text-primary-foreground">Recommended</Badge>
+                </div>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-2xl">🏆</span>
+                  <input type="radio" name="insurance" checked={selectedInsurance === 'premium'} readOnly className="accent-[var(--color-primary)] w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg mb-2">Premium</h3>
+                  <p className="text-sm text-muted-foreground mb-3">Up to $25K coverage</p>
+                  <p className="text-xs text-muted-foreground mb-4">Theft protection · $50 deductible</p>
+                  <div className="text-2xl font-bold">$191.90<span className="text-sm font-normal text-muted-foreground">/yr</span></div>
+                </div>
+              </label>
+              <label
+                className={`cursor-pointer rounded-lg border-2 p-6 flex flex-col justify-between transition-all hover:shadow-lg ${
+                  selectedInsurance === 'ultimate' ? 'border-primary ring-2 ring-primary bg-primary/5' : 'border-muted'
+                }`}
+                onClick={() => setSelectedInsurance('ultimate')}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-2xl">💎</span>
+                  <input type="radio" name="insurance" checked={selectedInsurance === 'ultimate'} readOnly className="accent-[var(--color-primary)] w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg mb-2">Ultimate</h3>
+                  <p className="text-sm text-muted-foreground mb-3">Up to $100K coverage</p>
+                  <p className="text-xs text-muted-foreground mb-4">Zero deductible</p>
+                  <div className="text-2xl font-bold">$335.90<span className="text-sm font-normal text-muted-foreground">/yr</span></div>
+                </div>
+              </label>
+            </div>
+            <div className="text-center">
+              <button
+                type="button"
+                className="text-sm text-muted-foreground underline underline-offset-2 hover:text-foreground"
+                onClick={() => setSelectedInsurance('none')}
+              >
+                No thanks, I'll skip protection
+              </button>
+            </div>
+            <Card className="p-4 bg-muted/50">
+              <div className="text-sm space-y-2">
+                <p className="font-medium">What's included:</p>
+                <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                  <li>Property damage protection during service</li>
+                  <li>Liability coverage</li>
+                  <li>20% savings on annual plans</li>
+                  <li>24/7 claims support</li>
+                </ul>
+              </div>
+            </Card>
+          </div>
+          <div className="flex justify-between mt-8">
+            <Button variant="outline" onClick={() => setStep(2)}>
+              Back
+            </Button>
+            <Button onClick={() => setStep(4)} size="lg">
+              Continue to Review
+            </Button>
+          </div>
+        </Card>
+      )}
+
+      {/* Step 4: Confirm */}
+      {step === 4 && (
         <Card className="p-6">
           <h2 className="text-2xl font-bold mb-6">Confirm Booking</h2>
           <div className="space-y-6">
@@ -866,63 +979,6 @@ export function BookingFlow() {
                   Savings applied to service and add-ons. Membership billed today, valid 12 months.
                 </div>
               </div>
-            </Card>
-            {/* Insurance Upsell */}
-            <Card className="p-4">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <div className="font-semibold">Add CleanGuard Protection</div>
-                  <div className="text-sm text-muted-foreground">
-                    Protect your home & belongings with comprehensive coverage. Save 20% on annual plans.
-                  </div>
-                </div>
-                <div className="hidden md:block text-xs text-muted-foreground">
-                  Recommended for 2x+/week schedules
-                </div>
-              </div>
-              <div className="mt-4 grid md:grid-cols-3 gap-3">
-                <label
-                  className={`cursor-pointer rounded-md border p-3 text-sm flex flex-col justify-between ${selectedInsurance === 'basic' ? 'border-primary ring-1 ring-primary' : ''}`}
-                  onClick={() => setSelectedInsurance('basic')}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">🛡️ Basic</span>
-                    <input type="radio" name="insurance" checked={selectedInsurance === 'basic'} readOnly className="accent-[var(--color-primary)]" />
-                  </div>
-                  <div className="mt-1 text-muted-foreground">Up to $5K · $100 deductible</div>
-                  <div className="mt-2 font-medium">$95.90/yr</div>
-                </label>
-                <label
-                  className={`cursor-pointer rounded-md border p-3 text-sm flex flex-col justify-between ${selectedInsurance === 'premium' ? 'border-primary ring-1 ring-primary' : ''}`}
-                  onClick={() => setSelectedInsurance('premium')}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">🏆 Premium</span>
-                    <input type="radio" name="insurance" checked={selectedInsurance === 'premium'} readOnly className="accent-[var(--color-primary)]" />
-                  </div>
-                  <div className="mt-1 text-muted-foreground">Up to $25K · Theft · $50 deductible</div>
-                  <div className="mt-2 font-medium">$191.90/yr</div>
-                  <div className="mt-1 text-[10px] inline-block px-2 py-0.5 rounded-full bg-primary/10 text-primary w-fit">Recommended</div>
-                </label>
-                <label
-                  className={`cursor-pointer rounded-md border p-3 text-sm flex flex-col justify-between ${selectedInsurance === 'ultimate' ? 'border-primary ring-1 ring-primary' : ''}`}
-                  onClick={() => setSelectedInsurance('ultimate')}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">💎 Ultimate</span>
-                    <input type="radio" name="insurance" checked={selectedInsurance === 'ultimate'} readOnly className="accent-[var(--color-primary)]" />
-                  </div>
-                  <div className="mt-1 text-muted-foreground">Up to $100K · Zero deductible</div>
-                  <div className="mt-2 font-medium">$335.90/yr</div>
-                </label>
-              </div>
-              <button
-                type="button"
-                className="mt-3 text-sm text-muted-foreground underline underline-offset-2"
-                onClick={() => setSelectedInsurance('none')}
-              >
-                No thanks, I’ll skip protection
-              </button>
             </Card>
             <Card className="p-4 bg-muted/50">
               <div className="space-y-3">
@@ -1040,7 +1096,7 @@ export function BookingFlow() {
             </div>
           </div>
           <div className="flex justify-between mt-6">
-            <Button variant="outline" onClick={() => setStep(2)}>
+            <Button variant="outline" onClick={() => setStep(3)}>
               Back
             </Button>
             <Button onClick={handleBooking} size="lg" disabled={isSubmitting}>
