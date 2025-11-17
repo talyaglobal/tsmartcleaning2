@@ -15,13 +15,14 @@ import { calculateSalesTax } from '@/lib/usa-compliance'
 
 export function BookingFlow() {
   const router = useRouter()
-  const [step, setStep] = useState(1)
+  const [step, setStep] = useState(0)
   const [userId, setUserId] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [loyaltyLoading, setLoyaltyLoading] = useState(false)
   const [pointsBalance, setPointsBalance] = useState(0)
   const [redemptionPoints, setRedemptionPoints] = useState(0)
   const [appliedCredit, setAppliedCredit] = useState(0)
+  const [serviceType, setServiceType] = useState<'residential' | 'commercial' | ''>('')
   const [selectedService, setSelectedService] = useState('')
   const [selectedDate, setSelectedDate] = useState('')
   const [selectedTime, setSelectedTime] = useState('') // stores 24h HH:MM from availability API
@@ -41,11 +42,17 @@ export function BookingFlow() {
   const [servicesLoading, setServicesLoading] = useState(false)
   const [servicesError, setServicesError] = useState<string | null>(null)
   useEffect(() => {
+    if (!serviceType) {
+      setServices([])
+      setSelectedService('') // Clear selected service when service type is cleared
+      return
+    }
     const controller = new AbortController()
     const { signal } = controller
     setServicesLoading(true)
     setServicesError(null)
-    fetch('/api/services', { signal })
+    setSelectedService('') // Clear selected service when service type changes
+    fetch(`/api/services?category=${encodeURIComponent(serviceType)}`, { signal })
       .then(async (res) => {
         if (!res.ok) {
           const data = await res.json().catch(() => ({}))
@@ -73,7 +80,7 @@ export function BookingFlow() {
         if (!signal.aborted) setServicesLoading(false)
       })
     return () => controller.abort()
-  }, [])
+  }, [serviceType])
 
   const formatTimeDisplay = (t: string) => {
     // t is "HH:MM"
@@ -420,14 +427,14 @@ export function BookingFlow() {
     <div>
       {/* Progress Steps */}
       <div className="flex items-center justify-center mb-8 gap-4">
-        {[1, 2, 3].map((num) => (
+        {[0, 1, 2, 3].map((num) => (
           <div key={num} className="flex items-center gap-4">
             <div
               className={`h-10 w-10 rounded-full flex items-center justify-center font-medium ${
                 step >= num ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
               }`}
             >
-              {step > num ? <CheckCircle2 className="h-5 w-5" /> : num}
+              {step > num ? <CheckCircle2 className="h-5 w-5" /> : num + 1}
             </div>
             {num < 3 && (
               <div className={`h-1 w-16 ${step > num ? 'bg-primary' : 'bg-muted'}`} />
@@ -436,37 +443,95 @@ export function BookingFlow() {
         ))}
       </div>
 
+      {/* Step 0: Select Service Type */}
+      {step === 0 && (
+        <Card className="p-6">
+          <h2 className="text-2xl font-bold mb-6">Select Service Type</h2>
+          <p className="text-muted-foreground mb-6">Choose the type of service you need</p>
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card
+              className={`p-8 cursor-pointer transition-all hover:shadow-lg ${
+                serviceType === 'residential' ? 'border-primary ring-2 ring-primary bg-primary/10' : ''
+              }`}
+              onClick={() => setServiceType('residential')}
+            >
+              <div className="flex flex-col items-center text-center">
+                <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                  <Home className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Residential</h3>
+                <p className="text-sm text-muted-foreground">
+                  Home cleaning services including standard cleaning, deep cleaning, move-in/out, and more
+                </p>
+              </div>
+            </Card>
+            <Card
+              className={`p-8 cursor-pointer transition-all hover:shadow-lg ${
+                serviceType === 'commercial' ? 'border-primary ring-2 ring-primary bg-primary/10' : ''
+              }`}
+              onClick={() => setServiceType('commercial')}
+            >
+              <div className="flex flex-col items-center text-center">
+                <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                  <Building2 className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Commercial</h3>
+                <p className="text-sm text-muted-foreground">
+                  Business cleaning services for offices, retail spaces, and commercial properties
+                </p>
+              </div>
+            </Card>
+          </div>
+          <div className="flex justify-end mt-6">
+            <Button onClick={() => setStep(1)} disabled={!serviceType}>
+              Continue
+            </Button>
+          </div>
+        </Card>
+      )}
+
       {/* Step 1: Select Service */}
       {step === 1 && (
         <Card className="p-6">
           <h2 className="text-2xl font-bold mb-6">Select a Service</h2>
+          {servicesLoading && <div className="text-sm text-muted-foreground mb-4">Loading services…</div>}
+          {servicesError && <div className="text-sm text-red-600 mb-4">{servicesError}</div>}
+          {!servicesLoading && services.length === 0 && !servicesError && (
+            <div className="text-sm text-muted-foreground mb-4">No services available for this type.</div>
+          )}
           <div className="grid md:grid-cols-3 gap-4">
             {services.map((service) => {
               return (
                 <Card
                   key={service.id}
-                  className={`p-6 cursor-pointer transition-all hover:shadow-md ${
+                  className={`p-4 cursor-pointer transition-all hover:shadow-md ${
                     selectedService === service.id ? 'border-primary ring-2 ring-primary' : ''
                   }`}
                   onClick={() => setSelectedService(service.id)}
                 >
-                  <div className="h-16 w-full rounded-lg bg-primary/10 flex items-center justify-center mb-4 p-2">
+                  <div className="h-32 w-full rounded-lg bg-primary/10 flex items-center justify-center mb-3 p-2">
                     <Image
                       src="/tsmart_cleaning_orange.png"
                       alt="tsmart cleaning logo"
-                      width={120}
-                      height={32}
+                      width={180}
+                      height={48}
                       className="object-contain"
                     />
                   </div>
-                  <h3 className="font-semibold mb-2">{service.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-3">{service.description}</p>
-                  <div className="text-2xl font-bold">${service.base_price?.toFixed(0)}</div>
+                  <h3 className="font-semibold mb-1 text-base">{service.name}</h3>
+                  <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{service.description}</p>
+                  <div className="text-xl font-bold">${service.base_price?.toFixed(0)}</div>
                 </Card>
               )
             })}
           </div>
-          <div className="flex justify-end mt-6">
+          <div className="flex justify-between mt-6">
+            <Button variant="outline" onClick={() => {
+              setSelectedService('')
+              setStep(0)
+            }}>
+              Back
+            </Button>
             <Button onClick={() => setStep(2)} disabled={!selectedService}>
               Continue
             </Button>
@@ -479,32 +544,6 @@ export function BookingFlow() {
             <Card className="p-6">
           <h2 className="text-2xl font-bold mb-6">Schedule Your Service</h2>
           <div className="space-y-6">
-            {/* Services grid */}
-            <div className="space-y-2">
-              <Label>Select Service</Label>
-              {servicesLoading && <div className="text-sm text-muted-foreground">Loading services…</div>}
-              {servicesError && <div className="text-sm text-red-600">{servicesError}</div>}
-              <div className="grid md:grid-cols-3 gap-4">
-                {services.map((service) => {
-                  const Icon = Home
-                  const isSelected = selectedService === service.id
-                  return (
-                    <Card
-                      key={service.id}
-                      className={`p-6 cursor-pointer transition-all hover:shadow-md ${isSelected ? 'border-primary ring-2 ring-primary' : ''}`}
-                      onClick={() => setSelectedService(service.id)}
-                    >
-                      <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                        <Icon className="h-6 w-6 text-primary" />
-                      </div>
-                      <h3 className="font-semibold mb-1">{service.name}</h3>
-                      {service.description && <p className="text-sm text-muted-foreground mb-2">{service.description}</p>}
-                      <div className="text-2xl font-bold">${service.base_price?.toFixed(0)}</div>
-                    </Card>
-                  )
-                })}
-              </div>
-            </div>
             <div className="space-y-2">
               <Label htmlFor="date">Select Date</Label>
               <Input

@@ -378,115 +378,185 @@ h6 {
   background-color: #373d3633; /* inverse a20 */
 }
 
-/* FULL OVERRIDE OF WEBFLOW NAV LOGO SIZING */
-.w--nav-menu-open .w-nav-brand img,
-.w-nav-brand img,
-.nav_logo img,
-.nav_logo-icon img,
-.nav_logo-icon img[style] {
-  height: 110px !important;
-  width: auto !important;
-  max-height: none !important;
-  min-height: 110px !important;
-}
-
-/* Force the wrapper to allow large logo - override any inline styles */
-.nav_logo,
-.nav_logo-icon,
-.w-nav-brand,
-.nav_logo[style],
-.nav_logo-icon[style],
-.w-nav-brand[style] {
-  height: 110px !important;
-  max-height: none !important;
-  width: auto !important;
-}
-
-/* Override any inline styles that might be added - specifically max-height */
-.nav_logo-icon[style*="max-height"],
-.nav_logo img[style*="max-height"],
-.w-nav-brand img[style*="max-height"] {
-  max-height: none !important;
-  height: 110px !important;
-}
-
-/* General override for any img with max-height inline style in navbar */
-.nav_logo img[style*="max-height"],
-.nav_logo-icon img[style*="max-height"] {
-  max-height: none !important;
-  height: 110px !important;
-}
-
-/* FINAL OVERRIDE FOR WEBFLOW NAV LOGO - Must be at bottom to override Webflow JS */
-.w-nav-brand img,
-.nav_logo img,
-.nav_main_logo,
-.nav_logo-icon img {
-  height: 120px !important;
-  width: auto !important;
-  max-height: none !important;
-  min-height: 120px !important;
-}
-
-/* Global override for inline max-height styles injected by Webflow */
-img[style*="max-height"] {
-  max-height: none !important;
-  height: 120px !important;
-}
-
-/* Increase navbar height to allow logo to display at full size */
+/* Navbar height - Compact size for cropped logo */
 .nav_container.w-nav {
-  height: 120px !important;
-  min-height: 120px !important;
+  height: 80px !important;
+  min-height: 80px !important;
+  max-height: 80px !important;
   align-items: center !important;
 }
 
 .nav_left {
-  height: 120px !important;
-  min-height: 120px !important;
+  height: 80px !important;
+  min-height: 80px !important;
+  max-height: 80px !important;
   display: flex !important;
   align-items: center !important;
 }
 
 .nav_logo {
-  height: 120px !important;
-  min-height: 120px !important;
+  height: 80px !important;
+  min-height: 80px !important;
+  max-height: 80px !important;
   display: flex !important;
   align-items: center !important;
 }
 
 .nav_logo-icon {
-  height: 120px !important;
-  min-height: 120px !important;
+  height: 60px !important;
+  min-height: 60px !important;
+  max-height: 60px !important;
   display: flex !important;
   align-items: center !important;
 }
 
-/* Make logo fill container */
-.nav_main_logo {
-  height: 100% !important;
-  width: auto !important;
-}
-
-/* Super override for Webflow forced logo size - Most specific selector to beat Webflow JS */
-.nav .nav_container.w-nav .nav_left .nav_logo.w-inline-block .nav_logo-icon img,
-.nav_logo-icon img,
-.nav_logo img,
+/* Logo sizing - Compact for cropped logo */
 .nav_main_logo,
+.nav_logo img,
+.nav_logo-icon img,
 .w-nav-brand img,
-.nav_container img {
-  height: 120px !important;
-  max-height: 120px !important;
+.w--nav-menu-open .w-nav-brand img {
+  height: 60px !important;
+  max-height: 60px !important;
+  width: auto !important;
+  object-fit: contain !important;
+}
+
+/* Override any inline styles */
+.nav_logo-icon[style*="max-height"],
+.nav_logo img[style*="max-height"],
+.w-nav-brand img[style*="max-height"],
+.nav_logo[style*="height"],
+.nav_logo-icon[style*="height"],
+img[style*="max-height"] {
+  max-height: 60px !important;
+  height: 60px !important;
+}
+
+.nav_container.w-nav[style*="height"],
+.nav_left[style*="height"],
+.nav_logo[style*="height"] {
+  height: 80px !important;
+  max-height: 80px !important;
+  min-height: 80px !important;
+}
+
+/* Super override for Webflow forced logo size */
+.nav .nav_container.w-nav .nav_left .nav_logo.w-inline-block .nav_logo-icon img {
+  height: 60px !important;
+  max-height: 60px !important;
   width: auto !important;
 }
 
-/* Increase navbar height - Force parent containers */
-.nav_container.w-nav,
-.nav_left,
-.nav_logo,
-.nav_logo-icon {
-  height: 120px !important;
-  min-height: 120px !important;
+/* Navbar text colors - Fix white text on white background */
+.nav {
+  background-color: var(--_colors---background-color--bg-primary, #f9f5e9) !important;
+}
+
+.nav_link {
+  color: var(--_colors---text-color--text-primary, #2c200f) !important;
+}
+
+.nav_link:hover {
+  color: var(--_colors---text-color--text-primary, #2c200f) !important;
+}
+
+.nav_link.w--current,
+.nav_link.w--open {
+  color: var(--_colors---text-color--text-primary, #2c200f) !important;
+}
+
+/* Navbar dropdown menu text colors */
+.nav_dropdown-link {
+  color: var(--_colors---text-color--text-primary, #2c200f) !important;
+  padding-left: 0.75rem !important;
+  padding-right: 0.75rem !important;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.nav_dropdown-link:hover {
+  color: var(--_colors---text-color--text-inverse-primary, #f9f5e9) !important;
+  background-color: var(--_colors---card--card-inverse-bg, #2c200f) !important;
+}
+
+.nav_dropdown-link .button_label {
+  color: inherit;
+}
+
+/* Mega nav text colors */
+.mega-nav_link-item {
+  color: var(--_colors---text-color--text-primary, #2c200f) !important;
+  padding-left: 0.75rem !important;
+  padding-right: 0.75rem !important;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.mega-nav_link-item:hover {
+  color: var(--_colors---text-color--text-inverse-primary, #f9f5e9) !important;
+  background-color: var(--_colors---card--card-inverse-bg, #2c200f) !important;
+}
+
+.mega-nav_link-item strong {
+  color: var(--_colors---text-color--text-primary, #2c200f) !important;
+}
+
+.mega-nav_link-item:hover strong {
+  color: var(--_colors---text-color--text-inverse-primary, #f9f5e9) !important;
+}
+
+.mega-nav_link-item .paragraph_small {
+  color: var(--_colors---text-color--text-secondary, #2c200f99) !important;
+}
+
+.mega-nav_link-item:hover .paragraph_small {
+  color: var(--_colors---text-color--text-inverse-secondary, #f9f5e999) !important;
+}
+
+.mega-nav_link-item:hover .icon {
+  color: var(--_colors---text-color--text-inverse-primary, #f9f5e9) !important;
+}
+
+/* Eyebrow text in mega menu */
+.eyebrow {
+  color: var(--_colors---text-color--text-secondary, #2c200f99) !important;
+}
+
+/* Hero section adjustments - Reduce height and move text up */
+.min-height_100dvh {
+  min-height: 80vh !important;
+  max-height: 80vh !important;
+}
+
+/* Reduce hero header section height */
+header.section.padding_none {
+  min-height: 80vh !important;
+  max-height: 80vh !important;
+  overflow: hidden !important;
+}
+
+/* Move hero text content up */
+header.section .container.z-index_2 {
+  padding-top: 1.5rem !important;
   display: flex !important;
-  align-items: center !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+}
+
+header.section .header.is-align-center {
+  margin-top: 0 !important;
+  padding-top: 0.5rem !important;
+}
+
+/* Ensure buttons are visible and properly positioned */
+header.section .button-group {
+  margin-top: 1.5rem !important;
+}
+
+/* Adjust hero image container */
+header.section .ix_parallax-scale-out-hero {
+  height: 80vh !important;
+  min-height: 80vh !important;
+  max-height: 80vh !important;
 }

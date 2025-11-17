@@ -4,32 +4,10 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { CheckCircle2, ShieldCheck } from 'lucide-react'
-import { BrandLogoClient } from '@/components/BrandLogoClient'
 
 export default function InsurancePage() {
   return (
     <div className="min-h-screen">
-      {/* Local header for landing page context */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="inline-flex items-center gap-3">
-            <BrandLogoClient />
-            <span className="hidden sm:inline-flex text-xs text-muted-foreground">CleanGuard Protection</span>
-          </div>
-          <nav className="hidden md:flex items-center gap-6">
-            <Link href="#who" className="text-sm hover:text-primary transition-colors">Who it’s for</Link>
-            <Link href="#coverage" className="text-sm hover:text-primary transition-colors">What’s covered</Link>
-            <Link href="#pricing" className="text-sm hover:text-primary transition-colors">Pricing</Link>
-            <Link href="#claims" className="text-sm hover:text-primary transition-colors">Claims</Link>
-            <Link href="#faq" className="text-sm hover:text-primary transition-colors">FAQ</Link>
-          </nav>
-          <div className="flex items-center gap-3">
-            <Button size="sm" asChild>
-              <Link href="#pricing">Get Protected</Link>
-            </Button>
-          </div>
-        </div>
-      </header>
 
       {/* HERO */}
       <section className="py-16 md:py-24 bg-muted/30">

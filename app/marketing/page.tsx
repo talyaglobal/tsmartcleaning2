@@ -8,101 +8,11 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { ArrowRight, CheckCircle2, Menu, X, ShieldCheck } from 'lucide-react'
-import { BrandLogoClient as BrandLogo } from '@/components/BrandLogoClient'
+import { ArrowRight, CheckCircle2, ShieldCheck } from 'lucide-react'
 
 export default function MarketingPage() {
-  const [mobileOpen, setMobileOpen] = useState(false)
-  const [insuranceOpen, setInsuranceOpen] = useState(false)
   return (
     <div className="min-h-screen">
-      {/* Nav */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <BrandLogo />
-          <nav className="hidden md:flex items-center gap-6 relative">
-            <Link href="#services" className="text-sm hover:text-primary transition-colors">Services</Link>
-            <Link href="#enterprise" className="text-sm hover:text-primary transition-colors">Enterprise</Link>
-            <Link href="#pricing" className="text-sm hover:text-primary transition-colors">Pricing</Link>
-            <Link href="#faq" className="text-sm hover:text-primary transition-colors">FAQ</Link>
-            <Link href="/find-cleaners" className="text-sm font-semibold inline-flex items-center gap-1 px-2 py-1 rounded-md hover:text-primary transition-colors" title="Find cleaning companies near you">
-              <span>Find Cleaners</span>
-            </Link>
-            <div
-              className="relative"
-              onMouseEnter={() => setInsuranceOpen(true)}
-              onMouseLeave={() => setInsuranceOpen(false)}
-            >
-              <button
-                className="text-sm hover:text-primary transition-colors inline-flex items-center gap-1"
-                aria-haspopup="true"
-                aria-expanded={insuranceOpen}
-              >
-                <ShieldCheck className="h-4 w-4" />
-                Insurance
-              </button>
-              {insuranceOpen && (
-                <div className="absolute left-1/2 -translate-x-1/2 mt-3 w-[700px] rounded-xl border bg-background shadow-xl p-5">
-                  <div className="mb-4">
-                    <div className="text-xs font-semibold tracking-wide text-muted-foreground">CLEANGUARD PROTECTION</div>
-                    <div className="text-sm">Complete Coverage for Your Peace of Mind</div>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4">
-                    <PlanCard title="Basic" emoji="🛡️" price="$9.99/mo" bullets={['Up to $5K coverage','Damage protection']} href="/insurance#pricing" />
-                    <PlanCard title="Premium" emoji="🏆" price="$19.99/mo" bullets={['Up to $25K coverage','Theft protection','Key coverage']} href="/insurance#pricing" highlight />
-                    <PlanCard title="Ultimate" emoji="💎" price="$34.99/mo" bullets={['Up to $100K coverage','Full liability','Emergency cleans']} href="/insurance#pricing" />
-                  </div>
-                  <div className="mt-5 flex items-center justify-between">
-                    <div className="text-xs text-muted-foreground">⚡ Special Offer: Add to annual membership & save 20%</div>
-                    <div className="flex gap-3">
-                      <Link href="/insurance#pricing" className="text-sm underline">Compare All Plans</Link>
-                      <Link href="/insurance" className="text-sm font-medium text-primary">Get Protected Now →</Link>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-            <Link
-              href="/tsmartcard"
-              className="text-sm font-semibold px-3 py-1.5 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 text-white shadow-md hover:shadow-lg transition-all"
-            >
-              <span className="inline-flex items-center gap-1.5">
-                tSmartCard
-                <span className="ml-1 inline-flex items-center rounded-full bg-white/15 px-2 py-0.5 text-[10px] leading-none">Save 10%</span>
-              </span>
-            </Link>
-            <Link href="/support-immigrant-women" className="text-sm hover:text-primary transition-colors">Support Immigrant Women</Link>
-            <Link href="#contact" className="text-sm hover:text-primary transition-colors">Contact</Link>
-          </nav>
-          <div className="flex items-center gap-3">
-            <Button size="sm" asChild>
-              <Link href="/customer/book">Book now</Link>
-            </Button>
-            <button
-              aria-label="Toggle menu"
-              className="md:hidden inline-flex items-center justify-center rounded-md p-2 hover:bg-muted transition-colors"
-              onClick={() => setMobileOpen((v) => !v)}
-            >
-              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
-          </div>
-        </div>
-        {mobileOpen && (
-          <div className="md:hidden border-t bg-background">
-            <div className="container mx-auto px-4 py-3 flex flex-col gap-2">
-              <Link onClick={() => setMobileOpen(false)} href="#services" className="py-2 hover:text-primary transition-colors">Services</Link>
-              <Link onClick={() => setMobileOpen(false)} href="#pricing" className="py-2 hover:text-primary transition-colors">Pricing</Link>
-              <Link onClick={() => setMobileOpen(false)} href="#faq" className="py-2 hover:text-primary transition-colors">FAQ</Link>
-              <Link onClick={() => setMobileOpen(false)} href="/insurance" className="py-2 hover:text-primary transition-colors inline-flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4" />
-                Insurance
-              </Link>
-              <Link onClick={() => setMobileOpen(false)} href="/support-immigrant-women" className="py-2 hover:text-primary transition-colors">Support Immigrant Women</Link>
-              <Link onClick={() => setMobileOpen(false)} href="#contact" className="py-2 hover:text-primary transition-colors">Contact</Link>
-            </div>
-          </div>
-        )}
-      </header>
 
       {/* Hero */}
       <section className="py-20 md:py-28 bg-muted/30">

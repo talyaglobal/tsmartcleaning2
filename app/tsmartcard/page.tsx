@@ -6,13 +6,12 @@ import { BrandLogoClient as BrandLogo } from '@/components/BrandLogoClient'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { CheckCircle2, Menu, X, Star, CreditCard, Sparkles, Shield, Clock3, Gift, Trophy, Phone, ArrowRight, DollarSign, Users, Heart } from 'lucide-react'
+import { CheckCircle2, Star, CreditCard, Sparkles, Shield, Clock3, Gift, Trophy, Phone, ArrowRight, DollarSign, Users, Heart } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Progress } from '@/components/ui/progress'
 
 export default function TSmartCardPage() {
-  const [mobileOpen, setMobileOpen] = useState(false)
   const [amount, setAmount] = useState<number>(150)
   const [frequency, setFrequency] = useState<'weekly' | 'biweekly' | 'monthly' | 'custom'>('biweekly')
   const [customPerYear, setCustomPerYear] = useState<number>(12)
@@ -70,58 +69,6 @@ export default function TSmartCardPage() {
 
   return (
     <div className="min-h-screen">
-      {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <BrandLogo />
-          <nav className="hidden md:flex items-center gap-6">
-            <Link href="/marketing" className="text-sm hover:text-primary transition-colors">Home</Link>
-            <Link href="/customer/book" className="text-sm hover:text-primary transition-colors">Book</Link>
-            <Link href="/pricing" className="text-sm hover:text-primary transition-colors">Pricing</Link>
-            <Link
-              href="/tsmartcard"
-              className="text-sm font-semibold px-3 py-1.5 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 text-white shadow-md hover:shadow-lg transition-all"
-            >
-              <span className="inline-flex items-center gap-1.5">
-                <CreditCard className="h-4 w-4" />
-                tSmartCard
-                <Badge className="ml-1 bg-white/15 text-white hover:bg-white/20">Save 10%</Badge>
-              </span>
-            </Link>
-          </nav>
-          <div className="flex items-center gap-3">
-            <Button size="sm" asChild>
-              <Link href="/customer/book">Get started</Link>
-            </Button>
-            <button
-              aria-label="Toggle menu"
-              className="md:hidden inline-flex items-center justify-center rounded-md p-2 hover:bg-muted transition-colors"
-              onClick={() => setMobileOpen((v) => !v)}
-            >
-              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
-          </div>
-        </div>
-        {mobileOpen && (
-          <div className="md:hidden border-t bg-background">
-            <nav className="container mx-auto px-4 py-4 grid gap-2">
-              <Link href="/marketing" className="py-2">Home</Link>
-              <Link href="/customer/book" className="py-2">Book</Link>
-              <Link href="/pricing" className="py-2">Pricing</Link>
-              <Link
-                href="/tsmartcard"
-                className="py-2 rounded-md bg-gradient-to-tr from-indigo-500 to-purple-600 text-white inline-flex items-center justify-between px-3"
-              >
-                <span className="inline-flex items-center gap-2">
-                  <CreditCard className="h-4 w-4" />
-                  tSmartCard
-                </span>
-                <Badge className="bg-white/15 text-white">Save 10%</Badge>
-              </Link>
-            </nav>
-          </div>
-        )}
-      </header>
 
       {/* Hero */}
       <section className="relative overflow-hidden py-16 md:py-24 bg-gradient-to-br from-indigo-600/10 via-purple-600/5 to-background">

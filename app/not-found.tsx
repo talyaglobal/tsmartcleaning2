@@ -1,25 +1,10 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Home, Search } from 'lucide-react'
-import { BrandLogo } from '@/components/BrandLogo'
 
 export default function NotFound() {
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <BrandLogo />
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/login">Log In</Link>
-            </Button>
-            <Button size="sm" asChild>
-              <Link href="/signup">Get Started</Link>
-            </Button>
-          </div>
-        </div>
-      </header>
 
       {/* 404 Content */}
       <div className="flex-1 flex items-center justify-center px-4">

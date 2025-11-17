@@ -1,58 +1,13 @@
 "use client"
 
 import Link from 'next/link'
-import { useState } from 'react'
-import { BrandLogoClient as BrandLogo } from '@/components/BrandLogoClient'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { CheckCircle2, Menu, X } from 'lucide-react'
+import { CheckCircle2 } from 'lucide-react'
 
 export default function SupportImmigrantWomenPage() {
-  const [mobileOpen, setMobileOpen] = useState(false)
   return (
     <div className="min-h-screen">
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <BrandLogo />
-          <nav className="hidden md:flex items-center gap-6">
-            <Link href="/marketing" className="text-sm hover:text-primary transition-colors">Home</Link>
-            <Link href="/customer/book" className="text-sm hover:text-primary transition-colors">Book</Link>
-            <Link
-              href="/tsmartcard"
-              className="text-sm font-semibold px-3 py-1.5 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 text-white shadow-md hover:shadow-lg transition-all"
-            >
-              <span className="inline-flex items-center gap-1.5">
-                tSmartCard
-                <span className="ml-1 inline-flex items-center rounded-full bg-white/15 px-2 py-0.5 text-[10px] leading-none">Save 10%</span>
-              </span>
-            </Link>
-            <Link href="/for-providers" className="text-sm hover:text-primary transition-colors">For Providers</Link>
-            <Link href="/contact" className="text-sm hover:text-primary transition-colors">Contact</Link>
-          </nav>
-          <div className="flex items-center gap-3">
-            <Button size="sm" asChild>
-              <Link href="/customer/book">Get started</Link>
-            </Button>
-            <button
-              aria-label="Toggle menu"
-              className="md:hidden inline-flex items-center justify-center rounded-md p-2 hover:bg-muted transition-colors"
-              onClick={() => setMobileOpen((v) => !v)}
-            >
-              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
-          </div>
-        </div>
-        {mobileOpen && (
-          <div className="md:hidden border-t bg-background">
-            <div className="container mx-auto px-4 py-3 flex flex-col gap-2">
-              <Link onClick={() => setMobileOpen(false)} href="/marketing" className="py-2 hover:text-primary transition-colors">Home</Link>
-              <Link onClick={() => setMobileOpen(false)} href="/customer/book" className="py-2 hover:text-primary transition-colors">Book</Link>
-              <Link onClick={() => setMobileOpen(false)} href="/for-providers" className="py-2 hover:text-primary transition-colors">For Providers</Link>
-              <Link onClick={() => setMobileOpen(false)} href="/contact" className="py-2 hover:text-primary transition-colors">Contact</Link>
-            </div>
-          </div>
-        )}
-      </header>
 
       <main>
         <section className="py-16 md:py-24 bg-muted/30">

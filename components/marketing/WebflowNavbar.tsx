@@ -16,13 +16,14 @@ export function WebflowNavbar() {
       >
         <div className="nav_left">
           <Link href="/" className="nav_logo w-inline-block">
-            <div className="nav_logo-icon h-[120px] flex items-center">
+            <div className="nav_logo-icon flex items-center">
               <Image
-                src="/tsmart_cleaning_512_transparent.png"
+                src="/tsmart_cleaning_cropped.png"
                 alt="tsmart cleaning logo"
-                width={200}
-                height={200}
+                width={180}
+                height={60}
                 className="nav_main_logo"
+                priority
               />
             </div>
           </Link>
@@ -54,7 +55,7 @@ export function WebflowNavbar() {
                                     href="/customer/book"
                                     className="mega-nav_link-item w-inline-block"
                                   >
-                                    <div className="icon is-medium">
+                                    <div className="icon is-medium on-inverse">
                                       <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="100%"
@@ -83,7 +84,7 @@ export function WebflowNavbar() {
                                     href="/find-cleaners"
                                     className="mega-nav_link-item w-inline-block"
                                   >
-                                    <div className="icon is-medium">
+                                    <div className="icon is-medium on-inverse">
                                       <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="100%"
@@ -112,7 +113,7 @@ export function WebflowNavbar() {
                                     href="#pricing"
                                     className="mega-nav_link-item w-inline-block"
                                   >
-                                    <div className="icon is-medium">
+                                    <div className="icon is-medium on-inverse">
                                       <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="100%"
@@ -146,7 +147,7 @@ export function WebflowNavbar() {
                                     href="/provider-signup"
                                     className="mega-nav_link-item w-inline-block"
                                   >
-                                    <div className="icon is-medium">
+                                    <div className="icon is-medium on-inverse">
                                       <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="100%"
@@ -175,7 +176,7 @@ export function WebflowNavbar() {
                                     href="/provider"
                                     className="mega-nav_link-item w-inline-block"
                                   >
-                                    <div className="icon is-medium">
+                                    <div className="icon is-medium on-inverse">
                                       <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="100%"
@@ -204,7 +205,7 @@ export function WebflowNavbar() {
                                     href="/contact"
                                     className="mega-nav_link-item w-inline-block"
                                   >
-                                    <div className="icon is-medium">
+                                    <div className="icon is-medium on-inverse">
                                       <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="100%"
@@ -238,7 +239,7 @@ export function WebflowNavbar() {
                                     href="/company"
                                     className="mega-nav_link-item w-inline-block"
                                   >
-                                    <div className="icon is-medium">
+                                    <div className="icon is-medium on-inverse">
                                       <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="100%"
@@ -267,7 +268,7 @@ export function WebflowNavbar() {
                                     href="/tsmartcard"
                                     className="mega-nav_link-item w-inline-block"
                                   >
-                                    <div className="icon is-medium">
+                                    <div className="icon is-medium on-inverse">
                                       <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="100%"
@@ -296,7 +297,7 @@ export function WebflowNavbar() {
                                     href="/insurance"
                                     className="mega-nav_link-item w-inline-block"
                                   >
-                                    <div className="icon is-medium">
+                                    <div className="icon is-medium on-inverse">
                                       <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="100%"
@@ -371,7 +372,7 @@ export function WebflowNavbar() {
                 </Link>
               </li>
               <li className="nav_menu-list-item">
-                <Link href="#" className="nav_link w-inline-block">
+                <Link href="/blog" className="nav_link w-inline-block">
                   <div>Blog</div>
                 </Link>
               </li>
