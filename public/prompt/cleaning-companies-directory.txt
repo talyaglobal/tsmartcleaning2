@@ -1,0 +1,1662 @@
+# Cleaning Companies Directory System - Complete Prompt
+
+## Main Overview Prompt
+
+```
+I need to create a comprehensive directory of all cleaning companies in USA and Canada 
+that are part of the tSmartCleaning network, accessible from the main navigation header. 
+The directory should use geolocation to show nearby companies, display star ratings from 
+verified tSmartCleaning customers/members, and allow booking requests through tSmartCleaning 
+(48-hour advance notice) without exposing company phone numbers or emails directly.
+
+**PRODUCT NAME:** "Find Cleaners Near You" or "Cleaning Company Directory"
+
+**KEY FEATURES:**
+- Location-based filtering using Google Maps API
+- Real-time geolocation detection
+- Display nearby companies with distance
+- Star ratings from verified customers only
+- Customer reviews and testimonials
+- Company profiles (services, pricing, availability)
+- Booking request system (no direct contact)
+- 48-hour advance booking requirement
+- Filter by services, ratings, price range, availability
+- Mobile-responsive with map view
+- Privacy protection (no phone/email shown)
+
+**INTEGRATION POINTS:**
+- Header navigation menu item
+- Search bar with location autocomplete
+- Interactive map view
+- List view with sorting options
+- Individual company profile pages
+- Booking request modal/flow
+- Admin dashboard for company management
+
+Please help me create this complete directory system with geolocation and booking.
+```
+
+---
+
+## Phase 1: Header Navigation & Search Integration
+
+```
+Create a prominent directory access point in the main navigation header:
+
+**HEADER MENU STRUCTURE:**
+
+Desktop Navigation:
+- Home
+- Services
+- How It Works
+- Pricing
+- Insurance
+- tSmartCard
+- **Find Cleaners** ← NEW (or "Directory" or "Near You")
+- About
+- Contact
+- [Login] [Get Started]
+
+**"Find Cleaners" Menu Item Styling:**
+
+Desktop:
+- Icon: Map marker or search icon 📍
+- Optional badge: "1,200+ Companies"
+- Hover shows preview of search functionality
+- Prominent positioning (before About/Contact)
+
+**Search Bar Integration:**
+
+Add location-based search bar to header (visible on desktop, collapsible on mobile):
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  🔍 [Find cleaning companies near you...]  📍 [Use My Location] │
+└──────────────────────────────────────────────────────────┘
+```
+
+**Search Bar Features:**
+- Autocomplete with Google Places API
+- Current location detection button
+- Search triggers navigation to directory page
+- Shows suggestion dropdown as typing
+- Recent searches saved locally
+
+**Dropdown/Mega Menu on Hover:**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  FIND CLEANING COMPANIES NEAR YOU                           │
+│  1,200+ Verified Companies Across USA & Canada              │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  🔍 Search by location:                                     │
+│  ┌───────────────────────────────────────────────────┐     │
+│  │ Enter city, ZIP code, or address...   📍 Use GPS  │     │
+│  └───────────────────────────────────────────────────┘     │
+│                                                             │
+│  Popular Searches:                                          │
+│  • Los Angeles, CA (142 companies)                          │
+│  • Toronto, ON (89 companies)                               │
+│  • New York, NY (203 companies)                             │
+│  • Miami, FL (76 companies)                                 │
+│                                                             │
+│  ⭐ Top Rated Companies:                                    │
+│  1. Sparkle Clean Co - 4.9★ (234 reviews)                  │
+│  2. Fresh Home Services - 4.8★ (189 reviews)               │
+│  3. Green Clean Solutions - 4.8★ (167 reviews)             │
+│                                                             │
+│  [Browse All Companies →]  [View Map]                       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Mobile Header:**
+- Collapsible search bar
+- Dedicated "Find Cleaners" button in hamburger menu
+- Quick access "Near Me" floating action button
+- Location prompt on first visit
+
+**Location Permission Prompt:**
+When user clicks "Use My Location" or "Near Me":
+
+```
+┌──────────────────────────────────────────┐
+│  📍 ENABLE LOCATION                      │
+├──────────────────────────────────────────┤
+│  Allow tSmartCleaning to access your     │
+│  location to find the best cleaning      │
+│  companies near you.                     │
+│                                          │
+│  We only use your location to show       │
+│  relevant results. We never share it.    │
+│                                          │
+│  [Allow Location]  [Enter Manually]      │
+└──────────────────────────────────────────┘
+```
+
+**Geolocation Features:**
+- Browser geolocation API (HTML5)
+- Fallback to IP-based location
+- Save last searched location
+- "Searching near [Location]" indicator
+- Easy location change option
+
+Please implement header integration with location search and dropdown preview.
+```
+
+---
+
+## Phase 2: Database Schema & Company Data Structure
+
+```
+Design comprehensive database schema for cleaning companies directory:
+
+**DATABASE MODELS:**
+
+**1. CleaningCompany Model:**
+```typescript
+model CleaningCompany {
+  id                  String   @id @default(uuid())
+  
+  // Basic Information
+  companyName         String
+  slug                String   @unique  // URL-friendly name
+  registeredName      String   // Legal business name
+  logoUrl             String?
+  coverImageUrl       String?
+  description         String   @db.Text
+  tagline             String?  // Short catchy phrase
+  
+  // Location
+  address             String
+  addressLine2        String?
+  city                String
+  state               String   // State/Province
+  country             String   // USA or Canada
+  zipCode             String
+  latitude            Decimal
+  longitude           Decimal
+  serviceRadius       Int      // Service radius in miles/km
+  
+  // Contact (Hidden from public)
+  phoneNumber         String   @db.Encrypted
+  email               String   @db.Encrypted
+  website             String?
+  
+  // Business Details
+  yearEstablished     Int?
+  employeeCount       String   // "1-10", "11-50", "51-200", "200+"
+  businessLicense     String?
+  insuranceCertified  Boolean  @default(false)
+  backgroundChecked   Boolean  @default(false)
+  
+  // Ratings & Reviews
+  averageRating       Decimal  @default(0)
+  totalReviews        Int      @default(0)
+  ratingBreakdown     Json     // {5: 120, 4: 45, 3: 10, 2: 3, 1: 2}
+  
+  // Services Offered
+  services            CompanyService[]
+  specialties         String[] // ["Deep Cleaning", "Move-Out", "Eco-Friendly"]
+  
+  // Pricing
+  priceRange          String   // "$", "$$", "$$$", "$$$$"
+  minimumBooking      Decimal? // Minimum order value
+  averagePrice        Decimal? // Average job cost
+  
+  // Availability
+  operatingHours      Json     // {"monday": {"open": "08:00", "close": "18:00"}}
+  bookingLeadTime     Int      @default(48) // Hours in advance required
+  acceptsEmergency    Boolean  @default(false)
+  nextAvailable       DateTime?
+  
+  // Verification & Status
+  verified            Boolean  @default(false)
+  verifiedDate        DateTime?
+  status              String   @default("active") // active, inactive, suspended
+  featured            Boolean  @default(false)
+  
+  // tSmartCleaning Integration
+  joinedDate          DateTime @default(now())
+  partnerTier         String   // "basic", "premium", "platinum"
+  responseRate        Decimal? // % of booking requests responded to
+  acceptanceRate      Decimal? // % of requests accepted
+  totalBookings       Int      @default(0)
+  
+  // Media
+  photos              CompanyPhoto[]
+  videos              CompanyVideo[]
+  
+  // Relationships
+  reviews             Review[]
+  bookingRequests     BookingRequest[]
+  team                TeamMember[]
+  
+  // Metadata
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  @@index([latitude, longitude])
+  @@index([city, state])
+  @@index([averageRating])
+  @@index([verified])
+}
+```
+
+**2. CompanyService Model:**
+```typescript
+model CompanyService {
+  id          String  @id @default(uuid())
+  companyId   String
+  company     CleaningCompany @relation(fields: [companyId], references: [id])
+  
+  serviceName String  // "Standard Cleaning", "Deep Cleaning", etc.
+  description String  @db.Text
+  basePrice   Decimal?
+  priceType   String  // "flat", "hourly", "per_sqft", "custom"
+  duration    Int?    // Minutes
+  available   Boolean @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+```
+
+**3. Review Model:**
+```typescript
+model Review {
+  id              String   @id @default(uuid())
+  companyId       String
+  company         CleaningCompany @relation(fields: [companyId], references: [id])
+  
+  // Reviewer Information
+  userId          String?  // If logged in
+  customerName    String   // Display name or "Anonymous"
+  membershipType  String?  // "member", "premium_member", "verified_customer"
+  
+  // Review Content
+  rating          Int      // 1-5
+  title           String?
+  comment         String   @db.Text
+  serviceType     String?  // Which service was reviewed
+  
+  // Verification
+  verified        Boolean  @default(false) // Verified booking through tSmartCleaning
+  bookingId       String?  // Link to actual booking
+  serviceDate     DateTime?
+  
+  // Helpful Votes
+  helpfulCount    Int      @default(0)
+  notHelpfulCount Int      @default(0)
+  
+  // Response
+  companyResponse String?  @db.Text
+  responseDate    DateTime?
+  
+  // Status
+  status          String   @default("published") // published, pending, flagged
+  flagReason      String?
+  
+  // Photos
+  photos          ReviewPhoto[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([companyId, rating])
+  @@index([verified])
+}
+```
+
+**4. BookingRequest Model:**
+```typescript
+model BookingRequest {
+  id                String   @id @default(uuid())
+  
+  // Customer Information (collected by tSmartCleaning)
+  customerId        String?
+  customerName      String
+  customerEmail     String
+  customerPhone     String
+  customerAddress   String
+  
+  // Company Information
+  companyId         String
+  company           CleaningCompany @relation(fields: [companyId], references: [id])
+  
+  // Service Details
+  serviceType       String   // "Standard", "Deep", "Move-Out", etc.
+  propertyType      String   // "Apartment", "House", "Office"
+  propertySize      String   // "< 1000 sqft", "1000-2000 sqft", etc.
+  bedrooms          Int?
+  bathrooms         Int?
+  
+  // Scheduling
+  preferredDate     DateTime
+  preferredTime     String   // "morning", "afternoon", "evening"
+  flexibility       String   // "exact_time", "flexible", "any_time"
+  isRecurring       Boolean  @default(false)
+  frequency         String?  // "weekly", "biweekly", "monthly"
+  
+  // Additional Details
+  specialRequests   String?  @db.Text
+  hasPets           Boolean  @default(false)
+  petDetails        String?
+  accessInstructions String? @db.Text
+  estimatedBudget   String?  // "Under $100", "$100-200", etc.
+  
+  // Status & Communication
+  status            String   @default("pending") // pending, contacted, accepted, declined, completed
+  companyResponse   String?  @db.Text
+  responseDate      DateTime?
+  declineReason     String?
+  
+  // Quote
+  quotedPrice       Decimal?
+  quotedDuration    Int?     // Minutes
+  quoteValidUntil   DateTime?
+  
+  // Metadata
+  requestedAt       DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([companyId, status])
+  @@index([preferredDate])
+}
+```
+
+**5. CompanyPhoto Model:**
+```typescript
+model CompanyPhoto {
+  id          String  @id @default(uuid())
+  companyId   String
+  company     CleaningCompany @relation(fields: [companyId], references: [id])
+  
+  imageUrl    String
+  caption     String?
+  category    String  // "before_after", "team", "equipment", "results"
+  featured    Boolean @default(false)
+  order       Int     @default(0)
+  
+  createdAt   DateTime @default(now())
+}
+```
+
+**6. TeamMember Model:**
+```typescript
+model TeamMember {
+  id              String  @id @default(uuid())
+  companyId       String
+  company         CleaningCompany @relation(fields: [companyId], references: [id])
+  
+  name            String
+  photoUrl        String?
+  role            String  // "Owner", "Manager", "Lead Cleaner", etc.
+  bio             String? @db.Text
+  yearsExperience Int?
+  specialties     String[]
+  
+  backgroundChecked Boolean @default(false)
+  featured         Boolean @default(false)
+  
+  createdAt       DateTime @default(now())
+}
+```
+
+**GEOLOCATION INDEXES:**
+```sql
+-- PostgreSQL with PostGIS extension
+CREATE EXTENSION IF NOT EXISTS postgis;
+
+-- Add geography column for efficient distance queries
+ALTER TABLE "CleaningCompany" 
+ADD COLUMN location geography(POINT, 4326);
+
+-- Update location based on lat/lng
+UPDATE "CleaningCompany" 
+SET location = ST_SetSRID(ST_MakePoint(longitude, latitude), 4326);
+
+-- Create spatial index
+CREATE INDEX idx_company_location ON "CleaningCompany" USING GIST(location);
+
+-- Distance query example (find companies within 25 miles)
+SELECT *, 
+  ST_Distance(location, ST_SetSRID(ST_MakePoint($longitude, $latitude), 4326)) as distance
+FROM "CleaningCompany"
+WHERE ST_DWithin(
+  location, 
+  ST_SetSRID(ST_MakePoint($longitude, $latitude), 4326),
+  40233.6  -- 25 miles in meters
+)
+ORDER BY distance;
+```
+
+**SAMPLE DATA STRUCTURE:**
+
+```typescript
+// Example company entry
+{
+  companyName: "Sparkle Clean Co",
+  slug: "sparkle-clean-co-los-angeles",
+  city: "Los Angeles",
+  state: "CA",
+  country: "USA",
+  latitude: 34.0522,
+  longitude: -118.2437,
+  averageRating: 4.9,
+  totalReviews: 234,
+  verified: true,
+  services: [
+    { serviceName: "Standard Cleaning", basePrice: 120, priceType: "flat" },
+    { serviceName: "Deep Cleaning", basePrice: 35, priceType: "hourly" }
+  ],
+  specialties: ["Eco-Friendly", "Pet-Friendly", "Move-Out Cleaning"],
+  priceRange: "$$",
+  operatingHours: {
+    monday: { open: "08:00", close: "18:00" },
+    tuesday: { open: "08:00", close: "18:00" },
+    // ... etc
+  },
+  bookingLeadTime: 48,
+  responseRate: 95.5,
+  partnerTier: "premium"
+}
+```
+
+Please implement this database schema with geospatial indexing and proper relationships.
+```
+
+---
+
+## Phase 3: Directory Landing Page with Map & List Views
+
+```
+Create the main directory page at /find-cleaners or /directory
+
+**PAGE LAYOUT:**
+
+**Top Section: Search & Filters Bar (Sticky)**
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│  🔍 Search: [Los Angeles, CA]  📍 Update Location  [Clear]       │
+│                                                                   │
+│  Filters:  [Services ▼] [Rating ▼] [Price ▼] [Availability ▼]  │
+│                                                                   │
+│  1,247 companies found within 25 miles                           │
+│  [🗺️ Map View] [📋 List View] ← Toggle                          │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+**Filter Options:**
+
+**Services Filter:**
+- [ ] Standard Cleaning
+- [ ] Deep Cleaning
+- [ ] Move-In/Move-Out
+- [ ] Post-Construction
+- [ ] Carpet Cleaning
+- [ ] Window Cleaning
+- [ ] Eco-Friendly
+- [ ] Commercial
+- [ ] Emergency/Same-Day
+[Show More...]
+
+**Rating Filter:**
+- ⭐⭐⭐⭐⭐ 5 stars (234 companies)
+- ⭐⭐⭐⭐ 4+ stars (856 companies)
+- ⭐⭐⭐ 3+ stars (1,102 companies)
+- All ratings
+
+**Price Range Filter:**
+- $ - Budget-friendly ($50-100)
+- $$ - Moderate ($100-200)
+- $$$ - Premium ($200-350)
+- $$$$ - Luxury ($350+)
+
+**Availability Filter:**
+- [ ] Available this week
+- [ ] Available this weekend
+- [ ] Next 48 hours (emergency)
+- [ ] Accepts recurring bookings
+
+**Distance Filter:**
+- Within 5 miles (123 companies)
+- Within 10 miles (456 companies)
+- Within 25 miles (1,247 companies)
+- Within 50 miles (2,341 companies)
+
+**Additional Filters:**
+- [ ] Verified companies only
+- [ ] tSmartCard accepted
+- [ ] Background-checked staff
+- [ ] Insured & bonded
+- [ ] Eco-friendly products
+- [ ] Pet-friendly
+- [ ] Speaks Spanish/French/Other
+
+---
+
+**MAP VIEW:**
+
+Left Sidebar (40% width):
+- Scrollable list of companies
+- Compact card format
+- Click to show details
+- Hover to highlight on map
+
+Right Side (60% width):
+- Interactive Google Map
+- Clustered markers when zoomed out
+- Individual pins when zoomed in
+- Custom marker icons based on rating/tier
+- Info window popup on click
+
+**Map Features:**
+- User location pin (blue)
+- Company location pins (colored by rating)
+  * Gold: 4.5-5.0 stars
+  * Silver: 4.0-4.4 stars
+  * Bronze: 3.5-3.9 stars
+  * Gray: < 3.5 stars or unrated
+- Service radius circles (optional toggle)
+- Zoom controls
+- "Search this area" button when map moved
+- Fullscreen option
+
+**Company Card in Sidebar:**
+
+```
+┌────────────────────────────────────────────────┐
+│  [Logo]  SPARKLE CLEAN CO              2.3 mi  │
+│           ⭐ 4.9 (234 reviews)                  │
+│                                                 │
+│  Standard • Deep • Move-Out • Eco-Friendly     │
+│  $$$ • Available tomorrow • 48hr booking       │
+│                                                 │
+│  "Trusted cleaning service since 2010. We      │
+│  make your home sparkle!"                      │
+│                                                 │
+│  ✓ Verified  ✓ Insured  ✓ Background Checked  │
+│                                                 │
+│  [View Profile]  [Request Booking]             │
+└────────────────────────────────────────────────┘
+```
+
+---
+
+**LIST VIEW:**
+
+Grid layout (3 columns desktop, 2 tablet, 1 mobile):
+
+```
+┌─────────────────────────────────────────┐
+│  [Cover Image with Logo Overlay]       │
+│                                          │
+│  SPARKLE CLEAN CO           ⭐ 4.9 (234) │
+│  Los Angeles, CA • 2.3 miles away       │
+│                                          │
+│  $$$ • Available Tomorrow                │
+│                                          │
+│  Standard Cleaning • Deep Cleaning      │
+│  Move-Out • Eco-Friendly                │
+│                                          │
+│  ✓ Verified ✓ Insured ✓ Background     │
+│                                          │
+│  "Trusted cleaning service since 2010"  │
+│                                          │
+│  [View Profile]  [Request Booking]      │
+└─────────────────────────────────────────┘
+```
+
+**Sorting Options:**
+
+Dropdown in top-right:
+- ⭐ Highest Rated
+- 📍 Closest to You
+- 💰 Lowest Price
+- 🆕 Newest Companies
+- 🔥 Most Booked
+- 💎 Featured First
+
+**Pagination:**
+- Load more on scroll (infinite scroll)
+- OR traditional pagination (1, 2, 3... 50)
+- Show "X of Y results"
+
+---
+
+**Empty State (No Results):**
+
+```
+┌──────────────────────────────────────────┐
+│         🔍                               │
+│                                          │
+│  No cleaning companies found             │
+│  in this area                            │
+│                                          │
+│  Try:                                    │
+│  • Expanding your search radius          │
+│  • Removing some filters                 │
+│  • Searching a different location        │
+│                                          │
+│  [Expand to 50 miles]  [Clear Filters]   │
+└──────────────────────────────────────────┘
+```
+
+---
+
+**Mobile Optimizations:**
+- Bottom sheet for filters
+- Floating "Map" button to toggle views
+- Swipeable company cards
+- Tap location pin to call up company card
+- Sticky "Request Booking" button
+- Share location button prominent
+
+Please implement the directory page with both map and list views, advanced filtering, 
+and geolocation-based sorting.
+```
+
+---
+
+## Phase 4: Company Profile Page
+
+```
+Create detailed company profile pages at /cleaners/[slug]
+
+**PAGE STRUCTURE:**
+
+---
+
+### HERO SECTION
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│  [Cover Photo - Full Width]                                      │
+│                                                                   │
+│  ┌─────────┐  SPARKLE CLEAN CO                                  │
+│  │  Logo   │  ⭐ 4.9 (234 reviews)  ✓ Verified Partner          │
+│  │         │  Los Angeles, CA • Serves 25 mile radius           │
+│  └─────────┘                                                     │
+│              $$$ • Available Tomorrow • 48hr booking required    │
+│                                                                   │
+│  [Request Booking]  [View on Map]  [Save]  [Share]              │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### QUICK INFO CARDS
+
+```
+┌───────────────┐  ┌───────────────┐  ┌───────────────┐  ┌──────────────┐
+│ ⭐ 4.9        │  │ 📅 10+ Years  │  │ 👥 15-30      │  │ 💼 Licensed  │
+│ 234 Reviews   │  │ in Business   │  │ Employees     │  │ & Insured    │
+└───────────────┘  └───────────────┘  └───────────────┘  └──────────────┘
+```
+
+---
+
+### ABOUT SECTION
+
+**About Sparkle Clean Co**
+
+"We're a family-owned cleaning company serving Los Angeles and surrounding 
+areas since 2010. Our mission is to provide exceptional cleaning services 
+that make your life easier and your home healthier. Every team member is 
+background-checked, trained, and dedicated to delivering spotless results."
+
+**Specialties:**
+🌿 Eco-Friendly Products
+🐕 Pet-Friendly
+🏠 Residential & Commercial
+🚚 Move-In/Move-Out Specialists
+⚡ Same-Day Emergency Available
+
+**Certifications & Verifications:**
+✓ Licensed & Insured ($2M liability)
+✓ Background-checked staff
+✓ OSHA Safety Certified
+✓ Green Cleaning Certified
+✓ BBB A+ Rating
+✓ tSmartCleaning Verified Partner
+
+---
+
+### SERVICES & PRICING
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  SERVICES OFFERED                                         │
+├──────────────────────────────────────────────────────────┤
+│                                                           │
+│  ✓ STANDARD CLEANING                              from $120│
+│    Regular maintenance cleaning                           │
+│    Duration: 2-3 hours                                    │
+│    [Learn More] [Request Quote]                           │
+│                                                           │
+│  ✓ DEEP CLEANING                                  from $200│
+│    Thorough top-to-bottom clean                          │
+│    Duration: 4-6 hours                                    │
+│    [Learn More] [Request Quote]                           │
+│                                                           │
+│  ✓ MOVE-IN/MOVE-OUT                              from $300│
+│    Complete cleaning for moving                           │
+│    Duration: 6-8 hours                                    │
+│    [Learn More] [Request Quote]                           │
+│                                                           │
+│  ✓ POST-CONSTRUCTION                          Custom Quote │
+│    Construction debris and dust removal                   │
+│    Duration: Varies                                       │
+│    [Learn More] [Request Quote]                           │
+│                                                           │
+│  + View All Services (8 total)                            │
+└──────────────────────────────────────────────────────────┘
+```
+
+**Price Range Guide:**
+- Small apartments (< 1,000 sqft): $100-150
+- Medium homes (1,000-2,500 sqft): $150-250
+- Large homes (2,500+ sqft): $250-450
+
+*All prices are estimates. Final quote provided after assessment.*
+
+---
+
+### AVAILABILITY CALENDAR
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  AVAILABILITY THIS WEEK                                   │
+├──────────────────────────────────────────────────────────┤
+│                                                           │
+│  Mon 11/18  ✓ Morning  ✓ Afternoon  ✗ Evening           │
+│  Tue 11/19  ✓ Morning  ✓ Afternoon  ✓ Evening           │
+│  Wed 11/20  ✗ Booked   ✗ Booked      ✓ Evening           │
+│  Thu 11/21  ✓ Morning  ✓ Afternoon  ✓ Evening           │
+│  Fri 11/22  ✓ Morning  ✗ Booked      ✗ Booked           │
+│  Sat 11/23  ✗ Booked   ✗ Booked      ✗ Booked           │
+│  Sun 11/24  Closed                                        │
+│                                                           │
+│  🕐 Booking lead time: 48 hours                          │
+│  📅 [Request Specific Date →]                            │
+└──────────────────────────────────────────────────────────┘
+```
+
+---
+
+### PHOTO GALLERY
+
+**Before & After Gallery**
+- Grid of before/after transformation photos
+- Lightbox viewer on click
+- Categories: Kitchen, Bathroom, Living Room, etc.
+- 20-50 high-quality photos
+
+**Team Photos**
+- Professional team member photos
+- Equipment and supplies
+- In-action cleaning shots
+
+---
+
+### REVIEWS & RATINGS SECTION
+
+**Overall Rating Breakdown:**
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  CUSTOMER REVIEWS                           ⭐ 4.9 / 5.0  │
+│  Based on 234 verified bookings through tSmartCleaning   │
+├──────────────────────────────────────────────────────────┤
+│                                                           │
+│  5 ⭐ ████████████████████████████████ 195 (83%)         │
+│  4 ⭐ ██████████ 30 (13%)                                │
+│  3 ⭐ ██ 6 (3%)                                          │
+│  2 ⭐ █ 2 (1%)                                           │
+│  1 ⭐  1 (0%)                                            │
+│                                                           │
+│  Rating Categories:                                       │
+│  Quality of Service:     ⭐⭐⭐⭐⭐ 4.9                     │
+│  Professionalism:        ⭐⭐⭐⭐⭐ 5.0                     │
+│  Value for Money:        ⭐⭐⭐⭐⭐ 4.8                     │
+│  Punctuality:            ⭐⭐⭐⭐⭐ 4.9                     │
+│  Communication:          ⭐⭐⭐⭐⭐ 4.8                     │
+└──────────────────────────────────────────────────────────┘
+```
+
+**Filter Reviews:**
+- All ratings
+- 5 stars only
+- 4+ stars
+- Critical reviews (1-3 stars)
+- With photos
+- Verified bookings only
+- Most recent
+- Most helpful
+
+**Individual Review Card:**
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  ⭐⭐⭐⭐⭐                                                 │
+│  "Outstanding deep cleaning service!"                     │
+│                                                           │
+│  Jennifer M. • ✓ Verified tSmartCleaning Member          │
+│  Deep Cleaning • November 10, 2024                        │
+│                                                           │
+│  "I hired Sparkle Clean for a deep cleaning before       │
+│  hosting Thanksgiving. The team was professional,         │
+│  thorough, and used eco-friendly products as requested.   │
+│  Every corner was spotless! Worth every penny. I've       │
+│  already booked them for monthly maintenance."            │
+│                                                           │
+│  [📷 📷 📷] ← Review photos                              │
+│                                                           │
+│  👍 Helpful (23)  👎 Not Helpful (0)  [Report]           │
+│                                                           │
+│  COMPANY RESPONSE:                                        │
+│  "Thank you Jennifer! We're thrilled you were happy      │
+│  with our service. Looking forward to seeing you next     │
+│  month! - Sparkle Clean Team"                            │
+└──────────────────────────────────────────────────────────┘
+```
+
+**Review Highlights (Auto-generated from reviews):**
+- "thorough" (mentioned 45 times)
+- "professional" (mentioned 38 times)
+- "eco-friendly" (mentioned 32 times)
+- "on time" (mentioned 40 times)
+- "friendly staff" (mentioned 28 times)
+
+---
+
+### SERVICE AREA MAP
+
+Interactive map showing:
+- Company headquarters location
+- Service radius (shaded circle)
+- Cities/neighborhoods covered
+- User's location (if shared)
+- "Am I in the service area?" check
+
+---
+
+### FAQ SECTION
+
+**Frequently Asked Questions:**
+
+Q: What's included in a standard cleaning?
+A: Dusting, vacuuming, mopping, bathroom/kitchen cleaning, surface wiping, 
+   trash removal. See full checklist [here].
+
+Q: Do you bring your own supplies?
+A: Yes, we bring all necessary equipment and eco-friendly products. If you 
+   prefer specific products, just let us know.
+
+Q: Are your cleaners background-checked?
+A: Absolutely. Every team member undergoes thorough background checks and 
+   is fully insured.
+
+Q: What's your cancellation policy?
+A: Free cancellation up to 24 hours before appointment. Cancellations within 
+   24 hours subject to 50% fee.
+
+Q: Do you offer recurring services?
+A: Yes! We offer weekly, bi-weekly, and monthly recurring schedules with 
+   discounted rates.
+
+[View All 15 FAQs →]
+
+---
+
+### BOOKING REQUEST SECTION
+
+Large, prominent call-to-action:
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  READY TO BOOK?                                           │
+├──────────────────────────────────────────────────────────┤
+│                                                           │
+│  Request a booking through tSmartCleaning                │
+│  📅 48-hour advance booking required                     │
+│                                                           │
+│  [REQUEST BOOKING]  ← Large prominent button             │
+│                                                           │
+│  💡 Your contact info is kept private                    │
+│  ⏱️ Company typically responds within 4 hours            │
+│  ✓ No obligation - get a quote first                    │
+└──────────────────────────────────────────────────────────┘
+```
+
+---
+
+### RELATED COMPANIES
+
+"Other highly-rated cleaners near you:"
+- 3-4 similar company cards
+- Based on location and ratings
+- Quick comparison
+
+---
+
+### PAGE FOOTER ACTIONS
+
+- [Request Booking] (sticky button on mobile)
+- [Save to Favorites]
+- [Share Company]
+- [Report Issue]
+- [Contact tSmartCleaning Support]
+
+Please implement complete company profile pages with all sections and interactive elements.
+```
+
+---
+
+## Phase 5: Booking Request Flow (Privacy-Protected)
+
+```
+Create booking request system that keeps phone/email private:
+
+**BOOKING REQUEST MODAL/PAGE:**
+
+Triggered from:
+- "Request Booking" button on company profile
+- "Request Quote" on service cards
+- Map marker info window
+
+**STEP 1: SERVICE SELECTION**
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  REQUEST BOOKING FROM SPARKLE CLEAN CO                    │
+├──────────────────────────────────────────────────────────┤
+│                                                           │
+│  What service do you need? *                              │
+│  ○ Standard Cleaning                                      │
+│  ○ Deep Cleaning                                          │
+│  ○ Move-In/Move-Out                                       │
+│  ○ Post-Construction                                      │
+│  ○ Carpet Cleaning                                        │
+│  ○ Other/Custom                                           │
+│                                                           │
+│  Property Type: *                                         │
+│  [Apartment ▼] [House ▼] [Office ▼] [Other ▼]           │
+│                                                           │
+│  Property Size:                                           │
+│  ○ < 1,000 sqft                                          │
+│  ○ 1,000 - 2,000 sqft                                    │
+│  ○ 2,000 - 3,000 sqft                                    │
+│  ○ 3,000+ sqft                                           │
+│                                                           │
+│  Bedrooms: [2 ▼]    Bathrooms: [2 ▼]                     │
+│                                                           │
+│  [Continue →]                                             │
+└──────────────────────────────────────────────────────────┘
+```
+
+**STEP 2: SCHEDULING**
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  WHEN WOULD YOU LIKE SERVICE?                             │
+├──────────────────────────────────────────────────────────┤
+│                                                           │
+│  ⚠️ Note: 48-hour advance booking required               │
+│                                                           │
+│  Preferred Date: *                                        │
+│  [📅 Pick a date] (Earliest: November 18, 2024)          │
+│                                                           │
+│  Preferred Time: *                                        │
+│  ○ Morning (8AM - 12PM)                                   │
+│  ○ Afternoon (12PM - 5PM)                                 │
+│  ○ Evening (5PM - 8PM)                                    │
+│  ○ Flexible - any time works                              │
+│                                                           │
+│  Is this a one-time or recurring service?                 │
+│  ○ One-time cleaning                                      │
+│  ○ Recurring (Weekly)                                     │
+│  ○ Recurring (Bi-weekly)                                  │
+│  ○ Recurring (Monthly)                                    │
+│                                                           │
+│  [« Back]  [Continue →]                                   │
+└──────────────────────────────────────────────────────────┘
+```
+
+**STEP 3: PROPERTY & ACCESS DETAILS**
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  PROPERTY DETAILS                                         │
+├──────────────────────────────────────────────────────────┤
+│                                                           │
+│  Service Address: *                                       │
+│  [Street Address]                                         │
+│  [Apt/Unit Number]                                        │
+│  [City]  [State]  [ZIP Code]                             │
+│                                                           │
+│  Access Instructions:                                     │
+│  [Textarea: e.g., "Code is 1234, side door entrance"]    │
+│                                                           │
+│  Special Requests:                                        │
+│  [Textarea: Any specific areas of focus or concerns]      │
+│                                                           │
+│  Additional Information:                                  │
+│  [ ] I have pets (please specify: ____________)           │
+│  [ ] Eco-friendly products preferred                      │
+│  [ ] Someone will be home during service                  │
+│  [ ] Need key pickup/dropoff arranged                     │
+│                                                           │
+│  [« Back]  [Continue →]                                   │
+└──────────────────────────────────────────────────────────┘
+```
+
+**STEP 4: YOUR CONTACT INFORMATION**
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  YOUR CONTACT INFORMATION                                 │
+│  (Kept private - only shared with company after they      │
+│   accept your booking request)                            │
+├──────────────────────────────────────────────────────────┤
+│                                                           │
+│  Full Name: *                                             │
+│  [Jennifer Smith]                                         │
+│                                                           │
+│  Email Address: *                                         │
+│  [jennifer@email.com]                                     │
+│                                                           │
+│  Phone Number: *                                          │
+│  [(555) 123-4567]                                         │
+│                                                           │
+│  Best way to reach you:                                   │
+│  ☑ Email    ☑ Phone Call    ☑ Text Message              │
+│                                                           │
+│  Estimated Budget: (Optional)                             │
+│  [Select range ▼] Under $100 / $100-200 / $200-300 / etc.│
+│                                                           │
+│  🔒 Your contact information will ONLY be shared with     │
+│     Sparkle Clean Co if they accept your request.         │
+│                                                           │
+│  [« Back]  [Continue →]                                   │
+└──────────────────────────────────────────────────────────┘
+```
+
+**STEP 5: REVIEW & SUBMIT**
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  REVIEW YOUR BOOKING REQUEST                              │
+├──────────────────────────────────────────────────────────┤
+│                                                           │
+│  Company: Sparkle Clean Co                                │
+│  Service: Deep Cleaning                                   │
+│  Property: House (2,000 sqft, 3 bed, 2 bath)             │
+│  Date: November 20, 2024                                  │
+│  Time: Morning (8AM - 12PM)                               │
+│  Address: 123 Main Street, Los Angeles, CA 90001          │
+│                                                           │
+│  [Edit Details]                                           │
+│                                                           │
+│  ────────────────────────────────────────────────────    │
+│                                                           │
+│  WHAT HAPPENS NEXT:                                       │
+│                                                           │
+│  1. We'll send your request to Sparkle Clean Co          │
+│  2. They'll review and respond within 24 hours            │
+│  3. You'll receive email & SMS notifications              │
+│  4. If accepted, you'll get a quote and can confirm       │
+│  5. Your contact info shared only if they accept          │
+│                                                           │
+│  ☑ I agree to Terms of Service and Privacy Policy        │
+│                                                           │
+│  [« Back]  [SUBMIT REQUEST]                              │
+└──────────────────────────────────────────────────────────┘
+```
+
+**CONFIRMATION PAGE:**
+
+```
+┌──────────────────────────────────────────────────────────┐
+│         ✅ REQUEST SENT SUCCESSFULLY!                     │
+├──────────────────────────────────────────────────────────┤
+│                                                           │
+│  Your booking request has been sent to Sparkle Clean Co.  │
+│                                                           │
+│  REQUEST ID: #BR-2024-001234                              │
+│                                                           │
+│  WHAT TO EXPECT:                                          │
+│                                                           │
+│  📧 Confirmation email sent to jennifer@email.com         │
+│                                                           │
+│  ⏱️ Expected response time: 4-24 hours                    │
+│     (Usually responds within 4 hours)                     │
+│                                                           │
+│  📱 You'll receive notifications via:                     │
+│     • Email updates                                       │
+│     • SMS alerts (if enabled)                             │
+│     • Dashboard notifications                             │
+│                                                           │
+│  🔍 Track your request:                                   │
+│     [View Request Status]                                 │
+│                                                           │
+│  💡 TIP: Check your email for confirmation and            │
+│          keep an eye out for company response             │
+│                                                           │
+│  [View My Requests]  [Browse More Cleaners]               │
+└──────────────────────────────────────────────────────────┘
+```
+
+**PRIVACY FEATURES:**
+
+1. **Contact Information Protection:**
+   - Phone/email NOT shown on company profiles
+   - Only revealed after company accepts request
+   - Can't be scraped or harvested
+   - GDPR/Privacy compliant
+
+2. **Request Status Tracking:**
+   - Real-time status updates
+   - Email notifications at each stage
+   - SMS alerts (if opted in)
+   - Dashboard view of all requests
+
+3. **Company Response Options:**
+   - Accept (gets contact info + sends quote)
+   - Decline with reason
+   - Request more information
+   - Counter-offer (different date/price)
+
+4. **Communication Flow:**
+   ```
+   Customer → tSmartCleaning → Company
+              (Request submitted)
+   
+   Company → tSmartCleaning → Customer
+            (Response/Quote)
+   
+   After acceptance:
+   Customer ← Direct Contact → Company
+   ```
+
+Please implement the complete booking request flow with privacy protection 
+and multi-step form validation.
+```
+
+---
+
+## Phase 6: Customer Request Dashboard
+
+```
+Create a dashboard for customers to track their booking requests:
+
+**DASHBOARD ACCESS:**
+- Main navigation: Account → My Booking Requests
+- Direct URL: /account/booking-requests
+- Mobile app: Dedicated "Requests" tab
+
+**DASHBOARD LAYOUT:**
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  MY BOOKING REQUESTS                                      │
+│  Track all your cleaning service requests                 │
+├──────────────────────────────────────────────────────────┤
+│                                                           │
+│  Filters: [All] [Pending] [Accepted] [Declined] [Past]   │
+│                                                           │
+│  ┌────────────────────────────────────────────────────┐  │
+│  │  #BR-2024-001234          STATUS: PENDING ⏳       │  │
+│  │  Sparkle Clean Co                                  │  │
+│  │  Deep Cleaning • Nov 20, 2024 • Morning           │  │
+│  │  Los Angeles, CA                                   │  │
+│  │                                                     │  │
+│  │  Requested: Nov 16, 2024 at 2:30 PM               │  │
+│  │  Response expected by: Nov 17, 2024                │  │
+│  │                                                     │  │
+│  │  [View Details]  [Cancel Request]                  │  │
+│  └────────────────────────────────────────────────────┘  │
+│                                                           │
+│  ┌────────────────────────────────────────────────────┐  │
+│  │  #BR-2024-001198          STATUS: ACCEPTED ✅      │  │
+│  │  Fresh Home Services                               │  │
+│  │  Standard Cleaning • Nov 18, 2024 • Afternoon      │  │
+│  │  Los Angeles, CA                                   │  │
+│  │                                                     │  │
+│  │  Quote: $150 • Duration: 3 hours                   │  │
+│  │  Response received: Nov 15, 2024                   │  │
+│  │                                                     │  │
+│  │  [View Quote]  [Confirm Booking]  [Message Co.]    │  │
+│  └────────────────────────────────────────────────────┘  │
+│                                                           │
+│  ┌────────────────────────────────────────────────────┐  │
+│  │  #BR-2024-001156          STATUS: DECLINED ❌      │  │
+│  │  Green Clean Solutions                             │  │
+│  │  Move-Out Cleaning • Nov 22, 2024                  │  │
+│  │  Los Angeles, CA                                   │  │
+│  │                                                     │  │
+│  │  Reason: Fully booked for requested date           │  │
+│  │  Alternative dates offered                          │  │
+│  │                                                     │  │
+│  │  [View Details]  [Request New Date]                │  │
+│  └────────────────────────────────────────────────────┘  │
+│                                                           │
+│  [Load More Requests...]                                  │
+└──────────────────────────────────────────────────────────┘
+```
+
+**Status Indicators:**
+- ⏳ **PENDING** (Yellow) - Awaiting company response
+- 👀 **VIEWED** (Blue) - Company has seen your request
+- ✅ **ACCEPTED** (Green) - Quote provided, awaiting your confirmation
+- ❌ **DECLINED** (Red) - Company unable to accommodate
+- ✔️ **CONFIRMED** (Dark Green) - Booking confirmed by both parties
+- 📅 **SCHEDULED** (Purple) - Service date approaching
+- ✨ **COMPLETED** (Gray) - Service finished
+- 🚫 **CANCELLED** (Gray) - Request cancelled
+
+**Request Detail View:**
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  REQUEST #BR-2024-001234                                  │
+│  Status: ACCEPTED ✅                                      │
+├──────────────────────────────────────────────────────────┤
+│                                                           │
+│  COMPANY DETAILS:                                         │
+│  [Logo] Sparkle Clean Co                                  │
+│  ⭐ 4.9 (234 reviews)                                     │
+│  [View Company Profile]                                   │
+│                                                           │
+│  ────────────────────────────────────────────────────    │
+│                                                           │
+│  SERVICE DETAILS:                                         │
+│  Service Type: Deep Cleaning                              │
+│  Property: House (2,000 sqft, 3 bed, 2 bath)             │
+│  Date: November 20, 2024                                  │
+│  Time: Morning (8AM - 12PM)                               │
+│  Address: 123 Main Street, Los Angeles, CA 90001          │
+│  Recurring: One-time                                      │
+│                                                           │
+│  Special Requests:                                        │
+│  "Please focus on kitchen and bathrooms. We have a        │
+│   friendly dog who will be in the backyard."              │
+│                                                           │
+│  ────────────────────────────────────────────────────    │
+│                                                           │
+│  COMPANY QUOTE:                                           │
+│  Service Cost: $200                                       │
+│  Estimated Duration: 4-5 hours                            │
+│  Team Size: 2 cleaners                                    │
+│  Products: Eco-friendly (as requested)                    │
+│                                                           │
+│  Quote valid until: November 18, 2024                     │
+│                                                           │
+│  Company Message:                                         │
+│  "Thank you for your request! We'd be happy to provide   │
+│   a deep cleaning service. Our team will bring all        │
+│   supplies and we use pet-safe, eco-friendly products.    │
+│   Looking forward to making your home sparkle!"           │
+│                                                           │
+│  ────────────────────────────────────────────────────    │
+│                                                           │
+│  TIMELINE:                                                │
+│  • Nov 16, 2:30 PM - Request submitted                   │
+│  • Nov 16, 3:45 PM - Company viewed request              │
+│  • Nov 16, 5:20 PM - Quote received                      │
+│  • Awaiting your confirmation...                          │
+│                                                           │
+│  ────────────────────────────────────────────────────    │
+│                                                           │
+│  YOUR CONTACT INFO (shared with company):                 │
+│  Name: Jennifer Smith                                     │
+│  Email: jennifer@email.com                                │
+│  Phone: (555) 123-4567                                    │
+│                                                           │
+│  ────────────────────────────────────────────────────    │
+│                                                           │
+│  ACTIONS:                                                 │
+│  [✅ CONFIRM BOOKING]  (Large green button)              │
+│  [Negotiate Price/Date]                                   │
+│  [Decline Quote]                                          │
+│  [Message Company]                                        │
+│  [Report Issue]                                           │
+│                                                           │
+└──────────────────────────────────────────────────────────┘
+```
+
+**Notification System:**
+
+**Email Notifications:**
+1. Request submitted confirmation
+2. Company viewed your request
+3. Quote received
+4. Request declined (with reason)
+5. Booking confirmed
+6. Service reminder (24 hours before)
+7. Service completion + review request
+
+**SMS Notifications** (if opted in):
+- "Sparkle Clean Co accepted your request! View quote: [link]"
+- "Reminder: Cleaning service tomorrow at 8 AM with Sparkle Clean Co"
+- "Service complete! Rate your experience: [link]"
+
+Please implement the customer request dashboard with status tracking and notifications.
+```
+
+---
+
+## Complete Master Prompt for Implementation
+
+```
+Create a comprehensive cleaning companies directory system with geolocation, 
+privacy-protected booking requests, and verified customer reviews.
+
+**SYSTEM OVERVIEW:**
+A searchable directory of 1,000+ cleaning companies across USA and Canada, 
+integrated into tSmartCleaning platform. Customers can find nearby companies 
+based on location, view ratings from verified customers, and request bookings 
+without exposing their contact information directly to companies.
+
+**COMPLETE SYSTEM REQUIREMENTS:**
+
+**1. HEADER INTEGRATION:**
+- "Find Cleaners" menu item with map marker icon
+- Location-based search bar with autocomplete
+- Geolocation detection ("Use My Location" button)
+- Dropdown preview showing popular searches and top-rated companies
+- Mobile-optimized with floating "Near Me" button
+
+**2. DATABASE SCHEMA:**
+Implement complete PostgreSQL database with PostGIS for geospatial queries:
+
+Models needed:
+- CleaningCompany (1,000+ companies with lat/lng)
+- CompanyService (multiple services per company)
+- Review (verified customer reviews only)
+- BookingRequest (48hr advance booking system)
+- CompanyPhoto (before/after, team, equipment)
+- TeamMember (staff profiles)
+- ReviewPhoto (customer review images)
+
+Geospatial features:
+- PostGIS extension for distance calculations
+- Spatial indexes for fast nearby searches
+- Radius queries (find within X miles)
+- Service area polygons
+
+**3. DIRECTORY LANDING PAGE (/find-cleaners):**
+Implement dual-view system:
+
+**Map View (60/40 split):**
+- Interactive Google Maps integration
+- Custom markers color-coded by rating
+- Info windows with company preview
+- Clustered markers when zoomed out
+- "Search this area" button
+- User location pin
+- Service radius circles
+
+**List View (Grid layout):**
+- 3-column grid (responsive)
+- Company cards with key info
+- Sort by: Distance, Rating, Price, Most Booked
+- Infinite scroll or pagination
+- Quick filter buttons
+
+**Advanced Filtering:**
+- Services (10+ types)
+- Rating (5★, 4+★, 3+★)
+- Price range ($, $$, $$$, $$$$)
+- Distance (5, 10, 25, 50 miles)
+- Availability (this week, weekend, emergency)
+- Verifications (background checked, insured, eco-friendly)
+- Languages spoken
+
+**4. COMPANY PROFILE PAGES (/cleaners/[slug]):**
+Comprehensive profiles with sections:
+- Hero with cover photo, logo, ratings
+- Quick info cards (years in business, employees, certifications)
+- About section with specialties
+- Services & pricing table
+- Availability calendar
+- Photo gallery (before/after, team, equipment)
+- Reviews section with detailed breakdown
+- Rating distribution chart
+- Category ratings (quality, punctuality, value, etc.)
+- Individual review cards with photos
+- Company responses to reviews
+- Service area map
+- FAQ section
+- Related companies
+- Prominent booking CTA
+
+**5. PRIVACY-PROTECTED BOOKING REQUEST SYSTEM:**
+
+**5-Step Request Form:**
+Step 1: Service Selection
+- Service type (standard, deep, move-out, etc.)
+- Property details (type, size, bedrooms, bathrooms)
+
+Step 2: Scheduling
+- Preferred date (48hr minimum advance)
+- Preferred time (morning/afternoon/evening)
+- One-time or recurring
+
+Step 3: Property & Access
+- Service address
+- Access instructions
+- Special requests
+- Pet info, preferences
+
+Step 4: Contact Information
+- Name, email, phone (kept private)
+- Best contact method
+- Estimated budget (optional)
+
+Step 5: Review & Submit
+- Summary of all details
+- What happens next explanation
+- Terms agreement
+
+**Key Privacy Features:**
+- Contact info NOT shown on company profiles
+- Only shared after company accepts request
+- Cannot be scraped or accessed directly
+- GDPR compliant
+
+**Request Status Flow:**
+```
+Pending → Viewed → Accepted/Declined → Confirmed → Completed
+```
+
+**6. CUSTOMER REQUEST DASHBOARD:**
+- View all booking requests
+- Status tracking with timeline
+- Filter by status
+- Detailed request view
+- Company quotes
+- Confirm/decline actions
+- Message company
+- Leave review after service
+
+**7. REVIEWS & RATINGS SYSTEM:**
+
+**Verified Reviews Only:**
+- Only customers who booked through tSmartCleaning can review
+- Link reviews to actual bookings
+- "Verified Customer" badges
+- Member tier display (member, premium, etc.)
+
+**Review Features:**
+- Overall 1-5 star rating
+- Category ratings (quality, value, punctuality, etc.)
+- Title and detailed comment
+- Photo uploads (before/after)
+- Service type and date
+- Helpful votes
+- Company can respond
+- Flagging system for inappropriate content
+
+**Rating Breakdown:**
+- Distribution chart (5★: 83%, 4★: 13%, etc.)
+- Average rating by service type
+- Trends over time
+- Comparison to area average
+
+**8. GEOLOCATION & DISTANCE CALCULATIONS:**
+
+**Technologies:**
+- Google Maps JavaScript API
+- Google Places API (autocomplete)
+- Geolocation API (browser)
+- PostGIS (database spatial queries)
+
+**Distance Features:**
+- Calculate distance from user to company
+- Sort by proximity
+- Filter by radius
+- Show travel time estimate
+- "Serves your area" indicator
+
+**Search Methods:**
+- Current location (GPS)
+- Address/ZIP code entry
+- City name
+- Autocomplete suggestions
+- IP-based fallback
+
+**9. ADMIN INTERFACE:**
+
+**Company Management:**
+- Add/edit/delete companies
+- Approve new companies
+- Verify credentials
+- Manage photos and services
+- View analytics per company
+
+**Review Moderation:**
+- Review flagged content
+- Approve/reject reviews
+- Respond to disputes
+- Ban malicious reviewers
+
+**Booking Request Management:**
+- View all requests
+- Monitor response times
+- Track conversion rates
+- Resolve disputes
+
+**Analytics Dashboard:**
+- Total companies by region
+- Most searched areas
+- Booking request volume
+- Average response times
+- Review distribution
+- User engagement metrics
+
+**10. EMAIL & SMS NOTIFICATIONS:**
+
+**For Customers:**
+- Request confirmation
+- Company viewed request
+- Quote received
+- Booking confirmed
+- Service reminders
+- Review requests
+- Response to reviews
+
+**For Companies:**
+- New booking request
+- Request viewed reminder
+- Booking confirmed
+- Review received
+- Low rating alert
+
+**TECHNICAL SPECIFICATIONS:**
+
+**Tech Stack:**
+- Next.js 14 with App Router
+- TypeScript
+- Tailwind CSS
+- Prisma + PostgreSQL with PostGIS
+- Google Maps API
+- Geolocation API
+- AWS S3 for images
+- SendGrid/Resend for emails
+- Twilio for SMS
+- Redis for caching
+
+**Key Features:**
+- Server-side rendering for SEO
+- Lazy loading for maps and images
+- Responsive mobile-first design
+- Progressive Web App (PWA)
+- Offline map caching
+- Real-time updates
+- Advanced search with Algolia/Elasticsearch
+- Multi-language support
+- Accessibility (WCAG 2.1 AA)
+
+**Performance Optimizations:**
+- Image optimization (next/image)
+- Map marker clustering
+- Lazy loading reviews
+- Database query optimization
+- CDN for static assets
+- Caching strategy (Redis)
+- Index optimization
+
+**Security:**
+- Contact info encryption
+- Rate limiting
+- CAPTCHA on forms
+- SQL injection prevention
+- XSS protection
+- GDPR compliance
+- Privacy policy
+- Terms of service
+
+**SEO Optimization:**
+- Dynamic meta tags per company
+- Schema markup (LocalBusiness)
+- Sitemap generation
+- Canonical URLs
+- Open Graph tags
+- JSON-LD structured data
+
+**Analytics Tracking:**
+- Directory page views
+- Search queries
+- Filter usage
+- Company profile views
+- Booking request conversions
+- Review submission rate
+- Map vs list view preference
+- Average time to booking
+
+**START IMPLEMENTATION ORDER:**
+1. Database schema with PostGIS
+2. Seed data (1,000+ companies)
+3. Header integration with search
+4. Geolocation detection
+5. Directory page with map view
+6. List view with filters
+7. Company profile pages
+8. Review system
+9. Booking request flow
+10. Customer dashboard
+11. Email/SMS notifications
+12. Admin interface
+13. Analytics and reporting
+
+Build this directory system with focus on user privacy, accurate geolocation, 
+verified reviews, and seamless booking request flow. The goal is to connect 
+customers with quality cleaning companies while protecting everyone's contact 
+information until a booking is mutually agreed upon.
+```
+
+This comprehensive prompt provides everything needed to implement a complete 
+location-based cleaning company directory with privacy-protected booking requests!

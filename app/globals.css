@@ -1,0 +1,492 @@
+/* Webflow fonts */
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Lexend:wght@200;400;500;600&display=swap');
+@import 'tailwindcss';
+
+/* Brand color variables (from CSS Color Design Plan) */
+:root {
+  /* Core Accent Colors */
+  --accent-primary: #c98769;
+  --accent-primary-hover: #d9ab96;
+
+  /* Neutral Colors */
+  --neutral-primary: #f5f1eb; /* Main Background */
+  --neutral-secondary: #e6dcd4; /* Secondary Background */
+  --neutral-inverse: #373d36; /* Text & Dark Backgrounds */
+
+  /* Text Colors */
+  --text-primary: var(--neutral-inverse);
+  --text-on-accent: #ffffff;
+
+  /* Border Colors */
+  --border-primary: #e6dcd4;
+  --border-secondary: #d9ab96;
+}
+
+@theme inline {
+  /* Typography */
+  --font-sans: "Instrument Sans", system-ui, -apple-system, sans-serif;
+  --font-heading: Lexend, sans-serif;
+
+  /* Core colors from Webflow template */
+  --color-background: var(--neutral-primary);        /* light background */
+  --color-foreground: var(--neutral-inverse);        /* text on light */
+  --color-primary: var(--accent-primary);            /* accent */
+  --color-primary-foreground: var(--text-on-accent); /* on-accent */
+  --color-accent: var(--accent-primary);
+  --color-accent-foreground: var(--text-on-accent);
+  --color-secondary: var(--neutral-secondary);       /* subtle section bg */
+  --color-secondary-foreground: var(--neutral-inverse);
+  --color-muted: var(--neutral-secondary);           /* neutral secondary */
+  --color-muted-foreground: #373d3680;               /* inverse a50 */
+  --color-card: #ffffff;
+  --color-card-foreground: var(--neutral-inverse);
+  --color-popover: #ffffff;
+  --color-popover-foreground: var(--neutral-inverse);
+  --color-border: var(--border-primary);
+  --color-input: #ffffff;
+  --color-ring: var(--accent-primary);
+  --color-destructive: #dc2626;
+  --color-destructive-foreground: #ffffff;
+
+  /* Radii */
+  --radius: 0.75rem;                        /* card radius */
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px #0000001a;
+  --shadow-md: 0 2px 4px #0000001a;
+  --shadow-lg: 0 4px 8px #0000001a;
+  --shadow-xl: 0 6px 24px #0000001a;
+
+  /* Typography scale from Webflow - Increased for better readability */
+  --h0-size: 7.03rem; /* Increased from 5.61rem */
+  --h0-line: 1.04em;
+  --h0-weight: 200;
+  --h0-tracking: -0.01em;
+
+  --h1-size: 5.26rem; /* Increased from 4.21rem */
+  --h1-line: 1.04em;
+  --h1-weight: 200;
+  --h1-tracking: -0.01em;
+
+  --h2-size: 2.96rem; /* Increased from 2.37rem */
+  --h2-line: 1.04em;
+  --h2-weight: 100;
+  --h2-tracking: -0.01em;
+
+  --h3-size: 2.23rem; /* Increased from 1.78rem */
+  --h3-line: 1.04em;
+  --h3-weight: 400;
+  --h3-tracking: -0.01em;
+
+  --h4-size: 1.66rem; /* Increased from 1.33rem */
+  --h4-line: 1.3em;
+  --h4-weight: 500;
+  --h4-tracking: -0.01em;
+
+  --h5-size: 1.25rem; /* Increased from 1rem */
+  --h5-line: 1.3em;
+  --h5-weight: 500;
+  --h5-tracking: 0em;
+
+  --h6-size: 0.94rem; /* Increased from 0.75rem */
+  --h6-line: 1.3em;
+  --h6-weight: 500;
+  --h6-tracking: 0.1em;
+
+  --text-sm-size: 1.1rem; /* Increased from 0.88rem */
+  --text-sm-line: 1.6em;
+  --text-sm-tracking: 0em;
+
+  --text-lg-size: 1.41rem; /* Increased from 1.13rem */
+  --text-lg-line: 1.6em;
+  --text-lg-tracking: 0em;
+
+  --text-xl-size: 1.88rem; /* Increased from 1.5rem */
+  --text-xl-line: 1.6em;
+  --text-xl-tracking: 0em;
+
+  --text-xxl-size: 2.5rem; /* Increased from 2rem */
+  --text-xxl-line: 1.6em;
+  --text-xxl-tracking: 0em;
+}
+
+@media (prefers-color-scheme: dark) {
+  @theme inline {
+    /* Dark mode aligned to inverse palette */
+    --color-background: var(--neutral-inverse);      /* inverse */
+    --color-foreground: var(--neutral-primary);      /* primary */
+    --color-primary: var(--accent-primary-hover);    /* lighter for contrast */
+    --color-primary-foreground: #373d36;
+    --color-accent: var(--accent-primary-hover);
+    --color-accent-foreground: #373d36;
+    --color-secondary: #373d3680;           /* inverse a50 */
+    --color-secondary-foreground: var(--neutral-primary);
+    --color-muted: #373d364d;               /* inverse a30 */
+    --color-muted-foreground: #f5f1eb99;    /* primary a60 */
+    --color-card: #2c302b;
+    --color-card-foreground: var(--neutral-primary);
+    --color-popover: #2c302b;
+    --color-popover-foreground: var(--neutral-primary);
+    --color-border: #f5f1eb33;              /* primary a20 */
+    --color-input: #2c302b;
+    --color-ring: var(--accent-primary-hover);
+    --color-destructive: #ef4444;
+    --color-destructive-foreground: #ffffff;
+  }
+}
+
+body {
+  font-feature-settings: "rlig" 1, "calt" 1;
+  font-weight: 400;
+  font-size: 18px; /* Increased from default 16px for better readability */
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif !important;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
+
+/* Headings use heading font */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading), sans-serif;
+}
+
+/* Basic nav + link styling to align with tokens */
+nav {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
+nav a {
+  color: var(--color-primary);
+}
+nav a:hover {
+  color: var(--color-primary-foreground);
+  background-color: color-mix(in srgb, var(--color-primary) 15%, transparent);
+}
+a {
+  color: var(--color-primary);
+}
+a:hover {
+  color: var(--color-primary);
+  text-decoration-color: var(--color-primary);
+}
+
+/* Global heading sizes that mirror Webflow */
+.text-h0, h1.text-h0 {
+  font-size: var(--h0-size);
+  line-height: var(--h0-line);
+  font-weight: var(--h0-weight);
+  letter-spacing: var(--h0-tracking);
+}
+h1 {
+  font-size: var(--h1-size);
+  line-height: var(--h1-line);
+  font-weight: var(--h1-weight);
+  letter-spacing: var(--h1-tracking);
+}
+h2 {
+  font-size: var(--h2-size);
+  line-height: var(--h2-line);
+  font-weight: var(--h2-weight);
+  letter-spacing: var(--h2-tracking);
+}
+h3 {
+  font-size: var(--h3-size);
+  line-height: var(--h3-line);
+  font-weight: var(--h3-weight);
+  letter-spacing: var(--h3-tracking);
+}
+h4 {
+  font-size: var(--h4-size);
+  line-height: var(--h4-line);
+  font-weight: var(--h4-weight);
+  letter-spacing: var(--h4-tracking);
+}
+h5 {
+  font-size: var(--h5-size);
+  line-height: var(--h5-line);
+  font-weight: var(--h5-weight);
+  letter-spacing: var(--h5-tracking);
+}
+h6 {
+  font-size: var(--h6-size);
+  line-height: var(--h6-line);
+  font-weight: var(--h6-weight);
+  letter-spacing: var(--h6-tracking);
+  text-transform: uppercase;
+}
+
+/* Text utilities */
+.text-sm {
+  font-size: var(--text-sm-size);
+  line-height: var(--text-sm-line);
+  letter-spacing: var(--text-sm-tracking);
+}
+.text-lg {
+  font-size: var(--text-lg-size);
+  line-height: var(--text-lg-line);
+  letter-spacing: var(--text-lg-tracking);
+}
+.text-xl {
+  font-size: var(--text-xl-size);
+  line-height: var(--text-xl-line);
+  letter-spacing: var(--text-xl-tracking);
+}
+.text-xxl {
+  font-size: var(--text-xxl-size);
+  line-height: var(--text-xxl-line);
+  letter-spacing: var(--text-xxl-tracking);
+}
+
+/* Ensure Webflow buttons use khaki instead of default blue */
+.w-button {
+  background-color: var(--accent-primary) !important;
+  border-color: var(--accent-primary) !important;
+  color: var(--text-on-accent) !important;
+}
+.w-button:hover {
+  background-color: var(--accent-primary-hover) !important;
+  border-color: var(--accent-primary-hover) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Layout utilities similar to Webflow */
+.section {
+  padding-block: 8rem;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
+.section.is-secondary {
+  background-color: var(--color-secondary);
+  color: var(--color-secondary-foreground);
+}
+.section.is-inverse {
+  background-color: var(--neutral-inverse);
+  color: var(--neutral-primary);
+}
+.container {
+  max-width: 80rem; /* 1280px */
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+.container.is-small {
+  max-width: 62.5rem; /* 1000px */
+}
+
+/* Inverse/on-inverse helpers */
+.on-inverse {
+  color: var(--neutral-primary);
+}
+.on-inverse .button,
+.on-inverse a {
+  color: var(--color-primary-foreground);
+}
+.text-color_secondary {
+  color: #373d3699; /* inverse a60 on light bg */
+}
+.text-color_inverse-secondary {
+  color: #f5f1eb99; /* primary a60 on inverse bg */
+}
+
+/* Typography utilities matching Webflow class names */
+.heading_h1 { font-size: var(--h1-size); line-height: var(--h1-line); font-weight: var(--h1-weight); letter-spacing: var(--h1-tracking); }
+.heading_h2 { font-size: var(--h2-size); line-height: var(--h2-line); font-weight: var(--h2-weight); letter-spacing: var(--h2-tracking); }
+.heading_h3 { font-size: var(--h3-size); line-height: var(--h3-line); font-weight: var(--h3-weight); letter-spacing: var(--h3-tracking); }
+.heading_h4 { font-size: var(--h4-size); line-height: var(--h4-line); font-weight: var(--h4-weight); letter-spacing: var(--h4-tracking); }
+.heading_h5 { font-size: var(--h5-size); line-height: var(--h5-line); font-weight: var(--h5-weight); letter-spacing: var(--h5-tracking); }
+.heading_h6 { font-size: var(--h6-size); line-height: var(--h6-line); font-weight: var(--h6-weight); letter-spacing: var(--h6-tracking); text-transform: uppercase; }
+.paragraph_small { font-size: var(--text-sm-size); line-height: var(--text-sm-line); }
+.paragraph_large { font-size: var(--text-lg-size); line-height: var(--text-lg-line); }
+.paragraph_xlarge { font-size: var(--text-xl-size); line-height: var(--text-xl-line); }
+.subheading { font-size: var(--text-lg-size); line-height: var(--text-lg-line); color: var(--color-muted-foreground); }
+.eyebrow { font-size: 1.13rem; line-height: 1.3em; letter-spacing: 0.01em; text-transform: none; color: var(--color-muted-foreground); }
+.text-align_center { text-align: center; }
+.text_all-caps { text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* Spacing helpers commonly used in Webflow export */
+.margin-bottom_none { margin-bottom: 0 !important; }
+.margin-bottom_xsmall { margin-bottom: 0.5rem !important; }
+.margin-top_none { margin-top: 0 !important; }
+.margin-top_xsmall { margin-top: 0.5rem !important; }
+.margin-top_small { margin-top: 1rem !important; }
+.margin_top-auto { margin-top: auto !important; }
+.margin-horizontal_auto { margin-left: auto; margin-right: auto; }
+.padding-top_xsmall { padding-top: 0.5rem !important; }
+.padding_xsmall { padding: 0.5rem !important; }
+.padding-horizontal_none { padding-left: 0 !important; padding-right: 0 !important; }
+.radius_bottom-0 { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.max-width_large { max-width: 62.5rem; }
+
+/* Button styles */
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1em 1.5em;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-primary);
+  background-color: var(--color-primary);
+  color: var(--color-primary-foreground);
+  text-decoration: none;
+  font-weight: 500;
+}
+.button:hover {
+  background-color: var(--accent-primary-hover);
+  border-color: var(--accent-primary-hover);
+  color: var(--text-primary);
+}
+.button.is-secondary {
+  background-color: transparent;
+  color: var(--text-primary);
+  border-color: var(--border-primary);
+}
+.button.is-secondary:hover {
+  background-color: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  border-color: var(--color-primary);
+  color: var(--text-primary);
+}
+.text-link { color: var(--color-primary); text-decoration: underline; text-underline-offset: 2px; }
+.text-link.is-secondary { color: var(--text-primary); text-decoration-color: var(--border-secondary); }
+.text-link.is-secondary:hover { color: var(--color-primary); text-decoration-color: var(--color-primary); }
+
+/* Card styles */
+.card {
+  background-color: var(--color-card);
+  color: var(--color-card-foreground);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+.card.on-inverse,
+.card.is-inverse {
+  background-color: var(--neutral-inverse);
+  color: var(--neutral-primary);
+  border-color: #373d364d; /* inverse a30 */
+}
+.card.on-secondary {
+  background-color: var(--color-secondary);
+  color: var(--color-secondary-foreground);
+}
+.card_body { padding: 1.5rem; }
+.card_body_small { padding: 1rem; }
+
+/* Divider */
+.divider {
+  height: 1px;
+  width: 100%;
+  background-color: var(--color-border);
+}
+.divider.is-secondary {
+  background-color: #373d3633; /* inverse a20 */
+}
+
+/* FULL OVERRIDE OF WEBFLOW NAV LOGO SIZING */
+.w--nav-menu-open .w-nav-brand img,
+.w-nav-brand img,
+.nav_logo img,
+.nav_logo-icon img,
+.nav_logo-icon img[style] {
+  height: 110px !important;
+  width: auto !important;
+  max-height: none !important;
+  min-height: 110px !important;
+}
+
+/* Force the wrapper to allow large logo - override any inline styles */
+.nav_logo,
+.nav_logo-icon,
+.w-nav-brand,
+.nav_logo[style],
+.nav_logo-icon[style],
+.w-nav-brand[style] {
+  height: 110px !important;
+  max-height: none !important;
+  width: auto !important;
+}
+
+/* Override any inline styles that might be added - specifically max-height */
+.nav_logo-icon[style*="max-height"],
+.nav_logo img[style*="max-height"],
+.w-nav-brand img[style*="max-height"] {
+  max-height: none !important;
+  height: 110px !important;
+}
+
+/* General override for any img with max-height inline style in navbar */
+.nav_logo img[style*="max-height"],
+.nav_logo-icon img[style*="max-height"] {
+  max-height: none !important;
+  height: 110px !important;
+}
+
+/* FINAL OVERRIDE FOR WEBFLOW NAV LOGO - Must be at bottom to override Webflow JS */
+.w-nav-brand img,
+.nav_logo img,
+.nav_main_logo,
+.nav_logo-icon img {
+  height: 120px !important;
+  width: auto !important;
+  max-height: none !important;
+  min-height: 120px !important;
+}
+
+/* Global override for inline max-height styles injected by Webflow */
+img[style*="max-height"] {
+  max-height: none !important;
+  height: 120px !important;
+}
+
+/* Increase navbar height to allow logo to display at full size */
+.nav_container.w-nav {
+  height: 120px !important;
+  min-height: 120px !important;
+  align-items: center !important;
+}
+
+.nav_left {
+  height: 120px !important;
+  min-height: 120px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.nav_logo {
+  height: 120px !important;
+  min-height: 120px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.nav_logo-icon {
+  height: 120px !important;
+  min-height: 120px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Make logo fill container */
+.nav_main_logo {
+  height: 100% !important;
+  width: auto !important;
+}
+
+/* Super override for Webflow forced logo size - Most specific selector to beat Webflow JS */
+.nav .nav_container.w-nav .nav_left .nav_logo.w-inline-block .nav_logo-icon img,
+.nav_logo-icon img,
+.nav_logo img,
+.nav_main_logo,
+.w-nav-brand img,
+.nav_container img {
+  height: 120px !important;
+  max-height: 120px !important;
+  width: auto !important;
+}
+
+/* Increase navbar height - Force parent containers */
+.nav_container.w-nav,
+.nav_left,
+.nav_logo,
+.nav_logo-icon {
+  height: 120px !important;
+  min-height: 120px !important;
+  display: flex !important;
+  align-items: center !important;
+}

@@ -1,0 +1,2816 @@
+# Job Application Module - "Apply to Work" Feature
+
+## Main Overview Prompt
+
+```
+I need to create a comprehensive "Apply to Work" module for my cleaning business website navbar. 
+This should be a multi-step application form for people who want to work as cleaners.
+
+**Requirements:**
+- Accessible from navbar (prominent "Apply Now" or "Work With Us" button)
+- Multi-step form with progress indicator
+- Collect all required information for work eligibility in USA and Canada
+- File uploads for documents (address proof, photo, work permits)
+- Form validation at each step
+- Save progress functionality (draft applications)
+- Mobile-responsive design
+- Submit to backend/database
+- Confirmation email after submission
+- Admin review dashboard
+
+**Information to Collect:**
+1. Personal Information
+2. Contact Details
+3. Address & Proof
+4. Work Eligibility Documents (USA & Canada)
+5. Photo Upload
+6. Availability & Preferences
+7. Experience & References
+8. Emergency Contact
+
+Please help me implement this step by step.
+```
+
+---
+
+## Phase 1: Navbar Integration
+
+```
+Add an "Apply to Work" button to the navigation bar:
+
+**Navbar Button:**
+- Position: Right side of navbar (before login/signup or after main nav items)
+- Style: Prominent CTA button (accent color, slightly larger)
+- Text: "Apply Now" or "Work With Us" or "Join Our Team"
+- Mobile: Show in hamburger menu or as floating action button
+- Icon: Briefcase or UserPlus icon
+
+**Button Variations:**
+```javascript
+// Desktop
+<Link href="/apply" className="btn-primary">
+  <Briefcase className="w-5 h-5 mr-2" />
+  Apply Now
+</Link>
+
+// Mobile - Floating Action Button (optional)
+<Link href="/apply" className="fixed bottom-6 right-6 btn-primary rounded-full shadow-lg">
+  <Plus className="w-6 h-6" />
+</Link>
+```
+
+**Navigation Flow:**
+- Click button → Navigate to `/apply` page
+- OR open modal with form (if preferred)
+
+Please implement the navbar button with proper styling and mobile responsiveness.
+```
+
+---
+
+## Phase 2: Application Form Structure
+
+```
+Create a multi-step form with the following structure:
+
+**Steps Overview:**
+1. Personal Information (Step 1 of 8)
+2. Contact Details (Step 2 of 8)
+3. Address Information (Step 3 of 8)
+4. Address Proof Upload (Step 4 of 8)
+5. Work Eligibility (Step 5 of 8)
+6. Photo & Identification (Step 6 of 8)
+7. Availability & Preferences (Step 7 of 8)
+8. Experience & References (Step 8 of 8)
+
+**Form Layout Components:**
+- Progress bar at top (shows current step)
+- Step indicator with checkmarks for completed steps
+- Form fields for current step
+- Navigation buttons: "Previous", "Save Draft", "Next", "Submit"
+- Form validation on each step
+- Auto-save to local storage every 30 seconds
+
+**Main Form Component Structure:**
+```javascript
+<div className="max-w-4xl mx-auto p-6">
+  {/* Progress Bar */}
+  <ProgressBar currentStep={currentStep} totalSteps={8} />
+  
+  {/* Step Indicator */}
+  <StepIndicator steps={steps} currentStep={currentStep} />
+  
+  {/* Form Content */}
+  <div className="bg-white rounded-lg shadow-md p-8 mt-6">
+    {renderStepContent(currentStep)}
+  </div>
+  
+  {/* Navigation Buttons */}
+  <FormNavigation 
+    onPrevious={handlePrevious}
+    onNext={handleNext}
+    onSaveDraft={handleSaveDraft}
+    isFirstStep={currentStep === 1}
+    isLastStep={currentStep === 8}
+  />
+</div>
+```
+
+Please create the main form structure with step navigation.
+```
+
+---
+
+## Phase 3: Step 1 - Personal Information
+
+```
+Create the first step of the application form:
+
+**Fields Required:**
+
+1. **Full Legal Name**
+   - First Name (required)
+   - Middle Name (optional)
+   - Last Name (required)
+   - Validation: Letters only, min 2 characters
+
+2. **Date of Birth**
+   - Date picker (MM/DD/YYYY)
+   - Age validation: Must be 18+ years old
+   - Display age dynamically
+
+3. **Gender**
+   - Radio buttons or dropdown
+   - Options: Male, Female, Non-binary, Prefer not to say
+
+4. **Preferred Language**
+   - Dropdown
+   - Options: English, Spanish, French, Turkish, Other (with text field)
+
+5. **Social Security Number / Social Insurance Number**
+   - Input with mask (XXX-XX-XXXX for USA, XXX-XXX-XXX for Canada)
+   - Option to provide later
+   - Encrypted on submission
+   - Help text: "Required for tax purposes. Will be kept confidential."
+
+**Form Code Example:**
+```javascript
+<div className="space-y-6">
+  <h2 className="text-2xl font-bold mb-6">Personal Information</h2>
+  
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <FormField label="First Name *" error={errors.firstName}>
+      <input 
+        type="text"
+        name="firstName"
+        value={formData.firstName}
+        onChange={handleChange}
+        className="form-input"
+        required
+      />
+    </FormField>
+    
+    <FormField label="Middle Name">
+      <input 
+        type="text"
+        name="middleName"
+        value={formData.middleName}
+        onChange={handleChange}
+        className="form-input"
+      />
+    </FormField>
+    
+    <FormField label="Last Name *" error={errors.lastName}>
+      <input 
+        type="text"
+        name="lastName"
+        value={formData.lastName}
+        onChange={handleChange}
+        className="form-input"
+        required
+      />
+    </FormField>
+  </div>
+  
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <FormField label="Date of Birth *" error={errors.dateOfBirth}>
+      <input 
+        type="date"
+        name="dateOfBirth"
+        max={getMaxDate()} // 18 years ago
+        value={formData.dateOfBirth}
+        onChange={handleChange}
+        className="form-input"
+        required
+      />
+      {formData.dateOfBirth && (
+        <p className="text-sm text-gray-500 mt-1">Age: {calculateAge(formData.dateOfBirth)}</p>
+      )}
+    </FormField>
+    
+    <FormField label="Gender">
+      <select 
+        name="gender"
+        value={formData.gender}
+        onChange={handleChange}
+        className="form-select"
+      >
+        <option value="">Select...</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+        <option value="non-binary">Non-binary</option>
+        <option value="prefer-not-to-say">Prefer not to say</option>
+      </select>
+    </FormField>
+  </div>
+  
+  <FormField label="Preferred Language *">
+    <select 
+      name="preferredLanguage"
+      value={formData.preferredLanguage}
+      onChange={handleChange}
+      className="form-select"
+      required
+    >
+      <option value="">Select...</option>
+      <option value="english">English</option>
+      <option value="spanish">Spanish</option>
+      <option value="french">French</option>
+      <option value="turkish">Turkish</option>
+      <option value="other">Other</option>
+    </select>
+  </FormField>
+  
+  {formData.preferredLanguage === 'other' && (
+    <FormField label="Please specify">
+      <input 
+        type="text"
+        name="otherLanguage"
+        value={formData.otherLanguage}
+        onChange={handleChange}
+        className="form-input"
+      />
+    </FormField>
+  )}
+</div>
+```
+
+Please implement Step 1 with validation and error handling.
+```
+
+---
+
+## Phase 4: Step 2 - Contact Details
+
+```
+Create the contact information step:
+
+**Fields Required:**
+
+1. **Email Address**
+   - Email input with validation
+   - Verify email format
+   - Optional: Send verification code
+
+2. **Phone Number**
+   - Phone input with country code selector
+   - Format: +1 (XXX) XXX-XXXX
+   - SMS verification (optional)
+
+3. **Alternative Phone Number**
+   - Optional secondary contact
+   - Same format as primary
+
+4. **Preferred Contact Method**
+   - Checkbox options: Email, Phone, SMS, WhatsApp
+   - At least one must be selected
+
+5. **Best Time to Reach**
+   - Checkbox options: Morning (8AM-12PM), Afternoon (12PM-5PM), Evening (5PM-8PM)
+
+**Form Code:**
+```javascript
+<div className="space-y-6">
+  <h2 className="text-2xl font-bold mb-6">Contact Information</h2>
+  
+  <FormField label="Email Address *" error={errors.email}>
+    <input 
+      type="email"
+      name="email"
+      value={formData.email}
+      onChange={handleChange}
+      className="form-input"
+      placeholder="your.email@example.com"
+      required
+    />
+    <p className="text-sm text-gray-500 mt-1">
+      We'll send your application confirmation here
+    </p>
+  </FormField>
+  
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <FormField label="Primary Phone Number *" error={errors.phone}>
+      <div className="flex gap-2">
+        <select 
+          name="phoneCountryCode"
+          value={formData.phoneCountryCode}
+          onChange={handleChange}
+          className="form-select w-24"
+        >
+          <option value="+1">+1 (US/CA)</option>
+          <option value="+52">+52 (MX)</option>
+          <option value="+90">+90 (TR)</option>
+        </select>
+        <input 
+          type="tel"
+          name="phone"
+          value={formData.phone}
+          onChange={handleChange}
+          className="form-input flex-1"
+          placeholder="(555) 123-4567"
+          required
+        />
+      </div>
+    </FormField>
+    
+    <FormField label="Alternative Phone Number">
+      <input 
+        type="tel"
+        name="alternativePhone"
+        value={formData.alternativePhone}
+        onChange={handleChange}
+        className="form-input"
+        placeholder="(555) 123-4567"
+      />
+    </FormField>
+  </div>
+  
+  <FormField label="Preferred Contact Method *" error={errors.contactMethod}>
+    <div className="space-y-2">
+      {['Email', 'Phone Call', 'SMS/Text', 'WhatsApp'].map(method => (
+        <label key={method} className="flex items-center gap-2">
+          <input 
+            type="checkbox"
+            name="contactMethods"
+            value={method.toLowerCase().replace(' ', '-')}
+            checked={formData.contactMethods?.includes(method.toLowerCase().replace(' ', '-'))}
+            onChange={handleCheckboxChange}
+            className="form-checkbox"
+          />
+          <span>{method}</span>
+        </label>
+      ))}
+    </div>
+  </FormField>
+  
+  <FormField label="Best Time to Reach You">
+    <div className="space-y-2">
+      {[
+        { value: 'morning', label: 'Morning (8AM - 12PM)' },
+        { value: 'afternoon', label: 'Afternoon (12PM - 5PM)' },
+        { value: 'evening', label: 'Evening (5PM - 8PM)' }
+      ].map(time => (
+        <label key={time.value} className="flex items-center gap-2">
+          <input 
+            type="checkbox"
+            name="bestTimeToReach"
+            value={time.value}
+            checked={formData.bestTimeToReach?.includes(time.value)}
+            onChange={handleCheckboxChange}
+            className="form-checkbox"
+          />
+          <span>{time.label}</span>
+        </label>
+      ))}
+    </div>
+  </FormField>
+</div>
+```
+
+Please implement Step 2 with proper validation.
+```
+
+---
+
+## Phase 5: Step 3 - Address Information
+
+```
+Create the address information step:
+
+**Fields Required:**
+
+1. **Country**
+   - Dropdown: USA or Canada
+   - Determines which fields to show next
+
+2. **Full Street Address**
+   - Address Line 1 (required)
+   - Address Line 2 / Apt/Unit (optional)
+
+3. **City**
+   - Text input
+
+4. **State/Province**
+   - Dropdown based on country selected
+   - US States or Canadian Provinces
+
+5. **ZIP Code / Postal Code**
+   - Format validation based on country
+   - USA: 5 digits or 5+4 (12345 or 12345-6789)
+   - Canada: A1A 1A1 format
+
+6. **How long at current address?**
+   - Years and Months dropdowns
+
+7. **Previous Address (if less than 2 years)**
+   - Same fields as above
+   - Only show if current address tenure < 2 years
+
+**Form Code:**
+```javascript
+<div className="space-y-6">
+  <h2 className="text-2xl font-bold mb-6">Current Address</h2>
+  
+  <FormField label="Country *" error={errors.country}>
+    <select 
+      name="country"
+      value={formData.country}
+      onChange={handleCountryChange}
+      className="form-select"
+      required
+    >
+      <option value="">Select Country...</option>
+      <option value="USA">United States</option>
+      <option value="Canada">Canada</option>
+    </select>
+  </FormField>
+  
+  <FormField label="Street Address *" error={errors.addressLine1}>
+    <input 
+      type="text"
+      name="addressLine1"
+      value={formData.addressLine1}
+      onChange={handleChange}
+      className="form-input"
+      placeholder="123 Main Street"
+      required
+    />
+  </FormField>
+  
+  <FormField label="Apartment, Suite, Unit, etc.">
+    <input 
+      type="text"
+      name="addressLine2"
+      value={formData.addressLine2}
+      onChange={handleChange}
+      className="form-input"
+      placeholder="Apt 4B"
+    />
+  </FormField>
+  
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <FormField label="City *" error={errors.city}>
+      <input 
+        type="text"
+        name="city"
+        value={formData.city}
+        onChange={handleChange}
+        className="form-input"
+        required
+      />
+    </FormField>
+    
+    <FormField label={formData.country === 'USA' ? 'State *' : 'Province *'} error={errors.state}>
+      <select 
+        name="state"
+        value={formData.state}
+        onChange={handleChange}
+        className="form-select"
+        required
+      >
+        <option value="">Select...</option>
+        {formData.country === 'USA' ? (
+          // US States
+          usStates.map(state => (
+            <option key={state.code} value={state.code}>{state.name}</option>
+          ))
+        ) : (
+          // Canadian Provinces
+          canadianProvinces.map(province => (
+            <option key={province.code} value={province.code}>{province.name}</option>
+          ))
+        )}
+      </select>
+    </FormField>
+    
+    <FormField 
+      label={formData.country === 'USA' ? 'ZIP Code *' : 'Postal Code *'} 
+      error={errors.zipCode}
+    >
+      <input 
+        type="text"
+        name="zipCode"
+        value={formData.zipCode}
+        onChange={handleChange}
+        className="form-input"
+        placeholder={formData.country === 'USA' ? '12345' : 'A1A 1A1'}
+        pattern={formData.country === 'USA' ? '[0-9]{5}(-[0-9]{4})?' : '[A-Za-z][0-9][A-Za-z] [0-9][A-Za-z][0-9]'}
+        required
+      />
+    </FormField>
+  </div>
+  
+  <FormField label="How long have you lived at this address? *">
+    <div className="grid grid-cols-2 gap-4">
+      <select 
+        name="addressYears"
+        value={formData.addressYears}
+        onChange={handleChange}
+        className="form-select"
+      >
+        <option value="">Years...</option>
+        {[0,1,2,3,4,5,6,7,8,9,10].map(year => (
+          <option key={year} value={year}>{year} {year === 1 ? 'year' : 'years'}</option>
+        ))}
+        <option value="10+">10+ years</option>
+      </select>
+      
+      <select 
+        name="addressMonths"
+        value={formData.addressMonths}
+        onChange={handleChange}
+        className="form-select"
+      >
+        <option value="">Months...</option>
+        {[0,1,2,3,4,5,6,7,8,9,10,11].map(month => (
+          <option key={month} value={month}>{month} {month === 1 ? 'month' : 'months'}</option>
+        ))}
+      </select>
+    </div>
+  </FormField>
+  
+  {/* Show previous address if less than 2 years */}
+  {(parseInt(formData.addressYears) < 2) && (
+    <div className="mt-8 pt-8 border-t border-gray-200">
+      <h3 className="text-xl font-semibold mb-4">Previous Address</h3>
+      <p className="text-sm text-gray-600 mb-4">
+        Since you've lived at your current address for less than 2 years, please provide your previous address.
+      </p>
+      {/* Repeat address fields for previous address */}
+    </div>
+  )}
+</div>
+```
+
+Please implement Step 3 with dynamic state/province lists and conditional previous address section.
+```
+
+---
+
+## Phase 6: Step 4 - Address Proof Upload
+
+```
+Create the document upload step for address verification:
+
+**Documents to Upload:**
+
+1. **Proof of Address (Required)**
+   - Accepted documents:
+     * Utility bill (electricity, water, gas) - within last 3 months
+     * Bank statement - within last 3 months
+     * Lease agreement or mortgage statement
+     * Government-issued document with address
+   - File types: PDF, JPG, PNG
+   - Max size: 5MB
+   - Multiple files allowed (up to 3)
+
+**File Upload Component:**
+```javascript
+<div className="space-y-6">
+  <h2 className="text-2xl font-bold mb-6">Proof of Address</h2>
+  
+  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+    <h3 className="font-semibold text-blue-900 mb-2">Accepted Documents:</h3>
+    <ul className="list-disc list-inside text-sm text-blue-800 space-y-1">
+      <li>Utility bill (electricity, water, gas) - dated within last 3 months</li>
+      <li>Bank statement - dated within last 3 months</li>
+      <li>Lease agreement or mortgage statement</li>
+      <li>Government-issued document showing your current address</li>
+    </ul>
+    <p className="text-sm text-blue-800 mt-3">
+      <strong>Note:</strong> Document must clearly show your name and full address matching the address you provided.
+    </p>
+  </div>
+  
+  <FormField label="Upload Proof of Address *" error={errors.addressProof}>
+    <FileUpload
+      name="addressProof"
+      accept=".pdf,.jpg,.jpeg,.png"
+      maxSize={5 * 1024 * 1024} // 5MB
+      maxFiles={3}
+      onUpload={handleFileUpload}
+      files={formData.addressProofFiles}
+      onRemove={handleFileRemove}
+      required
+    />
+    <p className="text-sm text-gray-500 mt-2">
+      Accepted formats: PDF, JPG, PNG. Max size: 5MB per file. You can upload up to 3 files.
+    </p>
+  </FormField>
+  
+  {/* File Preview */}
+  {formData.addressProofFiles && formData.addressProofFiles.length > 0 && (
+    <div className="space-y-2">
+      <h4 className="font-medium text-gray-700">Uploaded Files:</h4>
+      {formData.addressProofFiles.map((file, index) => (
+        <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+          <div className="flex items-center gap-3">
+            <FileText className="w-5 h-5 text-gray-400" />
+            <div>
+              <p className="text-sm font-medium">{file.name}</p>
+              <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => handleFileRemove('addressProof', index)}
+            className="text-red-500 hover:text-red-700"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+      ))}
+    </div>
+  )}
+</div>
+```
+
+**FileUpload Component (Reusable):**
+```javascript
+function FileUpload({ name, accept, maxSize, maxFiles, onUpload, files, onRemove, required }) {
+  const [dragActive, setDragActive] = useState(false);
+  const inputRef = useRef(null);
+  
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+  
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFiles(e.dataTransfer.files);
+    }
+  };
+  
+  const handleChange = (e) => {
+    e.preventDefault();
+    if (e.target.files && e.target.files[0]) {
+      handleFiles(e.target.files);
+    }
+  };
+  
+  const handleFiles = (fileList) => {
+    const filesArray = Array.from(fileList);
+    
+    // Validate files
+    const validFiles = filesArray.filter(file => {
+      if (file.size > maxSize) {
+        alert(`${file.name} is too large. Max size is ${formatFileSize(maxSize)}`);
+        return false;
+      }
+      return true;
+    });
+    
+    if (files.length + validFiles.length > maxFiles) {
+      alert(`You can only upload up to ${maxFiles} files`);
+      return;
+    }
+    
+    onUpload(name, validFiles);
+  };
+  
+  return (
+    <div
+      className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+        dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-gray-50'
+      }`}
+      onDragEnter={handleDrag}
+      onDragLeave={handleDrag}
+      onDragOver={handleDrag}
+      onDrop={handleDrop}
+    >
+      <input
+        ref={inputRef}
+        type="file"
+        name={name}
+        accept={accept}
+        multiple={maxFiles > 1}
+        onChange={handleChange}
+        className="hidden"
+        required={required && (!files || files.length === 0)}
+      />
+      
+      <Upload className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+      
+      <p className="text-gray-700 mb-2">
+        <strong>Drag and drop</strong> your files here, or{' '}
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          className="text-blue-600 hover:text-blue-700 underline"
+        >
+          browse
+        </button>
+      </p>
+      
+      <p className="text-sm text-gray-500">
+        {accept} (max {formatFileSize(maxSize)} per file)
+      </p>
+    </div>
+  );
+}
+```
+
+Please implement Step 4 with drag-and-drop file upload functionality.
+```
+
+---
+
+## Phase 7: Step 5 - Work Eligibility Documents
+
+```
+Create the work authorization step with country-specific requirements:
+
+**For USA Applicants:**
+
+1. **Are you legally authorized to work in the United States? ***
+   - Radio: Yes / No
+   - If No, show message about sponsorship
+
+2. **Employment Authorization Type:**
+   - US Citizen
+   - Permanent Resident (Green Card)
+   - Work Visa (H-1B, H-2B, etc.)
+   - Employment Authorization Document (EAD)
+   - Other
+
+3. **Document Upload based on selection:**
+   - US Citizen: Driver's License or State ID + Social Security Card
+   - Green Card: Upload Green Card (both sides)
+   - Work Visa: Upload visa and I-94
+   - EAD: Upload EAD card
+
+4. **I-9 Form Information:**
+   - Will be completed on first day of employment
+   - Checkbox acknowledging this requirement
+
+**For Canada Applicants:**
+
+1. **Are you legally authorized to work in Canada? ***
+   - Radio: Yes / No
+
+2. **Employment Authorization Type:**
+   - Canadian Citizen
+   - Permanent Resident
+   - Work Permit
+   - Study Permit with work authorization
+
+3. **Document Upload based on selection:**
+   - Canadian Citizen: Driver's License or Provincial ID + SIN
+   - Permanent Resident: PR Card
+   - Work Permit: Upload work permit
+
+**Form Code:**
+```javascript
+<div className="space-y-6">
+  <h2 className="text-2xl font-bold mb-6">Work Eligibility</h2>
+  
+  <FormField 
+    label={`Are you legally authorized to work in ${formData.country === 'USA' ? 'the United States' : 'Canada'}? *`} 
+    error={errors.workAuthorization}
+  >
+    <div className="space-y-2">
+      <label className="flex items-center gap-2">
+        <input 
+          type="radio"
+          name="workAuthorization"
+          value="yes"
+          checked={formData.workAuthorization === 'yes'}
+          onChange={handleChange}
+          className="form-radio"
+          required
+        />
+        <span>Yes</span>
+      </label>
+      <label className="flex items-center gap-2">
+        <input 
+          type="radio"
+          name="workAuthorization"
+          value="no"
+          checked={formData.workAuthorization === 'no'}
+          onChange={handleChange}
+          className="form-radio"
+        />
+        <span>No</span>
+      </label>
+    </div>
+  </FormField>
+  
+  {formData.workAuthorization === 'no' && (
+    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+      <p className="text-yellow-800">
+        Unfortunately, we are unable to sponsor work visas at this time. 
+        You must be legally authorized to work in {formData.country === 'USA' ? 'the United States' : 'Canada'} to apply.
+      </p>
+    </div>
+  )}
+  
+  {formData.workAuthorization === 'yes' && (
+    <>
+      <FormField label="Employment Authorization Type *" error={errors.authorizationType}>
+        <select 
+          name="authorizationType"
+          value={formData.authorizationType}
+          onChange={handleChange}
+          className="form-select"
+          required
+        >
+          <option value="">Select...</option>
+          {formData.country === 'USA' ? (
+            <>
+              <option value="us-citizen">U.S. Citizen</option>
+              <option value="permanent-resident">Permanent Resident (Green Card)</option>
+              <option value="work-visa">Work Visa (H-1B, H-2B, etc.)</option>
+              <option value="ead">Employment Authorization Document (EAD)</option>
+              <option value="other">Other</option>
+            </>
+          ) : (
+            <>
+              <option value="canadian-citizen">Canadian Citizen</option>
+              <option value="permanent-resident">Permanent Resident</option>
+              <option value="work-permit">Work Permit</option>
+              <option value="study-permit">Study Permit with Work Authorization</option>
+            </>
+          )}
+        </select>
+      </FormField>
+      
+      {/* Document upload based on authorization type */}
+      {formData.authorizationType && (
+        <div className="space-y-4">
+          {renderAuthorizationDocuments(formData.authorizationType, formData.country)}
+        </div>
+      )}
+      
+      {/* Work Visa/Permit Expiration Date */}
+      {['work-visa', 'ead', 'work-permit', 'study-permit'].includes(formData.authorizationType) && (
+        <FormField label="Document Expiration Date *" error={errors.authExpiration}>
+          <input 
+            type="date"
+            name="authExpiration"
+            min={new Date().toISOString().split('T')[0]}
+            value={formData.authExpiration}
+            onChange={handleChange}
+            className="form-input"
+            required
+          />
+          <p className="text-sm text-gray-500 mt-1">
+            Your work authorization must be valid for at least 6 months
+          </p>
+        </FormField>
+      )}
+      
+      {/* I-9 Acknowledgment for USA */}
+      {formData.country === 'USA' && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <label className="flex items-start gap-3">
+            <input 
+              type="checkbox"
+              name="i9Acknowledgment"
+              checked={formData.i9Acknowledgment}
+              onChange={handleChange}
+              className="form-checkbox mt-1"
+              required
+            />
+            <span className="text-sm text-blue-900">
+              I understand that I will be required to complete Form I-9 (Employment Eligibility Verification) 
+              on my first day of employment and provide original documentation to verify my identity and 
+              employment authorization. *
+            </span>
+          </label>
+        </div>
+      )}
+    </>
+  )}
+</div>
+
+{/* Helper function to render document uploads */}
+function renderAuthorizationDocuments(authType, country) {
+  const documents = {
+    'us-citizen': [
+      { label: 'Driver\'s License or State ID (Front)', name: 'idFront' },
+      { label: 'Driver\'s License or State ID (Back)', name: 'idBack' },
+      { label: 'Social Security Card (optional)', name: 'ssCard' }
+    ],
+    'permanent-resident': [
+      { label: 'Green Card (Front)', name: 'greenCardFront', required: true },
+      { label: 'Green Card (Back)', name: 'greenCardBack', required: true }
+    ],
+    'work-visa': [
+      { label: 'Visa Page', name: 'visa', required: true },
+      { label: 'I-94 Arrival/Departure Record', name: 'i94', required: true },
+      { label: 'Passport Bio Page', name: 'passport', required: true }
+    ],
+    'ead': [
+      { label: 'EAD Card (Front)', name: 'eadFront', required: true },
+      { label: 'EAD Card (Back)', name: 'eadBack', required: true }
+    ],
+    'canadian-citizen': [
+      { label: 'Driver\'s License or Provincial ID', name: 'provincialId', required: true },
+      { label: 'Social Insurance Number (SIN) Document', name: 'sin' }
+    ],
+    'work-permit': [
+      { label: 'Work Permit', name: 'workPermit', required: true },
+      { label: 'Passport Bio Page', name: 'passport', required: true }
+    ]
+  };
+  
+  const docList = documents[authType] || [];
+  
+  return docList.map(doc => (
+    <FormField key={doc.name} label={`${doc.label} ${doc.required ? '*' : ''}`}>
+      <FileUpload
+        name={doc.name}
+        accept=".pdf,.jpg,.jpeg,.png"
+        maxSize={5 * 1024 * 1024}
+        maxFiles={1}
+        onUpload={handleFileUpload}
+        files={formData[`${doc.name}Files`]}
+        onRemove={handleFileRemove}
+        required={doc.required}
+      />
+    </FormField>
+  ));
+}
+```
+
+Please implement Step 5 with conditional document uploads based on authorization type.
+```
+
+---
+
+## Phase 8: Step 6 - Photo & Identification
+
+```
+Create the photo upload step:
+
+**Requirements:**
+
+1. **Professional Photo Upload**
+   - Headshot/passport-style photo
+   - Clear face visibility
+   - Neutral background preferred
+   - File types: JPG, PNG
+   - Max size: 2MB
+   - Shows preview after upload
+
+2. **Photo Guidelines:**
+   - Face should be clearly visible
+   - Good lighting
+   - No sunglasses or hats
+   - Professional appearance
+
+3. **Optional: Video Introduction**
+   - 30-60 second introduction video
+   - Tell us about yourself
+   - Why you want to work with us
+
+**Form Code:**
+```javascript
+<div className="space-y-6">
+  <h2 className="text-2xl font-bold mb-6">Photo & Identification</h2>
+  
+  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+    <h3 className="font-semibold text-blue-900 mb-2">Photo Guidelines:</h3>
+    <ul className="list-disc list-inside text-sm text-blue-800 space-y-1">
+      <li>Professional headshot or passport-style photo</li>
+      <li>Face clearly visible with good lighting</li>
+      <li>Neutral or plain background preferred</li>
+      <li>No sunglasses, hats, or face coverings</li>
+      <li>Recent photo (taken within last 6 months)</li>
+    </ul>
+  </div>
+  
+  <FormField label="Upload Your Photo *" error={errors.photo}>
+    <div className="flex flex-col items-center">
+      {/* Photo Preview */}
+      {formData.photoPreview ? (
+        <div className="relative mb-4">
+          <img 
+            src={formData.photoPreview} 
+            alt="Applicant photo"
+            className="w-48 h-48 object-cover rounded-full border-4 border-gray-200"
+          />
+          <button
+            type="button"
+            onClick={() => handlePhotoRemove()}
+            className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-2 hover:bg-red-600"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      ) : (
+        <div className="w-48 h-48 bg-gray-100 rounded-full border-4 border-dashed border-gray-300 flex items-center justify-center mb-4">
+          <Camera className="w-16 h-16 text-gray-400" />
+        </div>
+      )}
+      
+      {/* Upload Button */}
+      <input
+        ref={photoInputRef}
+        type="file"
+        accept="image/jpeg,image/jpg,image/png"
+        onChange={handlePhotoUpload}
+        className="hidden"
+        required={!formData.photoPreview}
+      />
+      <button
+        type="button"
+        onClick={() => photoInputRef.current?.click()}
+        className="btn-secondary"
+      >
+        <Upload className="w-4 h-4 mr-2" />
+        {formData.photoPreview ? 'Change Photo' : 'Upload Photo'}
+      </button>
+      <p className="text-sm text-gray-500 mt-2">
+        JPG or PNG, max 2MB
+      </p>
+    </div>
+  </FormField>
+  
+  {/* Optional Video Introduction */}
+  <div className="pt-6 border-t border-gray-200">
+    <FormField label="Video Introduction (Optional)">
+      <div className="bg-gray-50 rounded-lg p-6 text-center">
+        <Video className="w-12 h-12 mx-auto text-gray-400 mb-3" />
+        <p className="text-gray-700 mb-4">
+          Record a short 30-60 second video introducing yourself and telling us why you'd 
+          like to work with tSmartCleaning. This helps us get to know you better!
+        </p>
+        
+        {!formData.videoFile ? (
+          <>
+            <input
+              ref={videoInputRef}
+              type="file"
+              accept="video/mp4,video/mov,video/avi"
+              onChange={handleVideoUpload}
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={() => videoInputRef.current?.click()}
+              className="btn-secondary"
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              Upload Video
+            </button>
+            <p className="text-xs text-gray-500 mt-2">
+              MP4, MOV, or AVI, max 50MB
+            </p>
+          </>
+        ) : (
+          <div className="bg-white rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Video className="w-6 h-6 text-blue-600" />
+                <div className="text-left">
+                  <p className="text-sm font-medium">{formData.videoFile.name}</p>
+                  <p className="text-xs text-gray-500">{formatFileSize(formData.videoFile.size)}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleVideoRemove}
+                className="text-red-500 hover:text-red-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </FormField>
+  </div>
+</div>
+```
+
+Please implement Step 6 with photo preview and optional video upload.
+```
+
+---
+
+## Phase 9: Step 7 - Availability & Preferences
+
+```
+Create the availability and work preferences step:
+
+**Fields Required:**
+
+1. **Available Start Date**
+   - Date picker
+   - Must be within next 90 days
+   - "Immediately" option
+
+2. **Preferred Work Schedule**
+   - Full-time (30+ hours/week)
+   - Part-time (15-29 hours/week)
+   - Flexible/As needed
+
+3. **Days Available to Work**
+   - Checkboxes for each day of the week
+   - At least 2 days required
+
+4. **Time Availability**
+   - For each selected day, choose time slots:
+     * Morning (6AM-12PM)
+     * Afternoon (12PM-6PM)
+     * Evening (6PM-10PM)
+
+5. **Preferred Work Radius**
+   - How far willing to travel from home address
+   - Dropdown: 5, 10, 15, 20, 25, 30+ miles/km
+
+6. **Transportation**
+   - Own vehicle
+   - Public transportation
+   - Willing to carpool
+   - Need transportation assistance
+
+7. **Special Skills or Certifications**
+   - Multi-select checkboxes:
+     * Deep cleaning expertise
+     * Carpet cleaning
+     * Window cleaning
+     * Move-in/move-out cleaning
+     * Post-construction cleaning
+     * Green/eco-friendly cleaning
+     * Pet-friendly homes experience
+
+8. **Additional Preferences**
+   - Willing to work weekends: Yes/No
+   - Willing to work holidays: Yes/No
+   - Comfortable with pets: Yes/No
+   - Any allergies or sensitivities
+
+**Form Code:**
+```javascript
+<div className="space-y-6">
+  <h2 className="text-2xl font-bold mb-6">Availability & Preferences</h2>
+  
+  <FormField label="When can you start? *" error={errors.startDate}>
+    <div className="space-y-2">
+      <label className="flex items-center gap-2">
+        <input 
+          type="radio"
+          name="startDateType"
+          value="immediately"
+          checked={formData.startDateType === 'immediately'}
+          onChange={handleChange}
+          className="form-radio"
+        />
+        <span>Immediately</span>
+      </label>
+      <label className="flex items-center gap-2">
+        <input 
+          type="radio"
+          name="startDateType"
+          value="specific-date"
+          checked={formData.startDateType === 'specific-date'}
+          onChange={handleChange}
+          className="form-radio"
+        />
+        <span>Specific date</span>
+      </label>
+    </div>
+    
+    {formData.startDateType === 'specific-date' && (
+      <input 
+        type="date"
+        name="startDate"
+        min={new Date().toISOString().split('T')[0]}
+        max={getMaxStartDate()} // 90 days from now
+        value={formData.startDate}
+        onChange={handleChange}
+        className="form-input mt-2"
+        required
+      />
+    )}
+  </FormField>
+  
+  <FormField label="Preferred Work Schedule *" error={errors.workSchedule}>
+    <select 
+      name="workSchedule"
+      value={formData.workSchedule}
+      onChange={handleChange}
+      className="form-select"
+      required
+    >
+      <option value="">Select...</option>
+      <option value="full-time">Full-time (30+ hours per week)</option>
+      <option value="part-time">Part-time (15-29 hours per week)</option>
+      <option value="flexible">Flexible / As needed</option>
+    </select>
+  </FormField>
+  
+  <FormField label="Days Available to Work * (Select at least 2)" error={errors.daysAvailable}>
+    <div className="space-y-3">
+      {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
+        <div key={day} className="border border-gray-200 rounded-lg p-3">
+          <label className="flex items-center gap-2 mb-2">
+            <input 
+              type="checkbox"
+              name="daysAvailable"
+              value={day.toLowerCase()}
+              checked={formData.daysAvailable?.includes(day.toLowerCase())}
+              onChange={handleDayChange}
+              className="form-checkbox"
+            />
+            <span className="font-medium">{day}</span>
+          </label>
+          
+          {/* Time slots for selected day */}
+          {formData.daysAvailable?.includes(day.toLowerCase()) && (
+            <div className="ml-7 space-y-1">
+              <p className="text-sm text-gray-600 mb-2">Available times:</p>
+              {['morning', 'afternoon', 'evening'].map(time => (
+                <label key={time} className="flex items-center gap-2 text-sm">
+                  <input 
+                    type="checkbox"
+                    name={`${day.toLowerCase()}Times`}
+                    value={time}
+                    checked={formData[`${day.toLowerCase()}Times`]?.includes(time)}
+                    onChange={(e) => handleTimeChange(day.toLowerCase(), e)}
+                    className="form-checkbox"
+                  />
+                  <span className="capitalize">
+                    {time === 'morning' && 'Morning (6AM-12PM)'}
+                    {time === 'afternoon' && 'Afternoon (12PM-6PM)'}
+                    {time === 'evening' && 'Evening (6PM-10PM)'}
+                  </span>
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  </FormField>
+  
+  <FormField label="Preferred Work Radius *" error={errors.workRadius}>
+    <select 
+      name="workRadius"
+      value={formData.workRadius}
+      onChange={handleChange}
+      className="form-select"
+      required
+    >
+      <option value="">Select distance...</option>
+      <option value="5">Within 5 miles/km</option>
+      <option value="10">Within 10 miles/km</option>
+      <option value="15">Within 15 miles/km</option>
+      <option value="20">Within 20 miles/km</option>
+      <option value="25">Within 25 miles/km</option>
+      <option value="30">30+ miles/km</option>
+    </select>
+    <p className="text-sm text-gray-500 mt-1">
+      How far are you willing to travel from your home address?
+    </p>
+  </FormField>
+  
+  <FormField label="Transportation *" error={errors.transportation}>
+    <div className="space-y-2">
+      {[
+        { value: 'own-vehicle', label: 'I have my own vehicle' },
+        { value: 'public-transport', label: 'I use public transportation' },
+        { value: 'carpool', label: 'I\'m willing to carpool' },
+        { value: 'need-assistance', label: 'I need transportation assistance' }
+      ].map(option => (
+        <label key={option.value} className="flex items-center gap-2">
+          <input 
+            type="radio"
+            name="transportation"
+            value={option.value}
+            checked={formData.transportation === option.value}
+            onChange={handleChange}
+            className="form-radio"
+            required
+          />
+          <span>{option.label}</span>
+        </label>
+      ))}
+    </div>
+  </FormField>
+  
+  <FormField label="Special Skills or Certifications">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      {[
+        'Deep cleaning expertise',
+        'Carpet cleaning',
+        'Window cleaning',
+        'Move-in/move-out cleaning',
+        'Post-construction cleaning',
+        'Green/eco-friendly cleaning',
+        'Pet-friendly homes experience',
+        'Commercial cleaning experience'
+      ].map(skill => (
+        <label key={skill} className="flex items-center gap-2">
+          <input 
+            type="checkbox"
+            name="specialSkills"
+            value={skill.toLowerCase().replace(/ /g, '-')}
+            checked={formData.specialSkills?.includes(skill.toLowerCase().replace(/ /g, '-'))}
+            onChange={handleCheckboxChange}
+            className="form-checkbox"
+          />
+          <span className="text-sm">{skill}</span>
+        </label>
+      ))}
+    </div>
+  </FormField>
+  
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <FormField label="Willing to work weekends?">
+      <div className="space-y-2">
+        <label className="flex items-center gap-2">
+          <input 
+            type="radio"
+            name="weekendAvailability"
+            value="yes"
+            checked={formData.weekendAvailability === 'yes'}
+            onChange={handleChange}
+            className="form-radio"
+          />
+          <span>Yes</span>
+        </label>
+        <label className="flex items-center gap-2">
+          <input 
+            type="radio"
+            name="weekendAvailability"
+            value="no"
+            checked={formData.weekendAvailability === 'no'}
+            onChange={handleChange}
+            className="form-radio"
+          />
+          <span>No</span>
+        </label>
+      </div>
+    </FormField>
+    
+    <FormField label="Willing to work holidays?">
+      <div className="space-y-2">
+        <label className="flex items-center gap-2">
+          <input 
+            type="radio"
+            name="holidayAvailability"
+            value="yes"
+            checked={formData.holidayAvailability === 'yes'}
+            onChange={handleChange}
+            className="form-radio"
+          />
+          <span>Yes</span>
+        </label>
+        <label className="flex items-center gap-2">
+          <input 
+            type="radio"
+            name="holidayAvailability"
+            value="no"
+            checked={formData.holidayAvailability === 'no'}
+            onChange={handleChange}
+            className="form-radio"
+          />
+          <span>No</span>
+        </label>
+      </div>
+    </FormField>
+  </div>
+  
+  <FormField label="Comfortable working in homes with pets?">
+    <div className="space-y-2">
+      <label className="flex items-center gap-2">
+        <input 
+          type="radio"
+          name="petFriendly"
+          value="yes"
+          checked={formData.petFriendly === 'yes'}
+          onChange={handleChange}
+          className="form-radio"
+        />
+        <span>Yes, comfortable with all pets</span>
+      </label>
+      <label className="flex items-center gap-2">
+        <input 
+          type="radio"
+          name="petFriendly"
+          value="some"
+          checked={formData.petFriendly === 'some'}
+          onChange={handleChange}
+          className="form-radio"
+        />
+        <span>Yes, but only certain pets</span>
+      </label>
+      <label className="flex items-center gap-2">
+        <input 
+          type="radio"
+          name="petFriendly"
+          value="no"
+          checked={formData.petFriendly === 'no'}
+          onChange={handleChange}
+          className="form-radio"
+        />
+        <span>No, prefer pet-free homes</span>
+      </label>
+    </div>
+    
+    {formData.petFriendly === 'some' && (
+      <input 
+        type="text"
+        name="petPreferences"
+        value={formData.petPreferences}
+        onChange={handleChange}
+        placeholder="Please specify which pets you're comfortable with"
+        className="form-input mt-2"
+      />
+    )}
+  </FormField>
+  
+  <FormField label="Allergies or Sensitivities">
+    <textarea
+      name="allergies"
+      value={formData.allergies}
+      onChange={handleChange}
+      rows={3}
+      placeholder="Please list any allergies or sensitivities to cleaning products, pets, dust, etc."
+      className="form-textarea"
+    />
+  </FormField>
+</div>
+```
+
+Please implement Step 7 with dynamic day/time selection.
+```
+
+---
+
+## Phase 10: Step 8 - Experience & References
+
+```
+Create the final step for experience and references:
+
+**Fields Required:**
+
+1. **Previous Cleaning Experience**
+   - Yes / No radio
+   - If Yes, show additional fields
+
+2. **Years of Experience**
+   - Dropdown: Less than 1 year, 1-2 years, 3-5 years, 5-10 years, 10+ years
+
+3. **Previous Employers** (up to 3)
+   - Company/Employer Name
+   - Position/Role
+   - Start Date
+   - End Date (or "Currently employed")
+   - Brief description of duties
+
+4. **Professional References** (2 required, 3 optional)
+   - Reference Name
+   - Relationship (Former supervisor, Colleague, Client, etc.)
+   - Company/Organization
+   - Phone Number
+   - Email Address
+   - May we contact this reference? Yes/No
+
+5. **Additional Information**
+   - Why do you want to work with tSmartCleaning?
+   - What makes you a good cleaner?
+   - Any additional information you'd like us to know?
+
+6. **Background Check Consent**
+   - Checkbox: Consent to background check
+   - Explanation of what will be checked
+
+7. **Terms & Conditions**
+   - Checkbox: Agree to terms and conditions
+   - Checkbox: Information provided is true and accurate
+
+**Form Code:**
+```javascript
+<div className="space-y-6">
+  <h2 className="text-2xl font-bold mb-6">Experience & References</h2>
+  
+  <FormField label="Do you have previous cleaning experience? *">
+    <div className="space-y-2">
+      <label className="flex items-center gap-2">
+        <input 
+          type="radio"
+          name="hasExperience"
+          value="yes"
+          checked={formData.hasExperience === 'yes'}
+          onChange={handleChange}
+          className="form-radio"
+          required
+        />
+        <span>Yes</span>
+      </label>
+      <label className="flex items-center gap-2">
+        <input 
+          type="radio"
+          name="hasExperience"
+          value="no"
+          checked={formData.hasExperience === 'no'}
+          onChange={handleChange}
+          className="form-radio"
+        />
+        <span>No, but I'm eager to learn</span>
+      </label>
+    </div>
+  </FormField>
+  
+  {formData.hasExperience === 'yes' && (
+    <>
+      <FormField label="Years of Experience *">
+        <select 
+          name="yearsOfExperience"
+          value={formData.yearsOfExperience}
+          onChange={handleChange}
+          className="form-select"
+          required
+        >
+          <option value="">Select...</option>
+          <option value="less-than-1">Less than 1 year</option>
+          <option value="1-2">1-2 years</option>
+          <option value="3-5">3-5 years</option>
+          <option value="5-10">5-10 years</option>
+          <option value="10-plus">10+ years</option>
+        </select>
+      </FormField>
+      
+      {/* Previous Employers Section */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold">Previous Employers</h3>
+          {formData.employers && formData.employers.length < 3 && (
+            <button
+              type="button"
+              onClick={handleAddEmployer}
+              className="btn-secondary text-sm"
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              Add Employer
+            </button>
+          )}
+        </div>
+        
+        {formData.employers && formData.employers.map((employer, index) => (
+          <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-4">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="font-medium">Employer {index + 1}</h4>
+              {formData.employers.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => handleRemoveEmployer(index)}
+                  className="text-red-500 text-sm"
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+            
+            <FormField label="Company/Employer Name *">
+              <input 
+                type="text"
+                value={employer.companyName}
+                onChange={(e) => handleEmployerChange(index, 'companyName', e.target.value)}
+                className="form-input"
+                required
+              />
+            </FormField>
+            
+            <FormField label="Position/Role *">
+              <input 
+                type="text"
+                value={employer.position}
+                onChange={(e) => handleEmployerChange(index, 'position', e.target.value)}
+                className="form-input"
+                placeholder="e.g., House Cleaner, Cleaning Specialist"
+                required
+              />
+            </FormField>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField label="Start Date *">
+                <input 
+                  type="month"
+                  value={employer.startDate}
+                  onChange={(e) => handleEmployerChange(index, 'startDate', e.target.value)}
+                  className="form-input"
+                  required
+                />
+              </FormField>
+              
+              <FormField label="End Date">
+                <input 
+                  type="month"
+                  value={employer.endDate}
+                  onChange={(e) => handleEmployerChange(index, 'endDate', e.target.value)}
+                  className="form-input"
+                  disabled={employer.currentlyEmployed}
+                />
+                <label className="flex items-center gap-2 mt-2">
+                  <input 
+                    type="checkbox"
+                    checked={employer.currentlyEmployed}
+                    onChange={(e) => handleEmployerChange(index, 'currentlyEmployed', e.target.checked)}
+                    className="form-checkbox"
+                  />
+                  <span className="text-sm">Currently employed here</span>
+                </label>
+              </FormField>
+            </div>
+            
+            <FormField label="Brief Description of Duties">
+              <textarea
+                value={employer.duties}
+                onChange={(e) => handleEmployerChange(index, 'duties', e.target.value)}
+                rows={3}
+                className="form-textarea"
+                placeholder="Describe your main responsibilities and tasks..."
+              />
+            </FormField>
+          </div>
+        ))}
+      </div>
+    </>
+  )}
+  
+  {/* References Section */}
+  <div className="pt-6 border-t border-gray-200 space-y-4">
+    <div className="flex items-center justify-between">
+      <div>
+        <h3 className="text-lg font-semibold">Professional References</h3>
+        <p className="text-sm text-gray-600">Please provide at least 2 references</p>
+      </div>
+      {formData.references && formData.references.length < 5 && (
+        <button
+          type="button"
+          onClick={handleAddReference}
+          className="btn-secondary text-sm"
+        >
+          <Plus className="w-4 h-4 mr-1" />
+          Add Reference
+        </button>
+      )}
+    </div>
+    
+    {formData.references && formData.references.map((reference, index) => (
+      <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-4">
+        <div className="flex items-center justify-between mb-2">
+          <h4 className="font-medium">
+            Reference {index + 1} {index < 2 && <span className="text-red-500">*</span>}
+          </h4>
+          {index >= 2 && (
+            <button
+              type="button"
+              onClick={() => handleRemoveReference(index)}
+              className="text-red-500 text-sm"
+            >
+              Remove
+            </button>
+          )}
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField label="Reference Name *">
+            <input 
+              type="text"
+              value={reference.name}
+              onChange={(e) => handleReferenceChange(index, 'name', e.target.value)}
+              className="form-input"
+              required={index < 2}
+            />
+          </FormField>
+          
+          <FormField label="Relationship *">
+            <select 
+              value={reference.relationship}
+              onChange={(e) => handleReferenceChange(index, 'relationship', e.target.value)}
+              className="form-select"
+              required={index < 2}
+            >
+              <option value="">Select...</option>
+              <option value="former-supervisor">Former Supervisor</option>
+              <option value="former-colleague">Former Colleague</option>
+              <option value="former-client">Former Client</option>
+              <option value="personal-reference">Personal Reference</option>
+              <option value="other">Other</option>
+            </select>
+          </FormField>
+        </div>
+        
+        <FormField label="Company/Organization">
+          <input 
+            type="text"
+            value={reference.company}
+            onChange={(e) => handleReferenceChange(index, 'company', e.target.value)}
+            className="form-input"
+          />
+        </FormField>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField label="Phone Number *">
+            <input 
+              type="tel"
+              value={reference.phone}
+              onChange={(e) => handleReferenceChange(index, 'phone', e.target.value)}
+              className="form-input"
+              required={index < 2}
+            />
+          </FormField>
+          
+          <FormField label="Email Address *">
+            <input 
+              type="email"
+              value={reference.email}
+              onChange={(e) => handleReferenceChange(index, 'email', e.target.value)}
+              className="form-input"
+              required={index < 2}
+            />
+          </FormField>
+        </div>
+        
+        <label className="flex items-center gap-2">
+          <input 
+            type="checkbox"
+            checked={reference.mayContact}
+            onChange={(e) => handleReferenceChange(index, 'mayContact', e.target.checked)}
+            className="form-checkbox"
+          />
+          <span className="text-sm">May we contact this reference?</span>
+        </label>
+      </div>
+    ))}
+  </div>
+  
+  {/* Additional Information */}
+  <div className="pt-6 border-t border-gray-200 space-y-4">
+    <h3 className="text-lg font-semibold">Additional Information</h3>
+    
+    <FormField label="Why do you want to work with tSmartCleaning? *">
+      <textarea
+        name="whyWork"
+        value={formData.whyWork}
+        onChange={handleChange}
+        rows={4}
+        className="form-textarea"
+        placeholder="Tell us what interests you about joining our team..."
+        required
+      />
+    </FormField>
+    
+    <FormField label="What makes you a good cleaner? *">
+      <textarea
+        name="whyGoodCleaner"
+        value={formData.whyGoodCleaner}
+        onChange={handleChange}
+        rows={4}
+        className="form-textarea"
+        placeholder="Share your strengths, work ethic, attention to detail, etc..."
+        required
+      />
+    </FormField>
+    
+    <FormField label="Is there anything else you'd like us to know?">
+      <textarea
+        name="additionalInfo"
+        value={formData.additionalInfo}
+        onChange={handleChange}
+        rows={4}
+        className="form-textarea"
+        placeholder="Any additional information that might be relevant to your application..."
+      />
+    </FormField>
+  </div>
+  
+  {/* Consents and Agreements */}
+  <div className="pt-6 border-t border-gray-200 space-y-4">
+    <h3 className="text-lg font-semibold">Consents & Agreements</h3>
+    
+    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-4">
+      <label className="flex items-start gap-3">
+        <input 
+          type="checkbox"
+          name="backgroundCheckConsent"
+          checked={formData.backgroundCheckConsent}
+          onChange={handleChange}
+          className="form-checkbox mt-1"
+          required
+        />
+        <div className="text-sm">
+          <span className="font-medium">Background Check Consent *</span>
+          <p className="text-gray-600 mt-1">
+            I authorize tSmartCleaning to conduct a background check, which may include 
+            criminal history, employment verification, and reference checks. I understand 
+            this is a condition of employment.
+          </p>
+        </div>
+      </label>
+      
+      <label className="flex items-start gap-3">
+        <input 
+          type="checkbox"
+          name="termsAccepted"
+          checked={formData.termsAccepted}
+          onChange={handleChange}
+          className="form-checkbox mt-1"
+          required
+        />
+        <div className="text-sm">
+          <span className="font-medium">Terms & Conditions *</span>
+          <p className="text-gray-600 mt-1">
+            I agree to the{' '}
+            <a href="/terms" target="_blank" className="text-blue-600 hover:underline">
+              Terms & Conditions
+            </a>{' '}
+            and{' '}
+            <a href="/privacy" target="_blank" className="text-blue-600 hover:underline">
+              Privacy Policy
+            </a>.
+          </p>
+        </div>
+      </label>
+      
+      <label className="flex items-start gap-3">
+        <input 
+          type="checkbox"
+          name="accuracyConfirmation"
+          checked={formData.accuracyConfirmation}
+          onChange={handleChange}
+          className="form-checkbox mt-1"
+          required
+        />
+        <div className="text-sm">
+          <span className="font-medium">Accuracy Confirmation *</span>
+          <p className="text-gray-600 mt-1">
+            I certify that all information provided in this application is true, complete, 
+            and accurate to the best of my knowledge. I understand that any false information 
+            or omission may disqualify me from further consideration for employment and may 
+            result in dismissal if discovered at a later date.
+          </p>
+        </div>
+      </label>
+      
+      <label className="flex items-start gap-3">
+        <input 
+          type="checkbox"
+          name="communicationConsent"
+          checked={formData.communicationConsent}
+          onChange={handleChange}
+          className="form-checkbox mt-1"
+        />
+        <div className="text-sm">
+          <span className="font-medium">Communication Consent (Optional)</span>
+          <p className="text-gray-600 mt-1">
+            I agree to receive communications from tSmartCleaning regarding my application 
+            status, job opportunities, and company updates via email, SMS, or phone.
+          </p>
+        </div>
+      </label>
+    </div>
+  </div>
+  
+  {/* Submit Button */}
+  <div className="flex justify-center pt-6">
+    <button
+      type="submit"
+      className="btn-primary text-lg px-12 py-4"
+      disabled={isSubmitting}
+    >
+      {isSubmitting ? (
+        <>
+          <Loader className="w-5 h-5 mr-2 animate-spin" />
+          Submitting Application...
+        </>
+      ) : (
+        <>
+          <Send className="w-5 h-5 mr-2" />
+          Submit Application
+        </>
+      )}
+    </button>
+  </div>
+</div>
+```
+
+Please implement Step 8 with all validation and submit functionality.
+```
+
+---
+
+## Phase 11: Progress Bar & Step Indicator Components
+
+```
+Create the visual progress components:
+
+**Progress Bar Component:**
+```javascript
+function ProgressBar({ currentStep, totalSteps }) {
+  const progress = (currentStep / totalSteps) * 100;
+  
+  return (
+    <div className="mb-8">
+      <div className="flex justify-between mb-2">
+        <span className="text-sm font-medium text-gray-700">
+          Step {currentStep} of {totalSteps}
+        </span>
+        <span className="text-sm font-medium text-gray-700">
+          {Math.round(progress)}% Complete
+        </span>
+      </div>
+      <div className="w-full bg-gray-200 rounded-full h-3">
+        <div
+          className="bg-blue-600 h-3 rounded-full transition-all duration-500 ease-out"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+```
+
+**Step Indicator Component:**
+```javascript
+function StepIndicator({ steps, currentStep }) {
+  return (
+    <div className="hidden md:flex items-center justify-between mb-8">
+      {steps.map((step, index) => {
+        const stepNumber = index + 1;
+        const isCompleted = stepNumber < currentStep;
+        const isCurrent = stepNumber === currentStep;
+        
+        return (
+          <div key={stepNumber} className="flex items-center flex-1">
+            {/* Step Circle */}
+            <div className="flex flex-col items-center">
+              <div
+                className={`
+                  w-10 h-10 rounded-full flex items-center justify-center font-semibold
+                  transition-all duration-300
+                  ${isCompleted ? 'bg-green-500 text-white' : ''}
+                  ${isCurrent ? 'bg-blue-600 text-white ring-4 ring-blue-200' : ''}
+                  ${!isCompleted && !isCurrent ? 'bg-gray-300 text-gray-600' : ''}
+                `}
+              >
+                {isCompleted ? (
+                  <Check className="w-5 h-5" />
+                ) : (
+                  stepNumber
+                )}
+              </div>
+              <span
+                className={`
+                  mt-2 text-xs font-medium text-center
+                  ${isCurrent ? 'text-blue-600' : 'text-gray-500'}
+                `}
+              >
+                {step.name}
+              </span>
+            </div>
+            
+            {/* Connecting Line */}
+            {stepNumber < steps.length && (
+              <div className="flex-1 mx-2">
+                <div
+                  className={`
+                    h-1 transition-all duration-300
+                    ${isCompleted ? 'bg-green-500' : 'bg-gray-300'}
+                  `}
+                />
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// Steps configuration
+const steps = [
+  { name: 'Personal Info', component: Step1PersonalInfo },
+  { name: 'Contact', component: Step2Contact },
+  { name: 'Address', component: Step3Address },
+  { name: 'Address Proof', component: Step4AddressProof },
+  { name: 'Work Eligibility', component: Step5WorkEligibility },
+  { name: 'Photo & ID', component: Step6Photo },
+  { name: 'Availability', component: Step7Availability },
+  { name: 'Experience', component: Step8Experience }
+];
+```
+
+Please implement these progress components with smooth animations.
+```
+
+---
+
+## Phase 12: Form Validation & Error Handling
+
+```
+Implement comprehensive form validation:
+
+**Validation Schema (using Zod or similar):**
+```javascript
+import { z } from 'zod';
+
+// Step 1 validation
+const step1Schema = z.object({
+  firstName: z.string().min(2, 'First name must be at least 2 characters'),
+  lastName: z.string().min(2, 'Last name must be at least 2 characters'),
+  middleName: z.string().optional(),
+  dateOfBirth: z.string().refine(
+    (date) => {
+      const age = calculateAge(date);
+      return age >= 18;
+    },
+    { message: 'You must be at least 18 years old' }
+  ),
+  gender: z.string().optional(),
+  preferredLanguage: z.string().min(1, 'Please select a language'),
+});
+
+// Step 2 validation
+const step2Schema = z.object({
+  email: z.string().email('Invalid email address'),
+  phone: z.string().regex(
+    /^[\d\s\-\(\)]+$/,
+    'Invalid phone number format'
+  ),
+  alternativePhone: z.string().optional(),
+  contactMethods: z.array(z.string()).min(1, 'Select at least one contact method'),
+});
+
+// Step 3 validation
+const step3Schema = z.object({
+  country: z.enum(['USA', 'Canada'], {
+    errorMap: () => ({ message: 'Please select a country' })
+  }),
+  addressLine1: z.string().min(5, 'Please enter a valid street address'),
+  addressLine2: z.string().optional(),
+  city: z.string().min(2, 'Please enter a city'),
+  state: z.string().min(2, 'Please select a state/province'),
+  zipCode: z.string().refine(
+    (val) => {
+      // US ZIP: 12345 or 12345-6789
+      // Canada Postal: A1A 1A1
+      const usZip = /^\d{5}(-\d{4})?$/;
+      const caPostal = /^[A-Za-z]\d[A-Za-z] \d[A-Za-z]\d$/;
+      return usZip.test(val) || caPostal.test(val);
+    },
+    { message: 'Invalid ZIP/Postal code format' }
+  ),
+  addressYears: z.string().min(1, 'Please specify how long'),
+  addressMonths: z.string().min(1, 'Please specify months'),
+});
+
+// ... similar schemas for other steps
+
+**Validation Hook:**
+```javascript
+function useFormValidation(step, formData) {
+  const [errors, setErrors] = useState({});
+  
+  const validateStep = () => {
+    const schema = getSchemaForStep(step);
+    const result = schema.safeParse(formData);
+    
+    if (!result.success) {
+      const newErrors = {};
+      result.error.errors.forEach(error => {
+        newErrors[error.path[0]] = error.message;
+      });
+      setErrors(newErrors);
+      return false;
+    }
+    
+    setErrors({});
+    return true;
+  };
+  
+  return { errors, validateStep, setErrors };
+}
+
+function getSchemaForStep(step) {
+  const schemas = {
+    1: step1Schema,
+    2: step2Schema,
+    3: step3Schema,
+    4: step4Schema,
+    5: step5Schema,
+    6: step6Schema,
+    7: step7Schema,
+    8: step8Schema,
+  };
+  return schemas[step] || z.object({});
+}
+```
+
+**Error Display Component:**
+```javascript
+function FormField({ label, error, children, required }) {
+  return (
+    <div className="space-y-1">
+      <label className="block text-sm font-medium text-gray-700">
+        {label}
+        {required && <span className="text-red-500 ml-1">*</span>}
+      </label>
+      {children}
+      {error && (
+        <p className="text-sm text-red-600 flex items-center gap-1">
+          <AlertCircle className="w-4 h-4" />
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+```
+
+Please implement validation with clear error messages for all fields.
+```
+
+---
+
+## Phase 13: Auto-Save & Draft Functionality
+
+```
+Implement auto-save to prevent data loss:
+
+**Auto-Save Hook:**
+```javascript
+function useAutoSave(formData, applicationId) {
+  const [lastSaved, setLastSaved] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+  
+  useEffect(() => {
+    // Auto-save every 30 seconds
+    const interval = setInterval(() => {
+      saveDraft();
+    }, 30000);
+    
+    return () => clearInterval(interval);
+  }, [formData]);
+  
+  const saveDraft = async () => {
+    setIsSaving(true);
+    try {
+      // Save to localStorage
+      localStorage.setItem('jobApplication', JSON.stringify({
+        ...formData,
+        lastModified: new Date().toISOString(),
+        applicationId: applicationId || generateId()
+      }));
+      
+      // Optional: Save to backend
+      if (applicationId) {
+        await fetch('/api/applications/draft', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ applicationId, formData })
+        });
+      }
+      
+      setLastSaved(new Date());
+    } catch (error) {
+      console.error('Failed to save draft:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+  
+  const loadDraft = () => {
+    const saved = localStorage.getItem('jobApplication');
+    if (saved) {
+      return JSON.parse(saved);
+    }
+    return null;
+  };
+  
+  const deleteDraft = () => {
+    localStorage.removeItem('jobApplication');
+  };
+  
+  return { saveDraft, loadDraft, deleteDraft, lastSaved, isSaving };
+}
+
+**Draft Indicator Component:**
+```javascript
+function DraftIndicator({ lastSaved, isSaving }) {
+  if (!lastSaved && !isSaving) return null;
+  
+  return (
+    <div className="flex items-center gap-2 text-sm text-gray-600">
+      {isSaving ? (
+        <>
+          <Loader className="w-4 h-4 animate-spin" />
+          <span>Saving draft...</span>
+        </>
+      ) : (
+        <>
+          <Check className="w-4 h-4 text-green-500" />
+          <span>
+            Last saved {formatDistanceToNow(lastSaved, { addSuffix: true })}
+          </span>
+        </>
+      )}
+    </div>
+  );
+}
+
+**Load Draft Modal:**
+```javascript
+function LoadDraftModal({ onLoad, onDiscard, onClose }) {
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 max-w-md mx-4">
+        <h3 className="text-xl font-bold mb-4">Resume Application?</h3>
+        <p className="text-gray-600 mb-6">
+          We found a saved draft of your application. Would you like to continue 
+          where you left off?
+        </p>
+        <div className="flex gap-3">
+          <button
+            onClick={onLoad}
+            className="btn-primary flex-1"
+          >
+            Continue Application
+          </button>
+          <button
+            onClick={onDiscard}
+            className="btn-secondary flex-1"
+          >
+            Start Fresh
+          </button>
+        </div>
+        <button
+          onClick={onClose}
+          className="w-full mt-3 text-sm text-gray-500 hover:text-gray-700"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+```
+
+Please implement auto-save functionality with draft recovery.
+```
+
+---
+
+## Phase 14: Form Submission & Backend Integration
+
+```
+Implement the submission process:
+
+**Submit Handler:**
+```javascript
+async function handleSubmit(formData) {
+  try {
+    // Show loading state
+    setIsSubmitting(true);
+    
+    // Create FormData for file uploads
+    const submitData = new FormData();
+    
+    // Append all form fields
+    Object.keys(formData).forEach(key => {
+      if (key.includes('Files')) {
+        // Handle file uploads
+        formData[key]?.forEach(file => {
+          submitData.append(key, file);
+        });
+      } else if (Array.isArray(formData[key])) {
+        // Handle arrays
+        submitData.append(key, JSON.stringify(formData[key]));
+      } else if (typeof formData[key] === 'object' && formData[key] !== null) {
+        // Handle objects
+        submitData.append(key, JSON.stringify(formData[key]));
+      } else {
+        // Handle primitives
+        submitData.append(key, formData[key]);
+      }
+    });
+    
+    // Submit to backend
+    const response = await fetch('/api/applications/submit', {
+      method: 'POST',
+      body: submitData
+    });
+    
+    if (!response.ok) {
+      throw new Error('Submission failed');
+    }
+    
+    const result = await response.json();
+    
+    // Clear draft
+    deleteDraft();
+    
+    // Redirect to success page
+    router.push(`/apply/success?id=${result.applicationId}`);
+    
+  } catch (error) {
+    console.error('Submission error:', error);
+    setSubmitError('Failed to submit application. Please try again.');
+  } finally {
+    setIsSubmitting(false);
+  }
+}
+
+**API Endpoint (Next.js example):**
+```javascript
+// pages/api/applications/submit.js
+import { IncomingForm } from 'formidable';
+import { promises as fs } from 'fs';
+import path from 'path';
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: 'Method not allowed' });
+  }
+  
+  try {
+    // Parse form data
+    const form = new IncomingForm({
+      uploadDir: path.join(process.cwd(), 'uploads'),
+      keepExtensions: true,
+      maxFileSize: 50 * 1024 * 1024, // 50MB
+    });
+    
+    const { fields, files } = await new Promise((resolve, reject) => {
+      form.parse(req, (err, fields, files) => {
+        if (err) reject(err);
+        resolve({ fields, files });
+      });
+    });
+    
+    // Generate application ID
+    const applicationId = generateApplicationId();
+    
+    // Process files (upload to S3, Cloudinary, etc.)
+    const processedFiles = await processUploadedFiles(files, applicationId);
+    
+    // Save to database
+    await saveApplication({
+      applicationId,
+      ...fields,
+      files: processedFiles,
+      status: 'pending',
+      submittedAt: new Date(),
+    });
+    
+    // Send confirmation email
+    await sendConfirmationEmail(fields.email, applicationId);
+    
+    // Notify admins
+    await notifyAdmins(applicationId);
+    
+    res.status(200).json({
+      success: true,
+      applicationId,
+      message: 'Application submitted successfully'
+    });
+    
+  } catch (error) {
+    console.error('Submission error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to process application'
+    });
+  }
+}
+```
+
+Please implement the submission flow with proper error handling.
+```
+
+---
+
+## Phase 15: Success Page & Confirmation
+
+```
+Create the success/confirmation page:
+
+**Success Page Component:**
+```javascript
+function ApplicationSuccess({ applicationId }) {
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="max-w-2xl w-full bg-white rounded-lg shadow-lg p-8 text-center">
+        {/* Success Icon */}
+        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <CheckCircle className="w-12 h-12 text-green-600" />
+        </div>
+        
+        {/* Title */}
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">
+          Application Submitted Successfully!
+        </h1>
+        
+        {/* Message */}
+        <p className="text-lg text-gray-600 mb-8">
+          Thank you for applying to join the tSmartCleaning team. We've received 
+          your application and will review it carefully.
+        </p>
+        
+        {/* Application ID */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
+          <p className="text-sm text-blue-800 mb-2">Your Application ID:</p>
+          <p className="text-2xl font-mono font-bold text-blue-900">
+            {applicationId}
+          </p>
+          <p className="text-xs text-blue-700 mt-2">
+            Please save this ID for your records
+          </p>
+        </div>
+        
+        {/* Next Steps */}
+        <div className="text-left bg-gray-50 rounded-lg p-6 mb-8">
+          <h2 className="text-xl font-semibold mb-4">What Happens Next?</h2>
+          <ol className="space-y-3">
+            <li className="flex items-start gap-3">
+              <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                1
+              </span>
+              <div>
+                <p className="font-medium">Confirmation Email</p>
+                <p className="text-sm text-gray-600">
+                  You'll receive a confirmation email within the next few minutes
+                </p>
+              </div>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                2
+              </span>
+              <div>
+                <p className="font-medium">Application Review</p>
+                <p className="text-sm text-gray-600">
+                  Our team will review your application within 3-5 business days
+                </p>
+              </div>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                3
+              </span>
+              <div>
+                <p className="font-medium">Interview Invitation</p>
+                <p className="text-sm text-gray-600">
+                  If selected, we'll contact you to schedule an interview
+                </p>
+              </div>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                4
+              </span>
+              <div>
+                <p className="font-medium">Final Decision</p>
+                <p className="text-sm text-gray-600">
+                  We'll notify you of our decision via email
+                </p>
+              </div>
+            </li>
+          </ol>
+        </div>
+        
+        {/* Actions */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link href="/" className="btn-primary">
+            <Home className="w-5 h-5 mr-2" />
+            Return to Home
+          </Link>
+          <button
+            onClick={() => window.print()}
+            className="btn-secondary"
+          >
+            <Printer className="w-5 h-5 mr-2" />
+            Print Confirmation
+          </button>
+        </div>
+        
+        {/* Contact Info */}
+        <div className="mt-8 pt-8 border-t border-gray-200">
+          <p className="text-sm text-gray-600">
+            Questions about your application?
+          </p>
+          <p className="text-sm font-medium text-gray-900 mt-1">
+            Email us at{' '}
+            <a href="mailto:careers@tsmartcleaning.com" className="text-blue-600 hover:underline">
+              careers@tsmartcleaning.com
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+**Confirmation Email Template:**
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Application Confirmation - tSmartCleaning</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+  <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+    <!-- Header -->
+    <div style="background-color: #2563eb; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+      <h1 style="color: white; margin: 0;">Application Received!</h1>
+    </div>
+    
+    <!-- Content -->
+    <div style="background-color: #f9fafb; padding: 30px; border-radius: 0 0 8px 8px;">
+      <p>Dear {{applicantName}},</p>
+      
+      <p>Thank you for applying to join the tSmartCleaning team! We've successfully received your application.</p>
+      
+      <div style="background-color: white; padding: 20px; border-left: 4px solid #2563eb; margin: 20px 0;">
+        <p style="margin: 0; font-size: 14px; color: #6b7280;">Application ID:</p>
+        <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: bold; font-family: monospace;">
+          {{applicationId}}
+        </p>
+      </div>
+      
+      <h2 style="color: #1f2937;">Next Steps:</h2>
+      <ol style="padding-left: 20px;">
+        <li style="margin-bottom: 10px;">Our team will review your application within 3-5 business days</li>
+        <li style="margin-bottom: 10px;">If selected, we'll contact you to schedule an interview</li>
+        <li style="margin-bottom: 10px;">You'll receive a final decision via email</li>
+      </ol>
+      
+      <p>In the meantime, feel free to explore more about our company and culture on our website.</p>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="{{websiteUrl}}" style="background-color: #2563eb; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; display: inline-block;">
+          Visit Our Website
+        </a>
+      </div>
+      
+      <p style="font-size: 14px; color: #6b7280; border-top: 1px solid #e5e7eb; padding-top: 20px; margin-top: 30px;">
+        Questions? Contact us at <a href="mailto:careers@tsmartcleaning.com">careers@tsmartcleaning.com</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+```
+
+Please implement the success page and email confirmation system.
+```
+
+---
+
+## Phase 16: Admin Review Dashboard
+
+```
+Create an admin interface to review applications:
+
+**Admin Dashboard Features:**
+- List all applications with filters (status, date, location)
+- Search by name, email, or application ID
+- View full application details
+- Update application status
+- Add notes/comments
+- Schedule interviews
+- Export applications to CSV
+
+**Admin Application List:**
+```javascript
+function AdminApplications() {
+  const [applications, setApplications] = useState([]);
+  const [filters, setFilters] = useState({
+    status: 'all',
+    dateFrom: '',
+    dateTo: '',
+    search: ''
+  });
+  
+  return (
+    <div className="p-6">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold mb-4">Job Applications</h1>
+        
+        {/* Filters */}
+        <div className="bg-white rounded-lg shadow p-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <input
+              type="text"
+              placeholder="Search by name, email, or ID..."
+              value={filters.search}
+              onChange={(e) => setFilters({...filters, search: e.target.value})}
+              className="form-input"
+            />
+            
+            <select
+              value={filters.status}
+              onChange={(e) => setFilters({...filters, status: e.target.value})}
+              className="form-select"
+            >
+              <option value="all">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="reviewing">Under Review</option>
+              <option value="interview-scheduled">Interview Scheduled</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+            </select>
+            
+            <input
+              type="date"
+              placeholder="From Date"
+              value={filters.dateFrom}
+              onChange={(e) => setFilters({...filters, dateFrom: e.target.value})}
+              className="form-input"
+            />
+            
+            <input
+              type="date"
+              placeholder="To Date"
+              value={filters.dateTo}
+              onChange={(e) => setFilters({...filters, dateTo: e.target.value})}
+              className="form-input"
+            />
+          </div>
+        </div>
+        
+        {/* Applications Table */}
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Applicant
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Application ID
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Date Applied
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {applications.map((app) => (
+                <tr key={app.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center">
+                      <img
+                        src={app.photoUrl || '/default-avatar.png'}
+                        alt={app.fullName}
+                        className="w-10 h-10 rounded-full mr-3"
+                      />
+                      <div>
+                        <div className="font-medium text-gray-900">{app.fullName}</div>
+                        <div className="text-sm text-gray-500">{app.email}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-sm font-mono">{app.applicationId}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500">
+                    {formatDate(app.submittedAt)}
+                  </td>
+                  <td className="px-6 py-4">
+                    <StatusBadge status={app.status} />
+                  </td>
+                  <td className="px-6 py-4 text-sm">
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => viewApplication(app.id)}
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        <Eye className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => downloadPDF(app.id)}
+                        className="text-gray-600 hover:text-gray-800"
+                      >
+                        <Download className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+Please implement the admin review dashboard with all features.
+```
+
+---
+
+## Complete Implementation Summary
+
+To implement everything in Cursor, use this master prompt:
+
+```
+I need you to create a complete "Apply to Work" job application module for my cleaning business website. This should be a comprehensive, multi-step form accessible from the navbar.
+
+**TECH STACK:**
+- Next.js 14 with App Router
+- TypeScript
+- Tailwind CSS
+- React Hook Form + Zod for validation
+- Prisma + PostgreSQL for database
+- AWS S3 for file storage
+- Resend for emails
+
+**COMPLETE FEATURE SET:**
+
+1. **Navbar Integration**: Prominent "Apply Now" button
+2. **8-Step Application Form**:
+   - Personal Information
+   - Contact Details
+   - Address Information
+   - Address Proof Upload
+   - Work Eligibility (USA & Canada specific)
+   - Photo & ID Upload
+   - Availability & Preferences
+   - Experience & References
+
+3. **UI Components**:
+   - Progress bar showing completion percentage
+   - Step indicator with checkmarks
+   - Form validation with error messages
+   - File upload with drag-and-drop
+   - Auto-save every 30 seconds
+   - Draft recovery on page reload
+   - Mobile-responsive design
+
+4. **Backend**:
+   - API endpoints for submission
+   - File upload to S3
+   - Database storage with Prisma
+   - Email confirmation to applicant
+   - Email notification to admins
+
+5. **Admin Dashboard**:
+   - View all applications
+   - Filter and search
+   - Update application status
+   - Download PDFs
+   - Add internal notes
+
+Please implement this system following best practices for:
+- Form UX and accessibility
+- Data validation and security
+- File handling and storage
+- Email delivery
+- Responsive design
+- Error handling
+
+Start with the form structure and we'll build it step by step.
+```
+
+This comprehensive guide provides everything you need to build a professional job application system!

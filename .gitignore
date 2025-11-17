@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+
+# Next.js
+.next/
+.next/cache/
+out/
+.vercel/
+
+# Env files
+.env
+.env.local
+.env.*.local
+.env.development
+.env.test
+.env.production
+
+# Logs
+logs
+*.log
+*.log.*
+
+# OS
+.DS_Store
+
+# Editors
+.vscode/
+.idea/
+
+# Coverage / cache / dist
+coverage/
+.cache/
+dist/
+tmp/
+
+# Others
+pnpm-lock.yaml
+*.pid
+*.seed
+*.tgz
+*.db
+*.sqlite

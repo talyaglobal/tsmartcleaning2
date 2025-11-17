@@ -1,0 +1,1387 @@
+# NGO/Recruiting Agency Registration Form - Complete Prompt
+
+## Main Overview Prompt
+
+```
+I need to create a comprehensive registration and application form for NGOs and 
+recruiting agencies who want to partner with tSmartCleaning to provide employment 
+opportunities to people seeking immediate income through respectable cleaning jobs 
+in USA and Canada.
+
+**PURPOSE:**
+NGOs/agencies help vulnerable populations (immigrants, refugees, single parents, 
+unemployed, low-income individuals) access dignified, immediate employment in the 
+cleaning industry while earning fair wages.
+
+**DUAL FORM SYSTEM:**
+1. NGO/Agency Registration Form (to become an approved partner)
+2. Candidate Submission Portal (to submit candidates for job placement)
+
+**TARGET USERS:**
+- Non-profit organizations
+- Community service agencies
+- Immigrant support organizations
+- Women's shelters and support groups
+- Refugee resettlement agencies
+- Employment training programs
+- Faith-based community organizations
+
+**KEY OBJECTIVES:**
+- Fast-track employment for people needing immediate income
+- Provide dignified work with fair pay
+- Support vulnerable populations
+- Create sustainable partnerships with vetted NGOs
+- Track placement success and impact
+
+Please help me create this comprehensive dual-form system.
+```
+
+---
+
+## Phase 1: NGO/Agency Registration Form (Part 1)
+
+```
+Create the initial registration form for NGOs/agencies wanting to become partners:
+
+**FORM STRUCTURE:**
+
+**Section 1: Organization Information**
+
+1. **Organization Legal Name** *
+   - Full registered name
+   - Must match registration documents
+
+2. **Operating Name (DBA)** 
+   - If different from legal name
+   - Optional
+
+3. **Organization Type** * (Select one)
+   - [ ] Non-profit organization (501c3)
+   - [ ] Community-based organization
+   - [ ] Refugee resettlement agency
+   - [ ] Women's support center
+   - [ ] Faith-based organization
+   - [ ] Government employment agency
+   - [ ] Immigrant services organization
+   - [ ] Training/education institution
+   - [ ] Other: ___________
+
+4. **Tax ID/EIN Number** *
+   - US: Federal EIN
+   - Canada: Business Number (BN)
+   - Format validation
+
+5. **Year Established** *
+   - Dropdown: 1950-2024
+
+6. **Registration Number/Charity Number** *
+   - US: State charity registration
+   - Canada: Charity registration number
+   - Proof of non-profit status
+
+7. **Primary Country of Operation** *
+   - [ ] United States
+   - [ ] Canada
+   - [ ] Both
+
+8. **States/Provinces Where You Operate** * (Multi-select)
+   US States:
+   - [ ] California
+   - [ ] Texas
+   - [ ] New York
+   - [ ] Florida
+   - [ ] Illinois
+   - [ ] ... (all states)
+   
+   Canadian Provinces:
+   - [ ] Ontario
+   - [ ] British Columbia
+   - [ ] Quebec
+   - [ ] Alberta
+   - [ ] ... (all provinces)
+
+9. **Organization Website** *
+   - URL validation
+   - Must be active
+
+10. **Organization Mission Statement** *
+    - Textarea (500 characters max)
+    - "Please describe your organization's mission and how you serve your community"
+
+**Section 2: Contact Information**
+
+1. **Headquarters Address** *
+   - Street Address
+   - Address Line 2 (Suite/Unit)
+   - City
+   - State/Province
+   - ZIP/Postal Code
+   - Country
+
+2. **Mailing Address** (if different)
+   - [ ] Same as headquarters
+   - Fields appear if unchecked
+
+3. **Primary Contact Person** *
+   - Full Name
+   - Job Title
+   - Role in organization
+
+4. **Primary Email** *
+   - Email validation
+   - This will be main communication channel
+
+5. **Primary Phone** *
+   - Format: +1 (XXX) XXX-XXXX
+   - Country code selector
+
+6. **Alternative Phone**
+   - Optional backup number
+
+7. **Secondary Contact Person**
+   - Full Name
+   - Job Title
+   - Email
+   - Phone
+   - "In case primary contact is unavailable"
+
+8. **Office Hours**
+   - Days: Monday-Friday checkboxes
+   - Hours: 9AM-5PM (adjustable)
+   - Time zone selector
+
+**Section 3: Organization Credentials & Verification**
+
+1. **Upload Non-Profit Registration Document** * (File upload)
+   - 501(c)(3) determination letter (US)
+   - Charity registration certificate (Canada)
+   - PDF only, max 5MB
+   - Must be current and valid
+
+2. **Upload Business/Operating License** * (File upload)
+   - State/Provincial business license
+   - PDF, max 5MB
+
+3. **Upload Proof of Insurance** * (File upload)
+   - General liability insurance
+   - Must show current coverage
+   - Minimum $1M coverage required
+   - PDF, max 5MB
+
+4. **Insurance Expiration Date** *
+   - Date picker
+   - Must be at least 6 months in future
+   - Alert if expiring soon
+
+5. **Upload Board of Directors List** * (File upload)
+   - Current board member names and titles
+   - PDF or Word doc, max 2MB
+
+6. **Upload Annual Report/Financial Statement** (Optional but recommended)
+   - Most recent year
+   - Shows organizational stability
+   - PDF, max 10MB
+
+7. **Professional References** * (At least 2 required)
+   
+   **Reference 1:**
+   - Name *
+   - Organization *
+   - Title *
+   - Email *
+   - Phone *
+   - Relationship to your organization *
+   - Years known *
+   
+   **Reference 2:**
+   - (Same fields)
+   
+   **Reference 3:** (Optional)
+   - (Same fields)
+
+8. **Are you currently affiliated with any government programs?**
+   - [ ] Yes [ ] No
+   - If Yes, specify programs:
+     * [ ] WIOA (Workforce Innovation and Opportunity Act)
+     * [ ] TANF (Temporary Assistance for Needy Families)
+     * [ ] Refugee Resettlement Program
+     * [ ] Veterans Employment Services
+     * [ ] Other: ___________
+
+**Section 4: Service Capacity & Target Population**
+
+1. **How many people does your organization serve annually?** *
+   - [ ] 1-50
+   - [ ] 51-100
+   - [ ] 101-250
+   - [ ] 251-500
+   - [ ] 501-1,000
+   - [ ] 1,000+
+
+2. **Primary populations you serve** * (Multi-select)
+   - [ ] Immigrants (documented)
+   - [ ] Refugees/Asylum seekers
+   - [ ] Single parents/heads of household
+   - [ ] Low-income individuals
+   - [ ] Unemployed/underemployed
+   - [ ] Survivors of domestic violence
+   - [ ] Formerly incarcerated individuals
+   - [ ] Youth/young adults (18-24)
+   - [ ] Seniors seeking supplemental income
+   - [ ] People with disabilities
+   - [ ] Veterans
+   - [ ] Homeless/housing insecure
+   - [ ] Other: ___________
+
+3. **Languages your staff speaks** * (Multi-select)
+   - [ ] English
+   - [ ] Spanish
+   - [ ] French
+   - [ ] Arabic
+   - [ ] Mandarin/Cantonese
+   - [ ] Ukrainian
+   - [ ] Russian
+   - [ ] Somali
+   - [ ] Vietnamese
+   - [ ] Tagalog
+   - [ ] Hindi
+   - [ ] Other: ___________
+
+4. **How many candidates do you expect to refer per month?** *
+   - [ ] 1-5
+   - [ ] 6-10
+   - [ ] 11-20
+   - [ ] 21-50
+   - [ ] 50+
+
+5. **Do you provide any pre-employment support services?** * (Multi-select)
+   - [ ] Job readiness training
+   - [ ] Resume writing assistance
+   - [ ] Interview preparation
+   - [ ] English language classes
+   - [ ] Transportation assistance
+   - [ ] Childcare support
+   - [ ] Work clothing/uniforms
+   - [ ] None - we connect people directly to jobs
+   - [ ] Other: ___________
+
+6. **Average timeline for candidate preparation**
+   - [ ] Immediate (0-3 days)
+   - [ ] 1 week
+   - [ ] 2 weeks
+   - [ ] 1 month
+   - [ ] Varies by individual
+
+Please implement Section 1-4 of the NGO registration form with proper validation.
+```
+
+---
+
+## Phase 2: NGO/Agency Registration Form (Part 2)
+
+```
+Continue the NGO registration form with partnership details and commitment:
+
+**Section 5: Partnership Goals & Commitment**
+
+1. **Why do you want to partner with tSmartCleaning?** * (Textarea, 500 chars)
+   Placeholder: "Tell us about your goals for this partnership and how it aligns 
+   with your organization's mission..."
+
+2. **What outcomes are you hoping to achieve?** * (Multi-select)
+   - [ ] Immediate income for clients
+   - [ ] Long-term employment stability
+   - [ ] Skills development for clients
+   - [ ] Economic empowerment
+   - [ ] Integration into workforce
+   - [ ] Pathway to career advancement
+   - [ ] Community building
+   - [ ] Other: ___________
+
+3. **How will you support candidates after placement?** * (Textarea)
+   - "Describe your post-placement support (check-ins, counseling, emergency support, etc.)"
+   - 300 characters minimum
+
+4. **Do you have transportation resources for candidates?** *
+   - [ ] Yes, we provide transportation
+   - [ ] Yes, we provide transit passes/assistance
+   - [ ] No, but we help candidates plan routes
+   - [ ] No, candidates are responsible for own transportation
+
+5. **Can you provide emergency support if needed?** *
+   - [ ] Yes, financial emergency assistance
+   - [ ] Yes, crisis intervention services
+   - [ ] Limited support available
+   - [ ] No, we connect to other resources
+   
+   If Yes or Limited, describe: (Textarea)
+
+6. **How do you screen/vet candidates before referral?** * (Textarea)
+   "Describe your internal process for ensuring candidates are ready for employment"
+   - 300 characters minimum
+
+7. **Commitment to follow-up:**
+   - [ ] I commit to checking in with placed candidates weekly for first month *
+   - [ ] I commit to providing placement success reports monthly *
+   - [ ] I commit to responding to tSmartCleaning inquiries within 24 hours *
+   - [ ] I commit to maintaining confidentiality of all parties *
+
+**Section 6: Financial & Compensation Understanding**
+
+1. **Understanding of Wage Structure** *
+   
+   Information Box (Read-only):
+   "tSmartCleaning cleaning professionals earn:
+   - Starting: $18-22/hour (USD) or $20-24/hour (CAD)
+   - With experience: $22-28/hour
+   - Plus tips and bonuses
+   - Weekly pay (every Friday)
+   - Direct deposit or prepaid card options"
+   
+   Confirmation:
+   - [ ] I have explained these wage expectations to our staff *
+   - [ ] I understand candidates will be paid directly by tSmartCleaning *
+   - [ ] I understand there are NO fees paid to our organization for placements *
+
+2. **Do you charge candidates any fees for job placement services?** *
+   - [ ] No, our services are completely free
+   - [ ] Yes, we charge fees (explain below)
+   
+   **IMPORTANT NOTE:** "If you charge candidates for placement services, you must 
+   disclose this. tSmartCleaning does not charge candidates any fees."
+   
+   If Yes, explain fees: (Textarea)
+
+3. **Payment Frequency Candidates Need** * (This helps us prioritize urgent cases)
+   Most of your candidates need:
+   - [ ] Immediate/daily pay (extreme hardship)
+   - [ ] Weekly pay (standard)
+   - [ ] Bi-weekly pay is acceptable
+   - [ ] Monthly pay is acceptable
+   - [ ] Mixed needs
+
+**Section 7: Success Metrics & Reporting**
+
+1. **How will you measure success of this partnership?** * (Multi-select)
+   - [ ] Number of candidates placed
+   - [ ] Candidate retention rate (90+ days)
+   - [ ] Income earned by candidates
+   - [ ] Candidate satisfaction surveys
+   - [ ] Progression to permanent positions
+   - [ ] Economic stability improvements
+   - [ ] Other: ___________
+
+2. **Can you provide regular placement updates?** *
+   - [ ] Yes, monthly reports
+   - [ ] Yes, quarterly reports
+   - [ ] Yes, when requested
+   - [ ] Limited capacity for reporting
+
+3. **Are you willing to participate in case studies/success stories?** *
+   - [ ] Yes, with client permission
+   - [ ] Yes, anonymized only
+   - [ ] No
+   - [ ] Maybe, case by case
+
+4. **Will you allow tSmartCleaning to contact placed candidates for feedback?** *
+   - [ ] Yes, with candidate permission
+   - [ ] No
+   - [ ] Only through our organization
+
+**Section 8: Legal & Compliance**
+
+1. **Data Privacy & Confidentiality Agreement** *
+   
+   Information Box:
+   "As an approved partner, you will have access to:
+   - Job opportunities before public posting
+   - Candidate placement portal
+   - Potentially sensitive client information
+   
+   You must agree to:
+   - Protect all candidate and client information
+   - Follow HIPAA guidelines where applicable
+   - Comply with employment privacy laws
+   - Never share proprietary information
+   - Maintain secure data storage"
+   
+   - [ ] I agree to maintain strict confidentiality *
+   - [ ] I agree to comply with all data protection regulations *
+   - [ ] I understand breach may result in immediate termination of partnership *
+
+2. **Background Check Authorization** *
+   "We conduct background checks on all partner organizations and key personnel"
+   
+   - [ ] I authorize background check on organization *
+   - [ ] I authorize background check on primary contact person *
+   - [ ] I authorize verification of credentials and references *
+
+3. **Non-Discrimination Policy** *
+   - [ ] Our organization operates under non-discrimination policies *
+   - [ ] We serve all eligible individuals regardless of protected characteristics *
+   - [ ] We comply with Equal Employment Opportunity laws *
+
+4. **Child Safety Compliance** * (If working with minors)
+   - [ ] We have child protection policies in place
+   - [ ] All staff are background checked
+   - [ ] We comply with mandatory reporting requirements
+   - [ ] Not applicable - we don't serve minors
+
+5. **Agreement to Terms** *
+   
+   "I certify that:
+   - All information provided is true and accurate
+   - I am authorized to represent this organization
+   - I have read and agree to the Partnership Terms & Conditions
+   - I understand this application doesn't guarantee approval
+   - I agree to partnership audit if selected"
+   
+   Required Checkboxes:
+   - [ ] I certify all information is accurate *
+   - [ ] I am authorized to submit this application *
+   - [ ] I agree to Terms & Conditions (link) *
+   - [ ] I agree to Partnership Agreement (link) *
+
+6. **Electronic Signature** *
+   - Full Legal Name: ___________
+   - Title: ___________
+   - Date: [Auto-filled with today's date]
+   - IP Address: [Auto-captured]
+   
+   Signature Field: "Type your full name to sign"
+   
+   "By typing my name, I certify that I am authorized to enter into this 
+   partnership on behalf of the organization listed above."
+
+**Section 9: Additional Information**
+
+1. **How did you hear about tSmartCleaning?** *
+   - [ ] Online search
+   - [ ] Another NGO/agency
+   - [ ] Social media
+   - [ ] Community event
+   - [ ] Government referral
+   - [ ] Professional network
+   - [ ] Other: ___________
+
+2. **Additional Comments or Questions** (Optional)
+   Textarea: "Is there anything else you'd like us to know about your organization 
+   or the populations you serve?"
+   Max 1000 characters
+
+3. **Upload Additional Supporting Documents** (Optional)
+   - Success stories
+   - Program descriptions
+   - Promotional materials
+   - Other relevant documents
+   Multiple files allowed, max 5MB each, PDF/DOC/JPG
+
+**SUBMIT BUTTON:**
+Large, prominent button: "Submit Partnership Application →"
+
+**Below Button:**
+"Review Time: 3-5 business days
+You'll receive an email confirmation immediately and a decision within 5 business days."
+
+**After Submission:**
+- Auto-confirmation email sent
+- Application ID generated
+- Redirect to success page
+- Copy of application emailed to applicant
+
+Please implement Section 5-9 of the registration form with proper validation and submission flow.
+```
+
+---
+
+## Phase 3: Candidate Submission Portal (For Approved NGOs)
+
+```
+Create the portal for approved NGOs to submit candidates for job placement:
+
+**CANDIDATE SUBMISSION FORM**
+(Only accessible to approved NGO partners after login)
+
+**Portal Dashboard First:**
+Shows:
+- Total candidates submitted
+- Candidates placed
+- Candidates in interview process
+- Pending submissions
+- Success rate
+
+**"Submit New Candidate" Button**
+
+---
+
+**CANDIDATE SUBMISSION FORM:**
+
+**Candidate Information - Section 1: Basic Information**
+
+1. **Candidate First Name** *
+   - Text input
+
+2. **Candidate Last Name** *
+   - Text input
+
+3. **Candidate Date of Birth** *
+   - Date picker
+   - Must be 18+ years old
+   - Age calculated automatically
+
+4. **Gender**
+   - [ ] Male
+   - [ ] Female
+   - [ ] Non-binary
+   - [ ] Prefer not to say
+
+5. **Preferred Language** * (Multi-select)
+   - [ ] English
+   - [ ] Spanish
+   - [ ] French
+   - [ ] Ukrainian
+   - [ ] Russian
+   - [ ] Arabic
+   - [ ] Other: ___________
+
+6. **English Proficiency Level** *
+   - [ ] Fluent/Native
+   - [ ] Advanced (can communicate well)
+   - [ ] Intermediate (basic communication)
+   - [ ] Beginner (limited English)
+   - [ ] None (needs interpreter)
+
+**Section 2: Contact Information**
+
+1. **Candidate Phone Number** *
+   - Primary phone
+   - Best time to call
+   - [ ] Has voicemail
+   - [ ] Text messages okay
+
+2. **Alternative Phone Number**
+   - Optional
+   - Relationship to candidate
+
+3. **Email Address**
+   - Optional (many clients may not have)
+   - Will create one if needed
+
+4. **Current Address** *
+   - Street Address
+   - City
+   - State/Province
+   - ZIP/Postal Code
+   - Housing Status:
+     * [ ] Stable housing
+     * [ ] Temporary housing
+     * [ ] Shelter
+     * [ ] Transitional housing
+     * [ ] Unstable/at risk
+
+5. **Emergency Contact** *
+   - Name
+   - Relationship
+   - Phone number
+   - "Person we can contact if candidate can't be reached"
+
+**Section 3: Work Eligibility & Documentation**
+
+1. **Work Authorization Status** * (Country-specific)
+   
+   **United States:**
+   - [ ] U.S. Citizen
+   - [ ] Permanent Resident (Green Card)
+   - [ ] Work Visa (specify type)
+   - [ ] Employment Authorization Document (EAD)
+   - [ ] Refugee/Asylee with work authorization
+   - [ ] Other: ___________
+   
+   **Canada:**
+   - [ ] Canadian Citizen
+   - [ ] Permanent Resident
+   - [ ] Work Permit
+   - [ ] Refugee with work authorization
+   - [ ] Other: ___________
+
+2. **Work Authorization Expiration Date** (if applicable)
+   - Date picker
+   - Alert if less than 6 months validity
+
+3. **Has Social Security Number / Social Insurance Number?** *
+   - [ ] Yes, has SSN/SIN
+   - [ ] No, in process of obtaining
+   - [ ] No, not eligible yet
+   - [ ] Don't know
+
+4. **Can provide required work documents?** *
+   - [ ] Yes, has all documents ready
+   - [ ] Needs help gathering documents
+   - [ ] Missing some documents
+   - [ ] Unsure what's needed
+   
+   "tSmartCleaning will help with I-9 completion and document verification"
+
+**Section 4: Transportation & Availability**
+
+1. **Transportation Method** * (Multi-select)
+   - [ ] Own vehicle
+   - [ ] Public transportation
+   - [ ] Bicycle
+   - [ ] Walking (nearby jobs only)
+   - [ ] Rideshare/taxi (cost barrier)
+   - [ ] Needs transportation assistance
+
+2. **Valid Driver's License?**
+   - [ ] Yes, valid U.S./Canadian license
+   - [ ] Yes, international license
+   - [ ] No, but can obtain
+   - [ ] No
+   - [ ] Not applicable
+
+3. **Maximum Travel Distance** *
+   - [ ] Within 5 miles/8km
+   - [ ] Within 10 miles/16km
+   - [ ] Within 15 miles/24km
+   - [ ] Within 20 miles/32km
+   - [ ] 20+ miles (has reliable transportation)
+
+4. **When can candidate start working?** *
+   - [ ] Immediately (within 3 days)
+   - [ ] Within 1 week
+   - [ ] Within 2 weeks
+   - [ ] Within 1 month
+   - [ ] Specific date: ___________
+
+5. **Preferred Work Schedule** * (Multi-select)
+   - [ ] Weekday mornings (6AM-12PM)
+   - [ ] Weekday afternoons (12PM-6PM)
+   - [ ] Weekday evenings (6PM-10PM)
+   - [ ] Weekend mornings
+   - [ ] Weekend afternoons
+   - [ ] Flexible - any time
+
+6. **Days Available** * (Multi-select - at least 2)
+   - [ ] Monday
+   - [ ] Tuesday
+   - [ ] Wednesday
+   - [ ] Thursday
+   - [ ] Friday
+   - [ ] Saturday
+   - [ ] Sunday
+
+7. **Hours per week seeking** *
+   - [ ] Part-time (15-25 hours)
+   - [ ] Full-time (30-40 hours)
+   - [ ] Maximum hours possible (40+)
+   - [ ] Flexible
+
+**Section 5: Experience & Skills**
+
+1. **Previous Cleaning Experience?** *
+   - [ ] Yes, professional cleaning
+   - [ ] Yes, personal/family homes only
+   - [ ] No experience, willing to learn
+   - [ ] Some experience
+
+2. **Years of Cleaning Experience**
+   - [ ] No experience
+   - [ ] Less than 1 year
+   - [ ] 1-3 years
+   - [ ] 3-5 years
+   - [ ] 5+ years
+
+3. **Special Skills** (Multi-select)
+   - [ ] Deep cleaning
+   - [ ] Window cleaning
+   - [ ] Carpet cleaning
+   - [ ] Laundry & ironing
+   - [ ] Organization
+   - [ ] Move-in/move-out cleaning
+   - [ ] Post-construction cleaning
+   - [ ] Eco-friendly product knowledge
+   - [ ] Commercial cleaning
+   - [ ] None yet - ready to learn
+
+4. **Comfortable with:**(Multi-select)
+   - [ ] Working in homes with pets
+   - [ ] Working in homes with children
+   - [ ] Working alone
+   - [ ] Using cleaning equipment
+   - [ ] Lifting up to 25 lbs
+   - [ ] Climbing ladders/step stools
+   - [ ] Standing for long periods
+
+5. **Any physical limitations we should know about?**
+   - Textarea (optional)
+   - "This helps us match to appropriate positions"
+
+**Section 6: Financial Urgency & Needs**
+
+1. **Financial Situation** * (Select one - confidential)
+   - [ ] Emergency - needs income within days
+   - [ ] Urgent - needs income within 1-2 weeks
+   - [ ] Important - needs income within 1 month
+   - [ ] Seeking stable employment
+
+2. **Primary Financial Need** * (Select primary concern)
+   - [ ] Rent/housing payment
+   - [ ] Food/basic necessities
+   - [ ] Supporting children
+   - [ ] Medical expenses
+   - [ ] Debt repayment
+   - [ ] Building savings
+   - [ ] Sending remittances to family
+   - [ ] Other: ___________
+
+3. **Currently receiving any assistance?** (Multi-select - confidential)
+   - [ ] SNAP/food stamps
+   - [ ] Housing assistance
+   - [ ] TANF/cash assistance
+   - [ ] Unemployment benefits
+   - [ ] Other government assistance
+   - [ ] NGO/charity support
+   - [ ] No assistance
+   - [ ] Prefer not to say
+
+4. **Preferred Payment Method** *
+   - [ ] Direct deposit (needs bank account setup)
+   - [ ] Prepaid debit card (tSmartCleaning can provide)
+   - [ ] Paper check
+   - [ ] Cash (special circumstances only)
+
+5. **Has bank account?**
+   - [ ] Yes, checking account with direct deposit
+   - [ ] Yes, but no direct deposit
+   - [ ] No, needs help opening account
+   - [ ] No, prefers prepaid card
+   
+   "tSmartCleaning can help open free checking accounts"
+
+**Section 7: Support Needs & Barriers**
+
+1. **Childcare situation** * (if applicable)
+   - [ ] Has reliable childcare
+   - [ ] Needs childcare assistance
+   - [ ] Children in school (daytime availability)
+   - [ ] Not applicable - no children
+
+2. **Main barriers to employment** * (Multi-select)
+   - [ ] Transportation
+   - [ ] Childcare
+   - [ ] Language barrier
+   - [ ] Lack of experience
+   - [ ] Lack of documentation
+   - [ ] Housing instability
+   - [ ] Health issues
+   - [ ] Confidence/anxiety
+   - [ ] Other: ___________
+
+3. **What support does candidate need from tSmartCleaning?** * (Multi-select)
+   - [ ] Training
+   - [ ] Uniform/supplies
+   - [ ] Transportation assistance
+   - [ ] Banking setup help
+   - [ ] Language support
+   - [ ] Job coaching
+   - [ ] Flexible schedule due to life circumstances
+   - [ ] Patient, understanding employer
+   - [ ] Other: ___________
+
+4. **Special circumstances we should know about** (Optional, confidential)
+   Textarea: "Any situation that might affect employment (health, family crisis, 
+   trauma, legal issues, etc.) We want to support success."
+   
+   Examples:
+   - Domestic violence survivor
+   - Recent refugee arrival
+   - Recovering from illness
+   - Caring for sick family member
+   - Formerly incarcerated
+   - Dealing with trauma
+
+**Section 8: NGO Assessment & Recommendation**
+
+1. **Your assessment of candidate's job readiness** *
+   - [ ] Ready to start immediately - highly confident
+   - [ ] Ready with minimal support needed
+   - [ ] Needs some preparation/support
+   - [ ] Needs significant support but motivated
+   - [ ] Unsure - needs assessment
+
+2. **Candidate's reliability (in your experience)** *
+   - [ ] Excellent - always punctual and responsible
+   - [ ] Good - generally reliable
+   - [ ] Fair - sometimes struggles with consistency
+   - [ ] Unknown - haven't observed enough
+   - [ ] Concerns about reliability
+
+   If concerns, explain: (Textarea)
+
+3. **Candidate's motivation level** *
+   - [ ] Extremely motivated - will succeed
+   - [ ] Motivated - wants to work
+   - [ ] Moderately motivated
+   - [ ] Low motivation - needs encouragement
+   - [ ] Unsure
+
+4. **Red flags or concerns?** *
+   - [ ] No concerns
+   - [ ] Minor concerns (explain below)
+   - [ ] Significant concerns (explain below)
+   
+   If any concerns, explain: (Textarea)
+   "Honesty helps us provide appropriate support"
+
+5. **Why is this candidate a good fit?** * (Textarea)
+   "Tell us what makes you confident this candidate will succeed"
+   Minimum 200 characters
+
+6. **Your support plan for this candidate** * (Textarea)
+   "How will you support them through first 90 days?"
+   Minimum 150 characters
+
+7. **Best contact method for placement updates** *
+   - [ ] Email me about this candidate
+   - [ ] Call me about this candidate
+   - [ ] Update through dashboard only
+   - [ ] Contact candidate directly (with my CC)
+
+**Section 9: Documentation & Verification**
+
+1. **Candidate's Photo** * (Upload)
+   - Professional or passport-style photo
+   - Clear face visibility
+   - JPG/PNG, max 2MB
+   - "This helps with identification and profile creation"
+
+2. **Proof of Work Authorization** * (Upload)
+   - Green card, EAD, visa, passport, etc.
+   - PDF or image, max 5MB
+   - Multiple files allowed
+
+3. **Proof of Address** (if available)
+   - Utility bill, lease, official mail
+   - Helps verify location
+   - PDF or image, max 3MB
+
+4. **Resume** (if available)
+   - Not required - many candidates don't have
+   - We can help create one
+   - PDF/DOC, max 2MB
+
+5. **Reference Letters** (if available)
+   - From previous employers, community leaders
+   - Optional but helpful
+   - PDF, max 3MB each
+   - Up to 3 files
+
+**Section 10: Consent & Permissions**
+
+1. **Candidate Consent** * (Required)
+   
+   "Has the candidate given permission for you to submit this application?"
+   - [ ] Yes, candidate is aware and consents *
+   - [ ] Yes, candidate signed consent form *
+   
+   "Candidate understands:
+   - Their information will be shared with tSmartCleaning
+   - They may be contacted for interviews
+   - Employment is not guaranteed
+   - They will go through application and background check process"
+
+2. **Upload Signed Consent Form** * (Required)
+   - Candidate signature authorizing submission
+   - Download template provided
+   - PDF, max 2MB
+
+3. **Photo Release** (Optional)
+   - [ ] Candidate allows photo use in success stories (anonymized)
+   - [ ] Candidate allows photo use with first name only
+   - [ ] No photo release
+
+4. **Feedback Permission** *
+   - [ ] Candidate agrees to provide feedback after placement
+   - [ ] Candidate agrees to check-ins from tSmartCleaning
+   - [ ] Limited contact only
+
+**Final Information:**
+
+**Priority Level** * (Your assessment)
+- [ ] Emergency Priority (extreme hardship - needs placement within days)
+- [ ] High Priority (urgent need - within 1-2 weeks)
+- [ ] Standard Priority (normal processing)
+
+**Internal Notes** (Optional - not shared with candidate)
+Textarea: "Any internal notes for tSmartCleaning team"
+
+---
+
+**SUBMIT BUTTON:**
+"Submit Candidate Application →"
+
+**Below Button:**
+- "Candidate will be reviewed within 24-48 hours"
+- "You'll receive notification of next steps"
+- "Emergency priority cases reviewed within 24 hours"
+
+Please implement this complete candidate submission portal with proper validation, 
+file upload handling, and dashboard integration.
+```
+
+---
+
+## Phase 4: Success Pages & Email Notifications
+
+```
+Create success confirmation pages and email templates:
+
+**NGO REGISTRATION SUCCESS PAGE:**
+
+**Headline:**
+"Application Submitted Successfully!"
+
+**Content:**
+"Thank you for applying to become a tSmartCleaning partner organization. 
+We're excited about the possibility of working together to provide employment 
+opportunities to those who need them most.
+
+**Application ID:** [Generated ID]
+
+**What Happens Next:**
+
+1. **Verification (24-48 hours)**
+   We'll verify your organization's credentials and contact your references
+
+2. **Background Check (2-3 days)**
+   We'll conduct organizational background checks and review your documentation
+
+3. **Decision (3-5 business days)**
+   You'll receive an email with our decision
+
+4. **If Approved:**
+   - Immediate access to partner portal
+   - Training session scheduled
+   - Can begin submitting candidates right away
+
+**Questions?**
+Contact: partnerships@tsmartcleaning.com
+Phone: 1-800-XXX-XXXX"
+
+---
+
+**CANDIDATE SUBMISSION SUCCESS PAGE:**
+
+**Headline:**
+"Candidate Submitted Successfully!"
+
+**Content:**
+"[Candidate Name]'s application has been received and is being reviewed.
+
+**Submission ID:** [Generated ID]
+
+**Priority Level:** [Emergency/High/Standard]
+
+**Next Steps:**
+
+**For Emergency Priority:**
+- Review within 24 hours
+- Direct outreach to candidate if suitable match exists
+- You'll be notified of status
+
+**For Standard Priority:**
+- Review within 48 hours
+- Candidate contacted if matched to opportunity
+- You'll receive updates via dashboard
+
+**Your Role:**
+- Keep candidate informed
+- Be available for verification calls
+- Provide support as candidate moves through process
+
+**Track Status:**
+[Button: View in Dashboard]"
+
+---
+
+**EMAIL TEMPLATES:**
+
+**Email 1: NGO Registration Confirmation**
+Subject: Application Received - [Organization Name]
+
+"Dear [Contact Name],
+
+Thank you for applying to become a tSmartCleaning partner organization.
+
+Application ID: [ID]
+Submitted: [Date/Time]
+
+We're reviewing your application and will contact you within 5 business days.
+
+In the meantime, you can check status at: [Link]
+
+Best regards,
+tSmartCleaning Partnerships Team"
+
+---
+
+**Email 2: NGO Approval**
+Subject: Welcome! Your Partnership Application is Approved
+
+"Dear [Contact Name],
+
+Congratulations! [Organization Name] has been approved as a tSmartCleaning partner.
+
+You now have access to:
+✓ Candidate submission portal
+✓ Job opportunity alerts
+✓ Partner resources
+✓ Support team
+
+**Login to your dashboard:** [Link]
+**Schedule training call:** [Calendar Link]
+
+We're excited to work together to create employment opportunities!
+
+Next steps:
+1. Complete online training (30 minutes)
+2. Review candidate submission guidelines
+3. Submit your first candidate
+
+Questions? Reply to this email or call [phone]
+
+Welcome to the team!
+
+tSmartCleaning Partnerships Team"
+
+---
+
+**Email 3: Candidate Submission Confirmation (to NGO)**
+Subject: Candidate Submitted: [Candidate Name]
+
+"Dear [Contact Name],
+
+Candidate submission received successfully.
+
+**Candidate:** [Name]
+**Submission ID:** [ID]
+**Priority:** [Level]
+**Expected Review:** [Timeline]
+
+**Next Steps:**
+- We'll review within [timeline]
+- You'll receive updates via dashboard
+- Candidate may be contacted directly for interview
+
+**Your role:**
+- Ensure candidate is reachable at [phone]
+- Provide any additional support needed
+- Check dashboard for updates
+
+Track status: [Dashboard Link]
+
+Thank you for helping [Candidate Name] access employment opportunities.
+
+Best regards,
+tSmartCleaning Team"
+
+---
+
+**Email 4: Candidate Matched (to NGO)**
+Subject: Great News! [Candidate Name] Matched to Opportunity
+
+"Dear [Contact Name],
+
+Exciting update! [Candidate Name] has been matched to a job opportunity.
+
+**Next Steps:**
+1. Candidate will be contacted for interview today
+2. Please ensure they're reachable
+3. Provide any support needed for interview prep
+
+**Interview Details:**
+Date: [TBD - candidate will receive call]
+Position: Cleaning Professional
+Location: [City, State]
+Pay: $[Amount]/hour
+
+**Please remind candidate:**
+- Have ID ready for interview
+- Professional appearance
+- Be honest and enthusiastic
+- Ask questions if unsure
+
+We'll keep you updated on progress.
+
+Thank you for your partnership!
+
+tSmartCleaning Team"
+
+Please implement all success pages and email templates with proper styling and links.
+```
+
+---
+
+## Phase 5: NGO Partner Dashboard
+
+```
+Create a comprehensive dashboard for approved NGO partners:
+
+**DASHBOARD LAYOUT:**
+
+**Top Navigation:**
+- Logo
+- Dashboard | Submit Candidate | Resources | Reports | Settings | Logout
+
+**Main Dashboard View:**
+
+**Section 1: Quick Stats (Card Grid)**
+
+Card 1: Total Candidates Submitted
+- Number with trend indicator
+- "View All →"
+
+Card 2: Active Placements
+- Currently working candidates
+- "See Details →"
+
+Card 3: Interview Pipeline
+- Candidates in interview process
+- "Track Progress →"
+
+Card 4: Success Rate
+- Percentage of successful placements
+- 90-day retention rate
+- "View Report →"
+
+**Section 2: Recent Candidates (Table)**
+
+Table Columns:
+- Candidate Name (partial for privacy)
+- Submission Date
+- Status (Badge: Submitted, Reviewing, Interview Scheduled, Placed, Started Working, Not Matched)
+- Priority Level
+- Actions (View, Update, Contact)
+
+Status Badges:
+- Submitted: Blue
+- Under Review: Yellow
+- Interview Scheduled: Purple
+- Placed: Green
+- Started Working: Dark Green with ✓
+- Not Matched: Gray
+- Needs Info: Orange
+
+**Section 3: Job Opportunities (Available Positions)**
+
+"New jobs your candidates may be interested in"
+
+Job Cards showing:
+- Location
+- Pay rate
+- Schedule
+- Start date
+- Required skills
+- [Submit Candidate for This Job] button
+
+**Section 4: Notifications/Alerts**
+
+- "Maria Rodriguez interview scheduled for tomorrow"
+- "Juan Perez started work today!"
+- "2 new job opportunities in your area"
+- "Document expiring soon for Sofia Kim"
+
+**Section 5: Resources Quick Links**
+
+- Download Candidate Consent Form
+- Interview Preparation Guide
+- Transportation Resources
+- Banking Setup Guide
+- Language Support Services
+- Success Stories
+- FAQ
+- Contact Support
+
+**Section 6: Monthly Impact Report (Visual)**
+
+Chart showing:
+- Candidates placed per month
+- Total income earned by your candidates
+- Retention rate
+- Candidate satisfaction scores
+
+"You've helped [X] people earn $[Amount] this year!"
+
+**Right Sidebar:**
+
+**Support Contact:**
+- Your Partnership Manager: [Name]
+- Email: [email]
+- Phone: [phone]
+- [Schedule Call] button
+
+**Quick Actions:**
+- Submit New Candidate
+- Report Issue
+- Request Training
+- Update Organization Info
+
+**Upcoming:**
+- Partner meeting: [Date]
+- Training webinar: [Date]
+- Reporting deadline: [Date]
+
+Please implement this dashboard with responsive design and real-time updates.
+```
+
+---
+
+## Complete Master Prompt for Cursor
+
+```
+Create a comprehensive dual-system application for NGO/recruiting agency partnerships:
+
+**SYSTEM OVERVIEW:**
+tSmartCleaning partners with NGOs and agencies to provide immediate employment 
+opportunities in the cleaning industry for vulnerable populations (immigrants, 
+refugees, single parents, unemployed) who need dignified work and fast income.
+
+**BUILD TWO INTERCONNECTED SYSTEMS:**
+
+**SYSTEM 1: NGO/AGENCY REGISTRATION (Public-facing)**
+Complete registration form with 9 sections:
+1. Organization Information (name, type, EIN, registration)
+2. Contact Information (addresses, contact persons, hours)
+3. Credentials & Verification (non-profit docs, insurance, references)
+4. Service Capacity (population served, languages, volume)
+5. Partnership Goals (objectives, support services, commitment)
+6. Financial Understanding (wage structure, fee disclosure)
+7. Success Metrics (measurement, reporting, case studies)
+8. Legal & Compliance (privacy, background check consent, agreements)
+9. Additional Information (source, comments, documents)
+
+**SYSTEM 2: CANDIDATE SUBMISSION PORTAL (Partner-only after approval)**
+Comprehensive candidate submission form with 10 sections:
+1. Basic Information (name, DOB, language, English proficiency)
+2. Contact Information (phone, email, address, emergency contact)
+3. Work Eligibility (authorization status, documents, SSN/SIN)
+4. Transportation & Availability (method, distance, schedule, hours)
+5. Experience & Skills (cleaning experience, special skills, physical abilities)
+6. Financial Urgency (situation, needs, payment method, banking)
+7. Support Needs & Barriers (childcare, employment barriers, special circumstances)
+8. NGO Assessment (job readiness, reliability, motivation, concerns, support plan)
+9. Documentation (photo, work auth docs, address proof, resume, references)
+10. Consent & Permissions (candidate consent, photo release, feedback)
+
+**SYSTEM 3: PARTNER DASHBOARD (For approved partners)**
+- Real-time stats and metrics
+- Candidate tracking table
+- Available job opportunities
+- Notifications and alerts
+- Impact reports and analytics
+- Resources and quick actions
+
+**TECH STACK:**
+- Next.js 14 with App Router
+- TypeScript
+- Tailwind CSS
+- React Hook Form + Zod validation
+- Prisma + PostgreSQL
+- AWS S3 for document storage
+- SendGrid/Resend for emails
+- NextAuth for authentication
+- Chart.js or Recharts for analytics
+
+**KEY FEATURES TO IMPLEMENT:**
+
+1. **Multi-step Forms:**
+   - Progress indicators
+   - Auto-save functionality
+   - Validation at each step
+   - File upload with drag-and-drop
+   - Conditional fields based on selections
+
+2. **Document Management:**
+   - Secure file upload
+   - Document verification status
+   - Expiration tracking
+   - Download capabilities
+
+3. **Priority System:**
+   - Emergency (24-hour review)
+   - High Priority (48-hour review)
+   - Standard (72-hour review)
+   - Visual priority badges
+
+4. **Status Tracking:**
+   - Real-time status updates
+   - Email notifications
+   - Dashboard visibility
+   - Candidate journey tracking
+
+5. **Communication:**
+   - Automated email confirmations
+   - Status update notifications
+   - Approval/rejection emails
+   - Match notifications
+
+6. **Privacy & Security:**
+   - Encrypted sensitive data
+   - Role-based access control
+   - Audit logs
+   - GDPR/privacy compliance
+   - Confidential information protection
+
+7. **Reporting & Analytics:**
+   - Placement success rates
+   - Candidate retention metrics
+   - Income earned tracking
+   - Monthly impact reports
+   - Export capabilities
+
+8. **Mobile Optimization:**
+   - Fully responsive design
+   - Touch-friendly interfaces
+   - Mobile document upload
+   - Mobile-optimized dashboard
+
+**DESIGN PRINCIPLES:**
+- Compassionate, empowering tone
+- Easy to understand (serve people with language barriers)
+- Professional but warm
+- Trust-building visual elements
+- Clear call-to-actions
+- Accessibility compliance (WCAG 2.1 AA)
+
+**CONTENT TONE:**
+- Empowering, not pitying
+- Respectful of dignity
+- Solution-focused
+- Supportive and encouraging
+- Clear and simple language
+- Culturally sensitive
+
+**START WITH:**
+1. NGO registration form (all 9 sections)
+2. Success pages and email templates
+3. Candidate submission form (all 10 sections)
+4. Partner dashboard
+5. Admin review interface
+
+**SPECIAL CONSIDERATIONS:**
+- Handle emergency/urgent cases prominently
+- Support for people with limited English
+- Banking/payment setup assistance
+- Confidentiality of sensitive circumstances
+- Support for trauma survivors
+- Cultural sensitivity
+- Economic dignity focus
+
+Please implement this system with focus on user empowerment, data security, 
+and efficient placement of candidates into dignified employment.
+```
+
+---
+
+This comprehensive prompt covers everything needed to help NGOs connect vulnerable 
+populations with immediate, dignified employment opportunities in the cleaning industry.

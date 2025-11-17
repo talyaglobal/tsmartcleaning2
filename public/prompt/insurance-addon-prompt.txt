@@ -1,0 +1,1331 @@
+# Third-Party Insurance Add-on Service - Complete Prompt
+
+## Main Overview Prompt
+
+```
+I need to create a comprehensive "Cleaning Service Insurance" add-on product 
+that customers can purchase when they buy annual membership with fixed weekly 
+cleaning services (1x, 2x, 3x, or more times per week).
+
+**PRODUCT NAME:** "CleanGuard Protection" or "Home Shield Insurance"
+
+**PURPOSE:**
+Provide peace of mind insurance coverage that protects both the customer's home 
+and belongings, and provides additional liability protection beyond standard 
+service coverage.
+
+**AVAILABLE TO:**
+- Annual membership customers only
+- Fixed-frequency service plans (1x, 2x, 3x+ per week)
+- Must have recurring scheduled cleaning service
+
+**WHAT IT COVERS:**
+- Damage to customer's property during cleaning
+- Loss or theft of customer's belongings
+- Additional liability coverage
+- Key replacement coverage
+- Cancellation protection
+- Service guarantee enhancements
+- Emergency cleaning coverage
+
+**INTEGRATION POINTS:**
+- Header navigation (prominent placement)
+- Checkout flow (upsell during annual membership purchase)
+- Account dashboard (add insurance to existing membership)
+- Invoice/billing (monthly or annual payment)
+
+Please help me create this insurance product offering with full UI/UX implementation.
+```
+
+---
+
+## Phase 1: Header Navigation Integration
+
+```
+Create a prominent "Insurance" menu item in the main navigation header:
+
+**HEADER MENU STRUCTURE:**
+
+Current Menu:
+- Home
+- Services
+- How It Works
+- Pricing
+- **Insurance** ← NEW
+- About Us
+- Contact
+- [Login] [Get Started]
+
+**"Insurance" Menu Item Styling:**
+
+Desktop:
+- Bold or slightly different styling to stand out
+- Optional badge: "Protection Plans" or "New"
+- Hover shows dropdown/mega menu with insurance details
+- Icon: Shield with checkmark
+
+Mobile:
+- Prominent position in hamburger menu
+- Icon included for visual recognition
+- Expandable section with sub-items
+
+**Dropdown/Mega Menu Content (on hover/click):**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  CLEANGUARD PROTECTION                                       │
+│  Complete Coverage for Your Peace of Mind                    │
+├─────────────────────────────────────────────────────────────┤
+│                                                               │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌──────────────┐ │
+│  │  🛡️ BASIC        │  │  🏆 PREMIUM     │  │  💎 ULTIMATE │ │
+│  │  $9.99/month    │  │  $19.99/month   │  │  $34.99/mo   │ │
+│  │                  │  │                  │  │              │ │
+│  │  • Up to $5K    │  │  • Up to $25K   │  │  • Up to $100K│ │
+│  │    coverage     │  │    coverage     │  │    coverage  │ │
+│  │  • Damage       │  │  • Damage       │  │  • Damage    │ │
+│  │    protection   │  │  • Theft        │  │  • Theft     │ │
+│  │                  │  │    protection   │  │  • Full      │ │
+│  │  [Learn More]   │  │  • Key coverage │  │    liability │ │
+│  │                  │  │                  │  │  • Emergency │ │
+│  │                  │  │  [Learn More]   │  │  [Learn More]│ │
+│  └─────────────────┘  └─────────────────┘  └──────────────┘ │
+│                                                               │
+│  ⚡ Special Offer: Add to annual membership & save 20%       │
+│                                                               │
+│  [Compare All Plans →]  [Get Protected Now →]                │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Desktop Dropdown Specifications:**
+- Width: 700px
+- Appears on hover with smooth fade-in (200ms)
+- Contains 3 plan cards side-by-side
+- Visual comparison of coverage tiers
+- Two CTAs: "Compare All Plans" and "Get Protected Now"
+- Special offer banner at bottom
+
+**Mobile Menu Item:**
+```
+Insurance 🛡️ [Chevron Down]
+  ├─ What's Covered
+  ├─ Protection Plans
+  ├─ Why You Need It
+  └─ Get a Quote
+```
+
+**Header Badge/Indicator for Existing Members:**
+If user is logged in and has annual membership but NO insurance:
+- Show badge on Insurance menu item: "Recommended for You"
+- Pulsing dot indicator or highlight
+
+Please implement the header navigation with dropdown mega menu.
+```
+
+---
+
+## Phase 2: Dedicated Insurance Landing Page
+
+```
+Create a comprehensive landing page at /insurance or /protection-plans
+
+**PAGE STRUCTURE:**
+
+---
+
+### SECTION 1: HERO SECTION
+
+**Headline:**
+"Clean with Complete Confidence"
+
+**Subheadline:**
+"Comprehensive insurance protection for your home, belongings, and peace of mind. 
+Available exclusively for annual members."
+
+**Hero Visual:**
+- Split image: Left side shows happy homeowner relaxed on couch, right side shows 
+  professional cleaner working carefully
+- Shield icon overlay connecting the two sides
+- Visual representation of "protection" and "trust"
+
+**3 Quick Value Props (Icon + Text):**
+┌────────────────┐ ┌────────────────┐ ┌────────────────┐
+│  🛡️            │ │  ⚡            │ │  ✅            │
+│  Up to $100K   │ │  Zero Hassle   │ │  Same-Day      │
+│  Coverage      │ │  Claims        │ │  Response      │
+└────────────────┘ └────────────────┘ └────────────────┘
+
+**Primary CTA:** "See Protection Plans →"
+**Secondary CTA:** "Already a member? Add Insurance"
+
+---
+
+### SECTION 2: WHO IS THIS FOR?
+
+**Headline:** "Is CleanGuard Protection Right for You?"
+
+**Target Customer Profiles (Cards):**
+
+┌────────────────────────────────────────────────┐
+│  ✓ You have an annual membership               │
+│  ✓ You have valuable belongings or antiques    │
+│  ✓ You have recurring service (1x+ per week)   │
+│  ✓ You want complete peace of mind             │
+│  ✓ You value protection over saving pennies    │
+│  ✓ You have irreplaceable items in your home   │
+└────────────────────────────────────────────────┘
+
+**Callout Box:**
+"Required: Annual membership with fixed weekly service schedule"
+Options available for:
+- 1x per week service: Basic or Premium plans
+- 2x per week service: Premium or Ultimate plans
+- 3x+ per week service: Premium or Ultimate plans (recommended)
+
+---
+
+### SECTION 3: WHAT'S COVERED (Detailed Breakdown)
+
+**Headline:** "Comprehensive Protection, Clearly Explained"
+
+**Coverage Categories:**
+
+**1. Property Damage Protection** 🏠
+What's Covered:
+- Accidental damage to furniture, floors, walls during cleaning
+- Damage to fixtures (light fixtures, faucets, etc.)
+- Damage to appliances while cleaning around them
+- Breakage of decorative items
+- Scratches, dents, spills, stains
+
+Example Scenarios:
+- "Cleaner accidentally knocks over and breaks your $800 vase"
+- "Cleaning solution damages your marble countertop"
+- "Vacuum scratches your hardwood floor"
+
+Coverage Limits by Plan:
+- Basic: Up to $5,000 per incident
+- Premium: Up to $25,000 per incident
+- Ultimate: Up to $100,000 per incident
+
+---
+
+**2. Theft & Loss Protection** 🔐
+What's Covered:
+- Theft of personal belongings by cleaning staff
+- Mysterious disappearance of valuables after service
+- Identity theft resulting from service
+- Unauthorized access to secure areas
+
+Example Scenarios:
+- "Jewelry missing after cleaning day"
+- "Cash or gift cards disappear"
+- "Electronics go missing"
+
+Coverage Limits:
+- Basic: Not included
+- Premium: Up to $10,000 per year
+- Ultimate: Up to $50,000 per year
+
+Special Features (Premium & Ultimate):
+- Police report filing assistance
+- Investigation support
+- Criminal prosecution support
+
+---
+
+**3. Extended Liability Coverage** 💼
+What's Covered:
+- Bodily injury to cleaner on your property (beyond workers' comp)
+- Third-party liability (cleaner injures someone else in your home)
+- Legal defense costs
+- Medical payments
+
+Example Scenarios:
+- "Cleaner slips and gets injured, sues for additional damages"
+- "Cleaning product causes allergic reaction to family member"
+- "Damage extends to neighbor's property"
+
+Coverage Limits:
+- Basic: $50,000
+- Premium: $500,000
+- Ultimate: $2,000,000
+
+---
+
+**4. Key Replacement & Re-keying** 🔑
+What's Covered:
+- Lost keys provided to cleaning service
+- Re-keying costs if keys are lost
+- Smart lock reprogramming
+- Emergency locksmith services
+
+Example Scenarios:
+- "Cleaner loses your house keys"
+- "Keys stolen from cleaner's bag"
+- "Need to re-key after cleaner separation"
+
+Coverage Limits:
+- Basic: $200 per incident
+- Premium: $500 per incident + 1 free re-key per year
+- Ultimate: $1,000 per incident + 2 free re-keys per year
+
+---
+
+**5. Cancellation Protection** 📅
+What's Covered:
+- Service interruption insurance
+- Emergency replacement cleaner guarantee
+- No-show protection
+- Schedule flexibility without penalties
+
+Example Scenarios:
+- "Your regular cleaner quits suddenly"
+- "Cleaner doesn't show up as scheduled"
+- "Need to cancel/reschedule last-minute due to emergency"
+
+Benefits:
+- Basic: Not included
+- Premium: Free emergency cleaner within 48 hours
+- Ultimate: Same-day emergency cleaner + priority scheduling
+
+---
+
+**6. Service Guarantee Enhancement** ⭐
+What's Covered:
+- Extended satisfaction guarantee
+- Free re-cleaning within 48 hours
+- Quality assurance premium support
+- VIP customer service line
+
+Benefits:
+- Basic: 24-hour guarantee
+- Premium: 48-hour guarantee + priority support
+- Ultimate: 72-hour guarantee + dedicated account manager
+
+---
+
+**7. Emergency Cleaning Coverage** 🚨
+What's Covered:
+- Unexpected emergency situations requiring immediate cleaning
+- Post-incident cleaning (water damage, pet accidents, etc.)
+- Last-minute guest prep cleaning
+- Move-out emergency cleaning
+
+Example Scenarios:
+- "Pipe bursts and floods part of house"
+- "Pet makes major mess before guests arrive"
+- "Emergency hosting situation"
+
+Coverage:
+- Basic: Not included
+- Premium: 1 emergency cleaning per year
+- Ultimate: 4 emergency cleanings per year (valued at $150 each)
+
+---
+
+**8. High-Value Item Registry** 💎 (Ultimate Only)
+What's Covered:
+- Register specific high-value items
+- Special handling protocols
+- Photo documentation before/after each service
+- Enhanced tracking and accountability
+
+Ideal For:
+- Antiques and collectibles
+- Fine art and sculptures
+- Jewelry collections
+- Designer furniture
+- Wine collections
+- Musical instruments
+
+Benefits:
+- Up to 20 items registered
+- Photo proof service
+- Special care instructions followed
+- Priority claims processing
+
+---
+
+### SECTION 4: PRICING & PLANS COMPARISON
+
+**Headline:** "Choose Your Level of Protection"
+**Subheadline:** "All plans include basic damage coverage. Upgrade for complete peace of mind."
+
+**Pricing Table (3 Tiers):**
+
+```
+┌────────────────────────────────────────────────────────────────────────────────┐
+│                     BASIC           PREMIUM          ULTIMATE                   │
+│                     🛡️              🏆              💎                          │
+├────────────────────────────────────────────────────────────────────────────────┤
+│ Monthly            $9.99/mo        $19.99/mo        $34.99/mo                   │
+│ Annual (Save 20%)  $95.90/yr       $191.90/yr       $335.90/yr                  │
+│                    ($8/mo)         ($16/mo)         ($28/mo)                    │
+├────────────────────────────────────────────────────────────────────────────────┤
+│ Property Damage    Up to $5K       Up to $25K       Up to $100K                 │
+│ Theft Protection   ✗               Up to $10K       Up to $50K                  │
+│ Liability          $50K            $500K            $2M                          │
+│ Key Coverage       $200            $500 + 1 rekey   $1K + 2 rekeys              │
+│ Cancellation       ✗               48hr guarantee   Same-day guarantee          │
+│ Emergency Cleans   ✗               1 per year       4 per year                  │
+│ High-Value Registry ✗              ✗                20 items                     │
+│ Dedicated Support  Email           Priority phone   Account manager             │
+│ Claims Processing  5-7 days        3-5 days         24-48 hours                 │
+├────────────────────────────────────────────────────────────────────────────────┤
+│ Deductible         $100            $50              $0                          │
+│ Coverage Period    12 months       12 months        12 months                   │
+├────────────────────────────────────────────────────────────────────────────────┤
+│ Best For:          1x/week         2x/week          3x+/week                    │
+│                    Basic homes     Family homes     Luxury homes                │
+│                                                                                  │
+│ [Select Basic]     [Select Premium] ⭐ MOST POPULAR [Select Ultimate]          │
+└────────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Below Table:**
+- "All plans require active annual cleaning membership"
+- "30-day money-back guarantee"
+- "Cancel anytime, prorated refund available"
+
+**Calculator Tool:**
+"Calculate Your Savings"
+Input: Value of belongings in home
+Output: "We recommend [Plan] based on your coverage needs"
+
+---
+
+### SECTION 5: HOW CLAIMS WORK
+
+**Headline:** "Filing a Claim is Simple and Fast"
+
+**4-Step Process (Visual Timeline):**
+
+**Step 1: Report Incident** 📞
+- Call claims hotline: 1-800-XXX-XXXX
+- Submit online claim form
+- Available 24/7
+- Response within 2 hours
+
+**Step 2: Document Damage/Loss** 📸
+- Take photos
+- Gather receipts/proof of value
+- Fill out claim details form
+- Upload supporting documents
+
+**Step 3: Claim Review** 🔍
+- Claims adjuster assigned
+- Investigation if needed
+- Typically resolved within:
+  * Basic: 5-7 business days
+  * Premium: 3-5 business days
+  * Ultimate: 24-48 hours
+
+**Step 4: Resolution** ✅
+- Approved claims paid directly
+- Direct deposit or check
+- Repair/replacement arranged
+- Follow-up satisfaction survey
+
+**Average Claim Processing Times:**
+- Simple damage claims: 3-5 days
+- Theft claims: 7-10 days (investigation required)
+- Emergency claims (Ultimate): 24 hours
+
+**Claims Satisfaction Rate:** 4.8/5.0 ⭐⭐⭐⭐⭐
+
+---
+
+### SECTION 6: REAL CUSTOMER STORIES
+
+**Headline:** "Real Protection, Real Peace of Mind"
+
+**Testimonial 1:**
+"My antique mirror was accidentally shattered during cleaning. I filed a claim 
+at 10 AM, and by 3 PM the same day, I had approval and payment for the full 
+replacement value. Ultimate Plan is worth every penny!"
+- Jennifer K., Toronto
+- Ultimate Plan member
+- Claim: $3,800 antique mirror
+
+**Testimonial 2:**
+"When our cleaner lost our house keys, I was panicking. Premium Plan covered 
+the entire re-keying of our house - 5 doors plus the garage. Saved us $600 
+and tons of stress."
+- Michael R., Los Angeles
+- Premium Plan member
+- Claim: Key replacement
+
+**Testimonial 3:**
+"Best decision ever. When jewelry went missing, the claims process was so 
+smooth. They took it seriously, filed police report, and we were fully 
+compensated within a week."
+- Sarah M., Vancouver
+- Ultimate Plan member
+- Claim: $8,000 jewelry theft
+
+---
+
+### SECTION 7: FAQ SECTION
+
+**Common Questions:**
+
+**Q: Do I need this if you already have insurance?**
+A: Our standard service includes basic insurance, but CleanGuard Protection 
+provides significantly higher coverage limits and additional protections like 
+theft coverage, key replacement, and emergency services that standard coverage 
+doesn't include.
+
+**Q: Can I add insurance after I start my membership?**
+A: Yes! Existing annual members can add CleanGuard Protection anytime. Coverage 
+begins immediately upon approval and payment.
+
+**Q: What if I cancel my cleaning membership?**
+A: If you cancel your cleaning service, your insurance will be prorated and 
+refunded for the unused portion. Insurance is only valid with active service.
+
+**Q: Are there any exclusions?**
+A: Yes. We don't cover intentional damage, normal wear and tear, pre-existing 
+damage, or items valued over $10K (Basic), $50K (Premium), or $150K (Ultimate) 
+unless registered in High-Value Registry.
+
+**Q: How many claims can I file per year?**
+A: There's no limit on the number of claims, but coverage limits apply per 
+incident and annually for theft protection.
+
+**Q: Does this cover damage I cause?**
+A: No. This insurance covers damage or loss caused by our cleaning professionals 
+during service. Your homeowner's insurance covers damage you cause.
+
+**Q: What's the deductible?**
+A: Basic plan: $100, Premium: $50, Ultimate: $0 deductible.
+
+**Q: Can I upgrade or downgrade plans?**
+A: Yes, you can change plans at your next renewal date or pay the difference 
+to upgrade immediately.
+
+---
+
+### SECTION 8: TRUST INDICATORS
+
+**Underwritten By:** [Major Insurance Company Name]
+- A.M. Best Rating: A+ (Superior)
+- Licensed in all 50 states + Canadian provinces
+- Claims paid: $2.3M+ in 2024
+- Customer satisfaction: 4.9/5
+
+**Guarantees:**
+- ✓ 30-day money-back guarantee
+- ✓ No hidden fees
+- ✓ Claims paid within stated timeframes or 10% bonus
+- ✓ Price lock for annual members
+
+---
+
+### SECTION 9: FINAL CTA SECTION
+
+**Headline:** "Ready for Complete Protection?"
+**Subheadline:** "Join 10,000+ members who clean with confidence"
+
+**Two Paths:**
+
+**Path 1: For New Customers**
+"Don't have annual membership yet?"
+[Get Annual Membership + Insurance →]
+Special offer: Save 20% when bundled
+
+**Path 2: For Existing Members**
+"Already have annual membership?"
+[Add Insurance to My Account →]
+Instant activation, prorated first payment
+
+**Call Option:**
+"Have questions? Call us at 1-800-XXX-XXXX"
+Mon-Fri 8AM-8PM EST
+
+Please implement this complete landing page with all sections, proper styling, 
+and conversion-optimized design.
+```
+
+---
+
+## Phase 3: Checkout Integration (Upsell Flow)
+
+```
+Integrate insurance offering into the annual membership checkout process:
+
+**CHECKOUT FLOW WITH INSURANCE UPSELL:**
+
+**Step 1: Service Selection**
+- Customer selects cleaning frequency (1x, 2x, 3x per week)
+- Customer selects annual membership
+
+**Step 2: Insurance Upsell (NEW)**
+
+Display prominent insurance offer card:
+
+┌────────────────────────────────────────────────────────────┐
+│  🛡️ ADD CLEANGUARD PROTECTION                             │
+│  Protect your home & belongings with comprehensive coverage│
+├────────────────────────────────────────────────────────────┤
+│                                                             │
+│  Based on your 2x/week service, we recommend:              │
+│                                                             │
+│  ┌──────────────────┐        ┌──────────────────┐         │
+│  │ 🏆 PREMIUM       │        │ 💎 ULTIMATE      │         │
+│  │ $19.99/month     │        │ $34.99/month     │         │
+│  │                   │        │                   │         │
+│  │ • Up to $25K     │        │ • Up to $100K    │         │
+│  │ • Theft coverage │        │ • Zero deductible│         │
+│  │ • Priority claims│        │ • Same-day help  │         │
+│  │                   │        │                   │         │
+│  │ [SELECT] ○       │        │ [SELECT] ○       │         │
+│  └──────────────────┘        └──────────────────┘         │
+│                                                             │
+│  ○ No thanks, I'll skip protection                         │
+│                                                             │
+│  💡 96% of annual members add insurance protection         │
+└────────────────────────────────────────────────────────────┘
+
+**Upsell Copy Below:**
+"Why risk it? Just $19.99/month protects up to $25,000 of your belongings. 
+That's less than a dinner out, but could save you thousands."
+
+[Compare All Plans] [Continue Without Insurance]
+
+**Visual Indicators:**
+- Recommended badge on Premium plan
+- Checkmarks showing what's included
+- Risk reminder: "Your homeowner's insurance may not cover cleaning-related incidents"
+
+**Social Proof:**
+- "10,000+ members protected"
+- "4.9/5 customer satisfaction"
+- "98% of claims approved within 5 days"
+
+**Step 3: Payment Information**
+Show itemized pricing:
+- Annual Cleaning Membership (2x/week): $3,600/year
+- CleanGuard Premium Protection: $191.90/year (bundle discount applied)
+- Total: $3,791.90/year
+- You save: $47.80 (bundled pricing vs. monthly)
+
+**Step 4: Confirmation**
+- Confirm both services
+- Insurance certificate emailed immediately
+- Coverage begins on first cleaning date
+
+**ABANDONMENT RECOVERY:**
+If customer clicks "Continue Without Insurance":
+- Show exit-intent modal
+- Offer: "Wait! Get 15% off insurance if you add it now"
+- Last chance messaging
+- Easy to add with one click
+
+Please implement this checkout integration with A/B test capability.
+```
+
+---
+
+## Phase 4: Account Dashboard Integration
+
+```
+For existing annual members, add insurance management to account dashboard:
+
+**DASHBOARD SECTIONS:**
+
+**Insurance Status Widget (If no insurance):**
+┌────────────────────────────────────────────────────┐
+│  ⚠️  YOUR HOME ISN'T FULLY PROTECTED                │
+│                                                     │
+│  You're an annual member but don't have insurance  │
+│  protection. Add CleanGuard Protection today.      │
+│                                                     │
+│  Recommended for you: Premium Plan ($19.99/mo)     │
+│                                                     │
+│  [Add Protection Now] [Learn More]                 │
+└────────────────────────────────────────────────────┘
+
+**Insurance Status Widget (If has insurance):**
+┌────────────────────────────────────────────────────┐
+│  🛡️  PREMIUM PLAN - ACTIVE                         │
+│                                                     │
+│  Coverage: Up to $25,000 per incident              │
+│  Next payment: January 15, 2025 ($19.99)           │
+│  Claims filed this year: 0                         │
+│                                                     │
+│  [View Coverage Details] [File a Claim] [Manage]   │
+└────────────────────────────────────────────────────┘
+
+**Full Insurance Management Page:**
+
+**Navigation:** Account → Insurance Protection
+
+**Page Sections:**
+
+**1. Coverage Summary Card**
+- Current plan (Basic/Premium/Ultimate)
+- Coverage limits
+- Deductible amount
+- Next billing date
+- Auto-renew status
+- [View Certificate] button
+
+**2. Claims History**
+Table showing:
+- Claim date
+- Type (damage/theft/key/etc.)
+- Status (filed/investigating/approved/paid)
+- Amount claimed
+- Amount paid
+- [View Details] for each
+
+**3. Quick Actions**
+- 📞 File New Claim
+- 📧 Contact Insurance Support
+- 📄 Download Coverage Certificate
+- 💳 Update Payment Method
+- ⬆️ Upgrade Plan
+- ⬇️ Downgrade Plan
+- ❌ Cancel Insurance (with warning)
+
+**4. High-Value Item Registry** (Ultimate Plan Only)
+- List of registered items
+- [Add New Item] button
+- Each item shows:
+  * Photo
+  * Description
+  * Estimated value
+  * Special care instructions
+  * [Edit] [Remove]
+
+**5. Documents & Resources**
+- Policy documents (PDF)
+- Claims form (downloadable)
+- Coverage guide
+- FAQ
+- Contact information
+
+**6. Billing History**
+- Payment history table
+- Invoices downloadable
+- Upcoming charges
+
+**7. Upgrade Prompt** (if on Basic or Premium)
+"Upgrade to Ultimate for $15/month more and get:
+- $100K coverage
+- Zero deductible
+- 4 emergency cleanings/year"
+[Compare Plans] [Upgrade Now]
+
+Please implement the dashboard integration with insurance management.
+```
+
+---
+
+## Phase 5: Claims Process Interface
+
+```
+Create a user-friendly claims filing and tracking system:
+
+**CLAIMS FILING FORM:**
+
+Accessible from:
+- Dashboard → File a Claim
+- Header → Insurance → File Claim
+- Direct URL: /insurance/file-claim
+- 24/7 Phone Hotline
+
+**CLAIM FORM STRUCTURE:**
+
+**Step 1: Incident Type**
+Select what happened:
+- [ ] Property Damage (furniture, floors, walls, fixtures)
+- [ ] Broken/Damaged Item
+- [ ] Theft or Missing Item
+- [ ] Lost Keys
+- [ ] Service No-Show (Premium/Ultimate)
+- [ ] Other
+
+**Step 2: When Did It Happen?**
+- Date: [Date Picker]
+- Approximate time: [Time Picker]
+- Was cleaning service happening at this time? [Yes/No]
+- Service date/time: [Auto-populated from schedule]
+
+**Step 3: What Happened?**
+- Detailed description (textarea, min 100 characters)
+- What was damaged/lost/stolen?
+- How did you discover it?
+- Who was present?
+
+Helpful prompts:
+"Be specific. Example: 'During the 2 PM cleaning on Tuesday, the cleaner accidentally 
+knocked over my ceramic vase on the living room mantle. It fell and shattered into 
+multiple pieces. I discovered it when I came home at 5 PM.'"
+
+**Step 4: Financial Impact**
+- What is the item worth? $______
+- Do you have proof of value? [Yes/No]
+- How did you determine value?
+  * [ ] Original receipt
+  * [ ] Appraisal
+  * [ ] Online comparable pricing
+  * [ ] Estimate
+
+**Step 5: Evidence Upload**
+Upload supporting documents:
+
+Required:
+- [ ] Photos of damage/loss *(Required - minimum 2)*
+  - Multiple angles
+  - Close-ups showing damage detail
+  - Wide shots showing context
+  
+Optional but Helpful:
+- [ ] Original receipts
+- [ ] Appraisals or certificates
+- [ ] Before photos (if available)
+- [ ] Police report (for theft)
+- [ ] Repair estimates
+- [ ] Comparable product listings
+
+Drag-and-drop file upload area
+"Accepted formats: JPG, PNG, PDF. Max 10MB per file. Up to 10 files."
+
+**Step 6: Contact Preference**
+How should we contact you about this claim?
+- [ ] Email
+- [ ] Phone
+- [ ] Text message
+- Best time to reach you: [Morning/Afternoon/Evening]
+
+**Step 7: Review & Submit**
+- Summary of claim details
+- Estimated coverage based on plan
+- Expected deductible (if applicable)
+- Estimated processing time
+- [Submit Claim] button
+
+**After Submission:**
+- Claim ID generated: #CLM-2024-00123
+- Confirmation email sent immediately
+- Expected response time displayed
+- Next steps outlined
+
+---
+
+**CLAIMS TRACKING INTERFACE:**
+
+**Claim Status Page:**
+URL: /insurance/claims/[claim-id]
+
+**Status Timeline (Visual):**
+```
+ ●─────────●─────────●─────────○─────────○
+ │         │         │         │         │
+Filed    Under    Adjuster   Approved  Paid
+         Review   Assigned
+```
+
+**Claim Details Card:**
+┌──────────────────────────────────────────┐
+│  CLAIM #CLM-2024-00123                   │
+│  Status: Under Review                    │
+├──────────────────────────────────────────┤
+│  Incident Type: Property Damage          │
+│  Incident Date: November 14, 2024        │
+│  Filed Date: November 15, 2024           │
+│  Amount Claimed: $1,200                  │
+│  Estimated Payout: $1,150 (after $50    │
+│  deductible)                             │
+├──────────────────────────────────────────┤
+│  Assigned Adjuster: Sarah Johnson        │
+│  Contact: claims@tsmartcleaning.com      │
+│  Expected Resolution: Nov 20, 2024       │
+└──────────────────────────────────────────┘
+
+**Activity Log:**
+- Nov 15, 9:30 AM - Claim filed
+- Nov 15, 10:15 AM - Claim received and assigned
+- Nov 15, 2:00 PM - Adjuster reviewing evidence
+- Nov 16, 11:00 AM - Additional information requested
+- [You] Nov 16, 3:00 PM - Additional photos uploaded
+- Nov 17, 10:00 AM - Claim approved
+- [Pending] Payment processing...
+
+**Actions Available:**
+- [Upload Additional Documents]
+- [Add Comments/Information]
+- [Contact Adjuster]
+- [Withdraw Claim]
+
+**Notifications:**
+- Email updates on status changes
+- SMS alerts (if opted in)
+- Dashboard notifications
+
+Please implement the complete claims filing and tracking system.
+```
+
+---
+
+## Phase 6: Insurance Certificate & Documents
+
+```
+Create professional insurance certificates and documentation:
+
+**INSURANCE CERTIFICATE:**
+Auto-generated PDF, accessible from dashboard
+
+**Certificate Design:**
+
+┌────────────────────────────────────────────────────────────┐
+│                    CERTIFICATE OF INSURANCE                 │
+│                                                             │
+│  ████████  tSmartCleaning                                  │
+│  █CLEAN █  CleanGuard Protection                           │
+│  ████████                                                   │
+│                                                             │
+├────────────────────────────────────────────────────────────┤
+│                                                             │
+│  This certifies that:                                      │
+│                                                             │
+│  INSURED:          Jennifer Smith                          │
+│  POLICY NUMBER:    CG-2024-012345                          │
+│  PLAN TYPE:        Premium Protection                      │
+│  EFFECTIVE DATE:   January 1, 2024                         │
+│  EXPIRATION DATE:  December 31, 2024                       │
+│  SERVICE ADDRESS:  123 Main Street, Toronto, ON M5V 1A1   │
+│                                                             │
+├────────────────────────────────────────────────────────────┤
+│  COVERAGE SUMMARY:                                         │
+│                                                             │
+│  Property Damage:        Up to $25,000 per incident        │
+│  Theft Protection:       Up to $10,000 per year            │
+│  Liability Coverage:     Up to $500,000                    │
+│  Key Replacement:        Up to $500 + 1 free re-key/year  │
+│  Deductible:            $50                                │
+│                                                             │
+│  Emergency Services:     ✓ 48-hour cleaner replacement     │
+│                         ✓ 1 emergency cleaning per year    │
+│                                                             │
+├────────────────────────────────────────────────────────────┤
+│  UNDERWRITER:                                              │
+│  [Insurance Company Name]                                  │
+│  License #: 12345-ABC                                      │
+│  A.M. Best Rating: A+ (Superior)                           │
+│                                                             │
+│  CLAIMS HOTLINE: 1-800-XXX-XXXX (24/7)                    │
+│  ONLINE CLAIMS: tsmartcleaning.com/insurance/claims       │
+│                                                             │
+│  [QR Code]          [Signature]           [Official Seal]  │
+│  Scan for           Authorized            │
+│  policy details     Representative        │
+└────────────────────────────────────────────────────────────┘
+
+**Certificate Features:**
+- Watermarked background for authenticity
+- QR code links to policy details online
+- Downloadable as PDF
+- Printable
+- Shareable with third parties if needed
+- Re-downloadable anytime from dashboard
+
+**Additional Documents to Generate:**
+
+1. **Policy Document** (Full Terms & Conditions)
+   - 10-15 page PDF
+   - Complete coverage details
+   - Exclusions and limitations
+   - Claims procedures
+   - Legal terms
+
+2. **Quick Reference Guide** (1-page)
+   - What's covered at a glance
+   - How to file a claim
+   - Contact information
+   - Key exclusions
+
+3. **High-Value Item Registry Form** (Ultimate Plan)
+   - Template for registering valuables
+   - Photo upload instructions
+   - Value documentation requirements
+
+4. **Claims Form** (Printable)
+   - Can be filled out offline
+   - Faxable or scannable option
+   - For those preferring paper
+
+Please implement certificate generation system with PDF export capability.
+```
+
+---
+
+## Phase 7: Email Sequences & Notifications
+
+```
+Create automated email sequences for insurance lifecycle:
+
+**EMAIL 1: Welcome Email (Upon Purchase)**
+Subject: Welcome to CleanGuard Protection! Your Coverage Starts Now
+
+Content:
+- Thank you message
+- Coverage summary
+- Certificate attached
+- Quick start guide
+- How to file claims
+- Important contacts
+- What to do in case of incident
+
+---
+
+**EMAIL 2: Coverage Reminder (7 days before first cleaning)**
+Subject: Your Protection is Active - Here's What You Need to Know
+
+Content:
+- Reminder that coverage is active
+- What to do if something goes wrong
+- How cleaners are trained to prevent incidents
+- Peace of mind messaging
+- Emergency contact card (downloadable)
+
+---
+
+**EMAIL 3: Mid-Year Check-In (6 months)**
+Subject: Coverage Check-In: Is Your Protection Still Right for You?
+
+Content:
+- Coverage summary
+- Claims filed (if any)
+- Upgrade opportunity (if on lower tier)
+- Satisfaction survey
+- Renew early discount offer
+
+---
+
+**EMAIL 4: Renewal Reminder (30 days before expiration)**
+Subject: Your CleanGuard Protection Expires Soon - Renew Now
+
+Content:
+- Expiration date highlighted
+- Coverage summary - what you'll lose
+- Easy renewal link (one-click)
+- Pricing for next year
+- Upgrade options
+- Testimonials from claims
+
+---
+
+**EMAIL 5: Renewal Reminder (7 days before)**
+Subject: URGENT: Your Protection Expires in 7 Days
+
+Content:
+- Urgency messaging
+- Large "Renew Now" button
+- What happens if coverage lapses
+- Same pricing guaranteed if renew now
+- Claims stats (if any)
+
+---
+
+**EMAIL 6: Lapsed Coverage (Day after expiration)**
+Subject: Your Protection Has Expired - Reinstate Today
+
+Content:
+- Coverage has expired
+- Easy reinstatement (backdated if within 30 days)
+- Risk reminder
+- Special reinstatement offer
+- Limited time to avoid gap in coverage
+
+---
+
+**EMAIL 7: Claim Filed Confirmation**
+Subject: Claim Received - Here's What Happens Next
+
+Content:
+- Claim ID
+- Summary of claim
+- Expected timeline
+- Adjuster contact info
+- How to upload additional documents
+- FAQ about claims process
+
+---
+
+**EMAIL 8: Claim Status Update**
+Subject: Update on Your Claim #[ID]
+
+Content:
+- Current status
+- Next steps
+- Any action needed from customer
+- Expected resolution date
+- Contact info if questions
+
+---
+
+**EMAIL 9: Claim Approved**
+Subject: Great News! Your Claim Has Been Approved
+
+Content:
+- Approval notification
+- Amount approved
+- Deductible (if any)
+- Payment method and timeline
+- How payment will be sent
+- What to expect next
+
+---
+
+**EMAIL 10: Claim Denied** (if applicable)
+Subject: Update on Your Claim #[ID]
+
+Content:
+- Denial explanation (specific reason)
+- Policy section reference
+- Appeal process if applicable
+- Alternative options
+- Customer service contact
+- Empathetic tone
+
+---
+
+**EMAIL 11: Payment Processed**
+Subject: Your Claim Payment is on the Way
+
+Content:
+- Payment confirmation
+- Amount paid
+- Method of payment
+- Expected arrival date (check/deposit)
+- Satisfaction survey
+- Thank you message
+
+---
+
+**EMAIL 12: Upgrade Offer (for Basic/Premium users)**
+Subject: Protect More, Worry Less - Upgrade Your Coverage
+
+Content:
+- Current coverage limits
+- What's missing
+- Real scenario examples where upgrade would help
+- Limited time upgrade bonus
+- Easy upgrade process
+
+---
+
+**SMS NOTIFICATIONS:**
+(For opted-in users)
+
+- Claim filed: "Claim #12345 received. We'll review within 24hrs. Track: [link]"
+- Claim update: "Claim #12345 approved! $1,150 payment processing. Details: [link]"
+- Renewal reminder: "CleanGuard Protection expires in 7 days. Renew now: [link]"
+- Emergency: "Coverage activated for emergency cleaning. Help on the way."
+
+Please implement these email sequences with proper templates and automation triggers.
+```
+
+---
+
+## Master Prompt for Complete Implementation
+
+```
+Create a comprehensive third-party insurance add-on product called "CleanGuard Protection" 
+for customers who purchase annual membership with fixed weekly cleaning services.
+
+**COMPLETE SYSTEM REQUIREMENTS:**
+
+**1. HEADER INTEGRATION:**
+- Add "Insurance" menu item to main navigation
+- Dropdown mega menu showing 3 plan tiers
+- Mobile-optimized menu
+- Badge indicators for eligible members without insurance
+- Hover animations and smooth transitions
+
+**2. DEDICATED LANDING PAGE (/insurance):**
+Implement 9 sections:
+- Hero (headline, value props, CTA)
+- Who is this for (qualification criteria)
+- What's covered (8 coverage categories with detailed explanations)
+- Pricing comparison table (3 tiers: Basic $9.99, Premium $19.99, Ultimate $34.99)
+- How claims work (4-step process)
+- Customer testimonials
+- FAQ section
+- Trust indicators (underwriter info, ratings, guarantees)
+- Final CTA section (new vs. existing customers)
+
+**3. CHECKOUT INTEGRATION:**
+- Insurance upsell during annual membership purchase
+- Plan recommendation based on service frequency
+- Bundle discount pricing
+- Exit-intent offer for abandonment recovery
+- Itemized pricing breakdown
+- One-click add to cart
+
+**4. ACCOUNT DASHBOARD:**
+- Insurance status widget
+- Full insurance management page with:
+  * Coverage summary card
+  * Claims history table
+  * Quick actions (file claim, view certificate, upgrade/downgrade)
+  * High-value item registry (Ultimate plan)
+  * Documents & resources
+  * Billing history
+- Add insurance CTA for members without coverage
+
+**5. CLAIMS SYSTEM:**
+- 7-step claims filing form:
+  * Incident type selection
+  * Date/time of incident
+  * Detailed description
+  * Financial impact assessment
+  * Evidence upload (photos, receipts)
+  * Contact preferences
+  * Review & submit
+- Claims tracking interface with visual timeline
+- Activity log and status updates
+- Adjuster contact info
+- Additional document upload capability
+- Email/SMS notifications
+
+**6. INSURANCE CERTIFICATE & DOCUMENTS:**
+- Auto-generated PDF certificate
+- Professional design with QR code
+- Downloadable policy documents
+- Quick reference guide
+- Claims forms (online and printable)
+- High-value item registry forms
+
+**7. EMAIL AUTOMATION:**
+Implement 12 email sequences:
+- Welcome email (with certificate)
+- Coverage reminder before first cleaning
+- Mid-year check-in
+- Renewal reminders (30 days, 7 days, post-expiration)
+- Claim filed confirmation
+- Claim status updates
+- Claim approved/denied notifications
+- Payment processed confirmation
+- Upgrade offers
+Plus SMS notifications for opted-in users
+
+**8. ADMIN INTERFACE:**
+- View all insured customers
+- Manage claims (review, approve, deny)
+- Generate reports (claims, revenue, coverage)
+- Adjust pricing and plans
+- Send bulk communications
+- View analytics (conversion rates, claim frequency, customer lifetime value)
+
+**TECHNICAL SPECIFICATIONS:**
+
+**Tech Stack:**
+- Next.js 14 with App Router
+- TypeScript
+- Tailwind CSS
+- Prisma + PostgreSQL
+- AWS S3 for document storage
+- Stripe for payments
+- SendGrid/Resend for emails
+- Twilio for SMS
+- PDF generation library (jsPDF or similar)
+- Chart.js for analytics
+
+**Database Models Needed:**
+- InsurancePlan (basic/premium/ultimate details)
+- InsurancePolicy (user's active policy)
+- Claim (claim details, status, amount)
+- HighValueItem (registered items for Ultimate)
+- ClaimDocument (uploaded evidence)
+- InsurancePayment (billing history)
+- ClaimActivity (audit trail)
+
+**Payment Integration:**
+- Monthly or annual payment options
+- Bundle discount calculation
+- Prorated charges for mid-cycle additions
+- Prorated refunds for cancellations
+- Auto-renewal with card on file
+- Payment failure handling
+
+**Key Features:**
+- Responsive design (mobile-first)
+- A/B testing capability for upsell pages
+- Conversion tracking
+- User analytics
+- PDF generation for certificates
+- File upload with validation
+- Email template system
+- SMS notification system
+- Role-based access control (customer, admin, claims adjuster)
+- Search and filter for claims
+- Export data to CSV
+
+**Design Requirements:**
+- Trust-building visual elements (shields, badges, checkmarks)
+- Professional insurance industry styling
+- Clear hierarchy and scannable content
+- Prominent CTAs throughout
+- Social proof elements (testimonials, stats, ratings)
+- Risk/benefit messaging
+- Comparison tables
+- Visual claim process flow
+- Mobile-optimized forms
+- Accessibility compliance (WCAG 2.1 AA)
+
+**Copy Tone:**
+- Trust-building and reassuring
+- Clear and transparent (no insurance jargon)
+- Benefit-focused rather than feature-focused
+- Urgency without being pushy
+- Empathetic in claims communications
+- Professional but friendly
+
+**Conversion Optimization:**
+- Exit-intent offers
+- Bundle discount incentives
+- Social proof throughout
+- Risk reminder messaging
+- Scarcity/urgency tactics (limited time offers)
+- Free trial period (30-day money-back)
+- Multiple CTA placements
+- Trust badges and guarantees
+
+**Analytics to Track:**
+- Insurance attach rate (% of annual members who buy)
+- Plan distribution (Basic vs. Premium vs. Ultimate)
+- Claims frequency
+- Claims approval rate
+- Average claim value
+- Customer lifetime value
+- Churn rate
+- Upgrade/downgrade frequency
+- Email open and click rates
+- Checkout abandonment rate
+
+**START IMPLEMENTATION ORDER:**
+1. Database schema and models
+2. Header integration with dropdown
+3. Landing page with all sections
+4. Checkout upsell flow
+5. Dashboard integration
+6. Claims filing system
+7. Claims tracking and management
+8. Certificate generation
+9. Email sequences
+10. Admin interface
+11. Analytics and reporting
+
+Build this insurance add-on system with focus on trust, transparency, and ease of use. 
+The goal is to provide genuine value and peace of mind while increasing annual contract 
+value and customer lifetime value.
+```
+
+---
+
+This comprehensive prompt provides everything needed to implement a complete third-party 
+insurance add-on product that seamlessly integrates into the existing cleaning service platform!

@@ -1,0 +1,201 @@
+# Cursor AI Prompt: Migrate Design from Webflow Template
+
+## Initial Setup Prompt
+
+```
+I need to redesign my existing v0 site to match a Webflow template's design system. 
+
+**Current Structure:**
+- Frontend files are in the `/public` folder
+- Webflow template files are also in the project
+
+**Goal:** Extract and apply the Webflow template's design system (colors, typography, spacing, components) to my existing v0 site while keeping the same functionality and structure.
+
+Can you help me with this migration?
+```
+
+---
+
+## Step 1: Design System Extraction
+
+```
+Please analyze the Webflow template files and extract the complete design system:
+
+1. **Color Palette:**
+   - Primary colors (with hex codes)
+   - Secondary colors
+   - Background colors
+   - Text colors
+   - Border/divider colors
+   - Hover/active states
+
+2. **Typography:**
+   - Font families used
+   - Font sizes for headings (h1-h6)
+   - Font sizes for body text
+   - Font weights
+   - Line heights
+   - Letter spacing
+
+3. **Spacing System:**
+   - Padding values
+   - Margin values
+   - Gap values for flex/grid layouts
+
+4. **Border Styles:**
+   - Border radius values
+   - Border widths
+
+5. **Shadows:**
+   - Box shadow values for cards/buttons
+
+6. **Component Styles:**
+   - Button styles (primary, secondary, etc.)
+   - Input/form field styles
+   - Card styles
+   - Navigation styles
+
+Please create a design tokens file (design-system.js or design-tokens.css) with all these values.
+```
+
+---
+
+## Step 2: CSS/Tailwind Configuration
+
+**If using Tailwind CSS:**
+```
+Based on the extracted design system, please update my `tailwind.config.js` to include:
+
+1. Custom color palette in the `colors` section
+2. Custom font families in the `fontFamily` section
+3. Custom spacing values if needed
+4. Custom border radius values
+5. Custom box shadows
+
+Make sure to preserve any existing configurations I need.
+```
+
+**If using plain CSS:**
+```
+Create a `design-system.css` file with CSS custom properties (variables) for:
+- Colors (--color-primary, --color-secondary, etc.)
+- Typography (--font-heading, --font-body, --text-base, etc.)
+- Spacing (--spacing-xs, --spacing-sm, etc.)
+- Borders (--radius-sm, --radius-md, etc.)
+- Shadows
+
+Then show me how to import this in my main CSS file.
+```
+
+---
+
+## Step 3: Component Migration
+
+```
+Now let's update my existing components to use the new design system:
+
+**Phase 1 - Global Updates:**
+1. Update all color references to use new color palette
+2. Update all font families, sizes, and weights
+3. Update spacing (padding, margins) to match the Webflow template
+4. Update border radius values
+
+**Phase 2 - Component-by-Component:**
+For each major component type:
+- Buttons: Update styles to match Webflow button design
+- Forms/Inputs: Update to match Webflow form styles
+- Cards: Update to match Webflow card design
+- Navigation: Update header/nav styling
+- Footer: Update footer styling
+
+Please start with [specify which component/page to start with, e.g., "the homepage" or "the navigation component"].
+```
+
+---
+
+## Step 4: Image and Asset Updates
+
+```
+Help me update the images and visual assets:
+
+1. Identify all image placeholders in my v0 site
+2. Map them to corresponding images from the Webflow template
+3. Update image paths and ensure proper optimization
+4. Update any background images or patterns
+5. Ensure responsive image handling matches Webflow approach
+```
+
+---
+
+## Step 5: Layout Adjustments
+
+```
+Review the layout structure between my v0 site and the Webflow template:
+
+1. Identify any layout differences (grid systems, flex layouts)
+2. Update container widths and max-widths
+3. Update responsive breakpoints if different
+4. Adjust section spacing to match Webflow template
+5. Ensure proper alignment and positioning
+
+Make these changes while preserving my existing functionality.
+```
+
+---
+
+## Step 6: Animations and Interactions
+
+```
+If the Webflow template has animations or interactions:
+
+1. Identify animation effects used (fades, slides, etc.)
+2. Implement similar effects using CSS transitions or Framer Motion
+3. Update hover states to match Webflow design
+4. Add any scroll-based animations if present
+
+Keep animations subtle and performant.
+```
+
+---
+
+## Quality Check Prompt
+
+```
+Please review the migrated design and check:
+
+1. ✓ All colors match the Webflow template
+2. ✓ Typography is consistent throughout
+3. ✓ Spacing follows the Webflow pattern
+4. ✓ Components look visually similar to Webflow
+5. ✓ Responsive behavior works correctly
+6. ✓ No broken images or assets
+7. ✓ All functionality from v0 site still works
+
+List any discrepancies or issues found.
+```
+
+---
+
+## Pro Tips for Better Results
+
+**Be Specific:**
+- Reference specific file names: "Update `Header.jsx` to match `header.html` from Webflow"
+- Point to specific sections: "The hero section should match the Webflow homepage hero"
+
+**Incremental Changes:**
+- Don't ask for everything at once
+- Go component by component or page by page
+- Test after each major change
+
+**Provide Context:**
+- "Preserve all existing functionality and API calls"
+- "Keep the same React component structure, just update styling"
+- "This is a Next.js project" or "This is a React app"
+
+**Use Visual References:**
+- "Match the button style that has rounded corners and gradient"
+- "The card should have the subtle shadow effect like in the Webflow example"
+
+**Ask for Explanations:**
+- "Explain what design changes you're making and why"
+- "Show me before/after comparisons for major components"

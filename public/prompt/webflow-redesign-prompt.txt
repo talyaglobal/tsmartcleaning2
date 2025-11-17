@@ -1,0 +1,142 @@
+# Webflow Redesign Brief: tsmartcleaning.com
+# Match exact site structure, navigation, button labels, and user flows
+
+## BRAND IDENTITY
+**Brand:** tsmartcleaning (lowercase) | Domain: tsmartcleaning.com
+
+## PUBLIC SITEMAP (Priority Order)
+1. / (Homepage) - Hero, features, pricing, FAQ, contact
+2. /find-cleaners - Cleaning companies directory
+3. /marketing - Alternative marketing homepage
+4. /about - Mission, values, company story
+5. /contact - Contact form & info
+6. /for-providers - Provider signup/info
+7. /insurance - CleanGuard insurance plans
+8. /insurance/file-claim - Claims form
+9. /insurance/claims - User claims list
+10. /tsmartcard - Membership card landing
+11. /support-immigrant-women - NGO initiative page
+12. /careers - Job listings
+13. /terms, /privacy - Legal pages
+14. /signup, /login - Auth pages
+15. /provider-signup - Provider registration
+16. /ngo/register - NGO/Agency registration
+17. /cleaners/[slug] - Individual cleaner profiles
+
+## HEADER NAVIGATION (Desktop, left→right)
+1. **Services** - Anchor #services
+2. **Enterprise** - Anchor #enterprise
+3. **Pricing** - Anchor #pricing
+4. **FAQ** - Anchor #faq
+5. **Find Cleaners** - Link to /find-cleaners (emphasized)
+6. **Insurance** (with icon) - Mega dropdown:
+   - Header: "CLEANGUARD PROTECTION - Complete Coverage"
+   - 3 plans: Basic $9.99/mo, Premium $19.99/mo, Ultimate $34.99/mo
+   - Footer: "⚡ Add to annual membership & save 20%"
+   - Links: "Compare All Plans" | "Get Protected Now →"
+7. **tSmartCard** - Special styled button with "Save 10%" badge
+8. **Support Immigrant Women** - /support-immigrant-women
+9. **Contact** - Anchor #contact
+10. **Book now** - Primary CTA button → /customer/book
+
+**Services Dropdown Mega Menu (3 columns):**
+- Customers: Book Cleaning, Pricing, FAQ
+- Providers: Join as Provider, Company Signup, Provider Portal
+- Businesses: Dashboard, Reports, Admin Tools
+- Featured: "Modern cleaning, simplified" card
+
+## HOMEPAGE SECTIONS
+
+**Hero:**
+- Headline: "Book cleaning in minutes, anytime"
+- Subheadline: "Easily schedule trusted cleaning for homes or businesses. Fast online booking, flexible options, and reliable service—designed for busy people and property managers."
+- CTAs: "Book now" (primary) → /customer/book | "Pricing" (secondary) → #pricing
+- Image: Cleaning team (3:2 ratio)
+
+**Trusted Companies:**
+- Heading: "Trusted by top US companies"
+- Subheading: "Leading businesses rely on our platform..."
+- Partner logos horizontal display
+
+**Features Tabs (3 tabs):**
+1. "Booking made simple" - "Fast, mobile-first booking flow"
+2. "Customer advantages" - "Convenient features for every user"
+3. "Role management" - "Access for all team types"
+
+**Platform Features (use dark/inverse background style):**
+- Eyebrow: "Platform features for every role"
+- Heading: "Powerful tools for seamless cleaning"
+- 4 tabs: Customer Portal, Provider Portal, Dispatcher Tools, Company Dashboard
+
+**Pricing:**
+- Subheading: "Choose a plan that fits your needs."
+- 5 plans:
+  - **Free:** $0 - "No charge, no contract" - Features: Online booking, Standard support, Booking history, Basic cleaning options - CTA: "Start free"
+  - **Basic:** $9/mo - Features: + Reschedule anytime, Priority support, Save payment info, Loyalty points - CTA: "Choose plan"
+  - **Team:** $19/mo - Features: + Team management, Multi-property tools, Download reports, Custom alerts - CTA: "Select plan"
+  - **Business:** $29/mo - Features: + Admin controls, Integrations, Analytics, Onboarding help - CTA: "Get plan"
+  - **Enterprise:** Custom - "Custom plans for large teams." - CTA: "Contact"
+
+**CTA with Image:**
+- Heading: "Book cleaning in minutes"
+- Subheading: "Fast, reliable cleaning for homes and businesses..."
+- CTA: "Get started" → /customer/book
+- Full-width image (cleaned environment)
+
+**Testimonial:**
+- Heading: "Property managers trust our platform"
+- Description: "Managing multiple properties is easier..."
+- Attribution: "Jordan Ellis, Property Manager, Skyline Realty" with avatar
+
+**FAQ (4 questions):**
+1. "How can I schedule a cleaning?" - "Book online by choosing your service..."
+2. "Which locations do you cover?" - "We serve multiple US cities..."
+3. "Is rescheduling or cancellation possible?" - "You can reschedule through your dashboard..."
+4. "Who provides the cleaning services?" - "Our professionals are background-checked..."
+
+**Contact:**
+- Eyebrow: "Get in touch"
+- Heading: "Contact our team today"
+- 4 cards: Email (email@website.com), Phone (+1 (555) 000-0000), Office (101 Web Lane, SF, CA), Storefront (101 Web Lane, SF, CA)
+
+## FOOTER (5 columns)
+1. **Brand:** Logo + Social (Facebook, Instagram, X, LinkedIn, YouTube)
+2. **Services:** Home, Pricing, FAQ, Blog, Contact
+3. **Providers:** Signup, Dashboard, Jobs, Reports, Support
+4. **Company:** About, Careers, Terms, Privacy, Press
+5. Empty spacing
+**Bottom:** "All rights reserved © 2025 tsmartcleaning" | Links: Terms | Privacy | Cookies
+
+## BUTTON LABELS & CTAs
+**Primary:** "Book now", "Get started", "Start free", "Choose plan", "Select plan", "Get plan", "Contact", "Sign up", "Join as Provider"
+**Secondary:** "Pricing", "Learn more", "Compare All Plans", "Get Protected Now →"
+**Special:** tSmartCard styled button with "Save 10%" badge
+
+## KEY PAGE SPECS
+
+**/tsmartcard:** Membership program, tiers (Free/Basic/Premium/Elite), benefits (Save 10%, loyalty points), "Get started" CTA
+
+**/insurance:** CleanGuard plans (Basic $9.99/mo, Premium $19.99/mo, Ultimate $34.99/mo), coverage comparison, "File a Claim" → /insurance/file-claim
+
+**/for-providers:** Provider benefits, registration info, "Join as Provider" → /provider-signup
+
+**/find-cleaners:** Directory/search, company listings, filters, profiles → /cleaners/[slug]
+
+**/support-immigrant-women:** NGO initiative, partnership info, registration → /ngo/register
+
+## USER FLOWS
+1. Customer Booking: Home → "Book now" → /customer/book → Select service → Date/time → Confirm
+2. Provider Signup: Home → "Join as Provider" → /provider-signup → Register → Dashboard
+3. Insurance: Home → Insurance dropdown → "Get Protected Now" → /insurance → Select plan → Checkout
+4. Company Signup: Services dropdown → "Company Signup" → Register → Dashboard
+5. Find Cleaners: "Find Cleaners" → /find-cleaners → Search → Profile → Contact/book
+
+## FINAL REQUIREMENTS
+- All links functional placeholders or actual routes
+- Mobile hamburger menu collapses properly
+- Dropdowns, tabs, accordions work on hover/click
+- Images lazy-loaded, accessibility labels included
+- Test keyboard navigation and screen readers
+- Responsive design for mobile, tablet, and desktop
+
+This brief ensures 1:1 parity with existing tsmartcleaning.com structure, navigation, and content.

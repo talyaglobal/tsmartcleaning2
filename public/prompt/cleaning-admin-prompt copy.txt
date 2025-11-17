@@ -1,0 +1,756 @@
+# Comprehensive Admin Dashboard System for tSmartCleaning
+
+## Project Overview Prompt
+
+```
+I need to create a comprehensive multi-role admin dashboard system for tSmartCleaning, 
+a cleaning business management platform. The system should have 6 different user roles, 
+each with their own dashboard and permissions.
+
+**User Roles:**
+1. Root Admin (tSmartCleaning Owners) - Full system access
+2. Cleaning Company Admin - Manage their company operations
+3. Dayıbaşı (Team Leader) - Manage cleaning teams
+4. Cleaning Lady - Individual cleaner dashboard
+5. NGO/Recruiting Agency - Recruitment and worker management
+6. tSmartCleaning Team - Platform management team
+
+**Requirements:**
+- Modern, clean left sidebar navigation
+- Role-based access control (RBAC)
+- Different dashboard views for each role
+- Responsive design
+- Professional UI with consistent design system
+- Root admin accessible via footer link only
+
+Please help me implement this system step by step.
+```
+
+---
+
+## Phase 1: Authentication & Role System
+
+```
+Create the authentication and role-based access control system:
+
+**1. User Role Types (create types/enums):**
+```typescript
+enum UserRole {
+  ROOT_ADMIN = 'root_admin',           // tSmartCleaning owners
+  CLEANING_COMPANY = 'cleaning_company', // Company administrators
+  DAYIBASI = 'dayibasi',                // Team leaders
+  CLEANING_LADY = 'cleaning_lady',      // Individual cleaners
+  NGO_AGENCY = 'ngo_agency',            // Recruiting agencies
+  TSMART_TEAM = 'tsmart_team'           // Platform team
+}
+```
+
+**2. User Model (define structure):**
+- id
+- email
+- name
+- role
+- companyId (for company-specific users)
+- teamId (for dayıbaşı and cleaners)
+- permissions (array of specific permissions)
+- isActive
+- createdAt
+- profileImage
+
+**3. Authentication Flow:**
+- Login page with role detection
+- Redirect to appropriate dashboard based on role
+- Protected routes with role checking
+- Session management
+
+**4. Root Admin Access:**
+- Add subtle link in footer: "System Administration"
+- Requires special authentication
+- Hidden from regular users
+
+Please implement the basic auth structure and role system.
+```
+
+---
+
+## Phase 2: Layout Structure
+
+```
+Create the main admin layout with a modern left sidebar navigation:
+
+**Layout Components Needed:**
+
+1. **AdminLayout.jsx/tsx** - Main wrapper
+   - Left sidebar (fixed, 260px width)
+   - Top header with user profile
+   - Main content area
+   - Responsive: Collapsible sidebar on mobile
+
+2. **Sidebar.jsx/tsx**
+   - Logo at top
+   - Navigation menu based on role
+   - User profile section at bottom
+   - Active state indicators
+   - Icons for each menu item (use Lucide React or Heroicons)
+
+3. **Header.jsx/tsx**
+   - Page title
+   - Breadcrumbs
+   - Notifications bell
+   - User dropdown menu (profile, settings, logout)
+   - Search bar (if needed)
+
+**Design Specifications:**
+- Sidebar background: Dark mode friendly (bg-gray-900 or bg-slate-800)
+- Active menu item: Accent color with subtle highlight
+- Hover states: Smooth transitions
+- Icons: Consistent size (20-24px)
+- Font: Clean sans-serif (Inter, Plus Jakarta Sans, or Geist)
+- Spacing: Consistent padding (16px/24px)
+
+Please create the base layout structure with the sidebar component.
+```
+
+---
+
+## Phase 3: Navigation Menu by Role
+
+```
+Create role-specific navigation menus for the sidebar:
+
+**1. ROOT ADMIN Navigation:**
+```javascript
+[
+  { name: 'Dashboard', icon: 'LayoutDashboard', path: '/root-admin' },
+  { name: 'System Analytics', icon: 'BarChart3', path: '/root-admin/analytics' },
+  { name: 'All Companies', icon: 'Building2', path: '/root-admin/companies' },
+  { name: 'All Users', icon: 'Users', path: '/root-admin/users' },
+  { name: 'Team Management', icon: 'UsersRound', path: '/root-admin/team' },
+  { name: 'NGO/Agencies', icon: 'Home', path: '/root-admin/agencies' },
+  { name: 'Financial Overview', icon: 'DollarSign', path: '/root-admin/finances' },
+  { name: 'System Settings', icon: 'Settings', path: '/root-admin/settings' },
+  { name: 'Reports', icon: 'FileText', path: '/root-admin/reports' },
+  { name: 'Audit Logs', icon: 'ScrollText', path: '/root-admin/logs' }
+]
+```
+
+**2. CLEANING COMPANY Navigation:**
+```javascript
+[
+  { name: 'Dashboard', icon: 'LayoutDashboard', path: '/company/dashboard' },
+  { name: 'My Teams', icon: 'Users', path: '/company/teams' },
+  { name: 'Dayıbaşı Management', icon: 'UserCog', path: '/company/dayibasi' },
+  { name: 'Cleaners', icon: 'UserCheck', path: '/company/cleaners' },
+  { name: 'Job Assignments', icon: 'ClipboardList', path: '/company/jobs' },
+  { name: 'Schedule', icon: 'Calendar', path: '/company/schedule' },
+  { name: 'Performance', icon: 'TrendingUp', path: '/company/performance' },
+  { name: 'Invoices & Payments', icon: 'Receipt', path: '/company/invoices' },
+  { name: 'Recruitment', icon: 'UserPlus', path: '/company/recruitment' },
+  { name: 'Settings', icon: 'Settings', path: '/company/settings' }
+]
+```
+
+**3. DAYIBAŞI (Team Leader) Navigation:**
+```javascript
+[
+  { name: 'Dashboard', icon: 'LayoutDashboard', path: '/dayibasi/dashboard' },
+  { name: 'My Team', icon: 'Users', path: '/dayibasi/team' },
+  { name: 'Today\'s Jobs', icon: 'CheckSquare', path: '/dayibasi/jobs/today' },
+  { name: 'Job History', icon: 'History', path: '/dayibasi/jobs/history' },
+  { name: 'Schedule', icon: 'Calendar', path: '/dayibasi/schedule' },
+  { name: 'Team Performance', icon: 'Award', path: '/dayibasi/performance' },
+  { name: 'Attendance', icon: 'ClipboardCheck', path: '/dayibasi/attendance' },
+  { name: 'Messages', icon: 'MessageSquare', path: '/dayibasi/messages' },
+  { name: 'Profile', icon: 'User', path: '/dayibasi/profile' }
+]
+```
+
+**4. CLEANING LADY Navigation:**
+```javascript
+[
+  { name: 'Dashboard', icon: 'Home', path: '/cleaner/dashboard' },
+  { name: 'My Jobs', icon: 'Briefcase', path: '/cleaner/jobs' },
+  { name: 'Schedule', icon: 'Calendar', path: '/cleaner/schedule' },
+  { name: 'Timesheet', icon: 'Clock', path: '/cleaner/timesheet' },
+  { name: 'Earnings', icon: 'Wallet', path: '/cleaner/earnings' },
+  { name: 'Training', icon: 'GraduationCap', path: '/cleaner/training' },
+  { name: 'Messages', icon: 'MessageSquare', path: '/cleaner/messages' },
+  { name: 'Profile', icon: 'User', path: '/cleaner/profile' }
+]
+```
+
+**5. NGO/RECRUITING AGENCY Navigation:**
+```javascript
+[
+  { name: 'Dashboard', icon: 'LayoutDashboard', path: '/agency/dashboard' },
+  { name: 'Candidates', icon: 'Users', path: '/agency/candidates' },
+  { name: 'Placements', icon: 'UserCheck', path: '/agency/placements' },
+  { name: 'Companies', icon: 'Building2', path: '/agency/companies' },
+  { name: 'Job Requests', icon: 'Briefcase', path: '/agency/job-requests' },
+  { name: 'Training Programs', icon: 'GraduationCap', path: '/agency/training' },
+  { name: 'Reports', icon: 'FileText', path: '/agency/reports' },
+  { name: 'Invoices', icon: 'Receipt', path: '/agency/invoices' },
+  { name: 'Settings', icon: 'Settings', path: '/agency/settings' }
+]
+```
+
+**6. tSMARTCLEANING TEAM Navigation:**
+```javascript
+[
+  { name: 'Dashboard', icon: 'LayoutDashboard', path: '/team/dashboard' },
+  { name: 'Platform Stats', icon: 'BarChart3', path: '/team/stats' },
+  { name: 'Support Tickets', icon: 'Headphones', path: '/team/support' },
+  { name: 'Companies', icon: 'Building2', path: '/team/companies' },
+  { name: 'Content Management', icon: 'FileEdit', path: '/team/content' },
+  { name: 'Announcements', icon: 'Megaphone', path: '/team/announcements' },
+  { name: 'Reports', icon: 'FileText', path: '/team/reports' },
+  { name: 'Settings', icon: 'Settings', path: '/team/settings' }
+]
+```
+
+Please implement the navigation component with role-based menu rendering.
+```
+
+---
+
+## Phase 4: Dashboard Pages
+
+```
+Create the main dashboard page for each role with relevant widgets and metrics:
+
+**GENERAL DASHBOARD STRUCTURE:**
+Each dashboard should have:
+- Welcome message with user name
+- Key metrics in card format (3-4 cards)
+- Recent activity section
+- Quick actions buttons
+- Charts/graphs for relevant data
+- Table showing recent records
+
+---
+
+### 1. ROOT ADMIN Dashboard
+
+**Widgets:**
+```javascript
+Metrics Cards:
+- Total Companies (with growth %)
+- Active Cleaners (with status breakdown)
+- Monthly Revenue (with trend)
+- System Health (uptime, performance)
+
+Charts:
+- Revenue trend (line chart, last 12 months)
+- User growth (area chart)
+- Geographic distribution (map or bar chart)
+
+Tables:
+- Recent company registrations
+- Recent transactions
+- System alerts
+
+Quick Actions:
+- Add new company
+- Generate report
+- View analytics
+- System settings
+```
+
+---
+
+### 2. CLEANING COMPANY Dashboard
+
+**Widgets:**
+```javascript
+Metrics Cards:
+- Total Teams
+- Active Cleaners
+- Jobs This Month
+- Monthly Revenue
+
+Charts:
+- Job completion rate (donut chart)
+- Team performance comparison (bar chart)
+- Revenue vs expenses (line chart)
+
+Tables:
+- Today's scheduled jobs
+- Recent job completions
+- Pending invoices
+
+Quick Actions:
+- Schedule new job
+- Add cleaner
+- View all teams
+- Generate payroll
+```
+
+---
+
+### 3. DAYIBAŞI Dashboard
+
+**Widgets:**
+```javascript
+Metrics Cards:
+- Team Members
+- Today's Jobs
+- Completion Rate
+- Team Rating
+
+Charts:
+- Weekly performance (line chart)
+- Task distribution (pie chart)
+
+Tables:
+- Today's job list (with status)
+- Team member attendance
+- Recent messages
+
+Quick Actions:
+- Mark job complete
+- Take attendance
+- Message team
+- Report issue
+```
+
+---
+
+### 4. CLEANING LADY Dashboard
+
+**Widgets:**
+```javascript
+Metrics Cards:
+- This Week's Jobs
+- Hours Worked
+- Earnings This Month
+- Rating
+
+Charts:
+- Weekly hours (bar chart)
+- Earnings trend (area chart)
+
+Tables:
+- Upcoming jobs
+- Recent completed jobs
+- Pending payments
+
+Quick Actions:
+- Clock in/out
+- View today's schedule
+- Request time off
+- Contact dayıbaşı
+```
+
+---
+
+### 5. NGO/AGENCY Dashboard
+
+**Widgets:**
+```javascript
+Metrics Cards:
+- Active Candidates
+- Successful Placements
+- Partner Companies
+- This Month's Revenue
+
+Charts:
+- Placement success rate (donut chart)
+- Monthly placements trend (line chart)
+- Training completion rate (progress bars)
+
+Tables:
+- Recent placements
+- Candidates in training
+- Pending job requests
+
+Quick Actions:
+- Add candidate
+- Match candidate to job
+- Schedule training
+- Contact company
+```
+
+---
+
+### 6. tSMARTCLEANING TEAM Dashboard
+
+**Widgets:**
+```javascript
+Metrics Cards:
+- Platform Users
+- Active Companies
+- Open Support Tickets
+- System Uptime
+
+Charts:
+- Daily active users (area chart)
+- Support ticket trends (line chart)
+- Feature usage (bar chart)
+
+Tables:
+- Recent support tickets
+- Latest user feedback
+- System notifications
+
+Quick Actions:
+- Create announcement
+- Respond to ticket
+- View analytics
+- Update content
+```
+
+Please create the dashboard components with these widgets for each role.
+```
+
+---
+
+## Phase 5: Shared Components
+
+```
+Create reusable components used across all dashboards:
+
+**1. MetricCard.jsx**
+- Display a single metric with icon
+- Show trend indicator (up/down arrow with percentage)
+- Optional subtitle
+- Color coding based on metric type
+
+**2. DataTable.jsx**
+- Reusable table with sorting
+- Pagination
+- Search/filter
+- Row actions (view, edit, delete)
+- Responsive on mobile
+
+**3. Chart Components:**
+- LineChart.jsx (using Recharts or Chart.js)
+- BarChart.jsx
+- DonutChart.jsx
+- AreaChart.jsx
+
+**4. StatusBadge.jsx**
+- Color-coded status indicators
+- Status types: Active, Inactive, Pending, Completed, Cancelled
+
+**5. QuickActionCard.jsx**
+- Action buttons with icons
+- Hover effects
+- Link or button functionality
+
+**6. PageHeader.jsx**
+- Page title
+- Breadcrumbs
+- Action buttons for the page
+
+**7. EmptyState.jsx**
+- Display when no data available
+- Icon, message, and call-to-action button
+
+**8. LoadingSpinner.jsx**
+- Loading states
+- Skeleton screens for data loading
+
+Please create these shared components with consistent styling.
+```
+
+---
+
+## Phase 6: Root Admin Footer Access
+
+```
+Implement the hidden root admin access in the footer:
+
+**Footer Component:**
+```javascript
+// In your main Footer.jsx
+
+<footer className="bg-gray-50 border-t border-gray-200">
+  <div className="max-w-7xl mx-auto px-4 py-8">
+    {/* Regular footer content */}
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      {/* Footer columns */}
+    </div>
+    
+    {/* Copyright and admin link */}
+    <div className="mt-8 pt-8 border-t border-gray-200 flex justify-between items-center">
+      <p className="text-sm text-gray-500">
+        © 2024 tSmartCleaning. All rights reserved.
+      </p>
+      
+      {/* Subtle admin link - only visible on hover or to those who know */}
+      <Link 
+        href="/root-admin/login"
+        className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+        title="System Administration"
+      >
+        •
+      </Link>
+    </div>
+  </div>
+</footer>
+```
+
+**Root Admin Login Page:**
+- Separate login page at `/root-admin/login`
+- Different styling than main login
+- Two-factor authentication (2FA)
+- IP whitelist check (optional)
+- Special credentials required
+
+Please implement the footer link and root admin authentication flow.
+```
+
+---
+
+## Phase 7: Permissions & Access Control
+
+```
+Implement fine-grained permissions system:
+
+**Permission Structure:**
+```typescript
+const permissions = {
+  // ROOT ADMIN - All permissions
+  root_admin: ['*'],
+  
+  // CLEANING COMPANY
+  cleaning_company: [
+    'view_own_company',
+    'manage_teams',
+    'manage_cleaners',
+    'manage_dayibasi',
+    'assign_jobs',
+    'view_reports',
+    'manage_invoices'
+  ],
+  
+  // DAYIBAŞI
+  dayibasi: [
+    'view_own_team',
+    'manage_team_members',
+    'view_jobs',
+    'update_job_status',
+    'mark_attendance',
+    'send_messages'
+  ],
+  
+  // CLEANING LADY
+  cleaning_lady: [
+    'view_own_profile',
+    'view_assigned_jobs',
+    'clock_in_out',
+    'view_earnings',
+    'request_time_off'
+  ],
+  
+  // NGO/AGENCY
+  ngo_agency: [
+    'manage_candidates',
+    'view_companies',
+    'manage_placements',
+    'view_job_requests',
+    'manage_training'
+  ],
+  
+  // tSMARTCLEANING TEAM
+  tsmart_team: [
+    'view_platform_stats',
+    'manage_support_tickets',
+    'manage_content',
+    'view_all_companies',
+    'create_announcements'
+  ]
+};
+```
+
+**Protected Route Component:**
+Create a wrapper component that checks permissions before allowing access.
+
+**usePermission Hook:**
+Custom hook to check if user has specific permission.
+
+Please implement the permission system with route protection.
+```
+
+---
+
+## Phase 8: Responsive Design & Mobile
+
+```
+Ensure the dashboard works perfectly on mobile devices:
+
+**Mobile Considerations:**
+1. Hamburger menu for sidebar (slides in from left)
+2. Collapsible navigation sections
+3. Stack metric cards vertically
+4. Horizontal scroll for tables
+5. Simplified charts for mobile
+6. Touch-friendly buttons (min 44px height)
+7. Bottom navigation for key actions (mobile only)
+
+**Breakpoints:**
+- Mobile: < 768px
+- Tablet: 768px - 1024px
+- Desktop: > 1024px
+
+**Mobile Navigation:**
+- Bottom tab bar for main sections
+- Sidebar accessible via hamburger
+- Swipe gestures for navigation
+
+Please implement responsive behavior for all dashboard pages.
+```
+
+---
+
+## Phase 9: Styling & Theme
+
+```
+Define the design system for the admin dashboards:
+
+**Color Palette:**
+```css
+:root {
+  /* Primary Colors */
+  --primary-50: #eff6ff;
+  --primary-500: #3b82f6;
+  --primary-600: #2563eb;
+  --primary-700: #1d4ed8;
+  
+  /* Success */
+  --success-500: #10b981;
+  
+  /* Warning */
+  --warning-500: #f59e0b;
+  
+  /* Error */
+  --error-500: #ef4444;
+  
+  /* Neutral */
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-500: #6b7280;
+  --gray-700: #374151;
+  --gray-900: #111827;
+  
+  /* Sidebar */
+  --sidebar-bg: #1e293b;
+  --sidebar-text: #cbd5e1;
+  --sidebar-active: #3b82f6;
+}
+```
+
+**Typography:**
+- Font Family: Inter or Plus Jakarta Sans
+- Headings: 600-700 weight
+- Body: 400-500 weight
+
+**Component Styles:**
+- Border radius: 8px (cards), 6px (buttons)
+- Shadows: Subtle, multi-layer
+- Transitions: 200ms ease-in-out
+
+**Sidebar Styling:**
+- Dark background (#1e293b or #0f172a)
+- Light text with good contrast
+- Accent color for active items
+- Smooth hover states
+
+Please apply this design system consistently across all components.
+```
+
+---
+
+## Phase 10: Testing Checklist
+
+```
+Test the complete system:
+
+**Authentication Testing:**
+✓ Login with each role type
+✓ Redirect to correct dashboard
+✓ Root admin access from footer
+✓ Logout functionality
+✓ Session persistence
+
+**Navigation Testing:**
+✓ Sidebar navigation for each role
+✓ Active state highlights correctly
+✓ All links work
+✓ Mobile hamburger menu
+✓ Breadcrumbs accurate
+
+**Dashboard Testing:**
+✓ Metrics display correctly
+✓ Charts render with data
+✓ Tables show data and paginate
+✓ Quick actions function
+✓ Real-time updates work
+
+**Permission Testing:**
+✓ Users can only access their allowed pages
+✓ Unauthorized access redirects
+✓ API calls respect permissions
+✓ Data isolation between companies
+
+**Responsive Testing:**
+✓ Mobile layout works (< 768px)
+✓ Tablet layout works (768-1024px)
+✓ Desktop layout works (> 1024px)
+✓ Touch interactions on mobile
+
+**Performance Testing:**
+✓ Page load times < 2 seconds
+✓ Smooth animations
+✓ No memory leaks
+✓ Optimized images
+
+Please run through this checklist and fix any issues found.
+```
+
+---
+
+## Implementation Order
+
+**Week 1:**
+1. Auth system and role setup
+2. Base layout with sidebar
+3. Navigation menus
+
+**Week 2:**
+4. Root admin dashboard
+5. Cleaning company dashboard
+6. Shared components
+
+**Week 3:**
+7. Dayıbaşı dashboard
+8. Cleaning lady dashboard
+9. NGO/Agency dashboard
+
+**Week 4:**
+10. tSmartCleaning team dashboard
+11. Permissions system
+12. Mobile responsive design
+13. Testing and bug fixes
+
+---
+
+## Additional Features to Consider
+
+```
+Optional enhancements:
+
+1. **Real-time notifications** - Push notifications for important events
+2. **Dark mode** - Toggle between light/dark themes
+3. **Multi-language support** - Turkish and English
+4. **Export functionality** - PDF/Excel exports for reports
+5. **Advanced search** - Global search across dashboards
+6. **Activity feeds** - Recent activity streams
+7. **In-app messaging** - Chat between roles
+8. **File uploads** - Document management
+9. **Calendar integration** - Scheduling with calendar view
+10. **Mobile app** - React Native or PWA version
+
+Would you like me to implement any of these features?
+```
