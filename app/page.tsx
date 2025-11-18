@@ -1,6 +1,8 @@
 import { readFileSync } from 'fs'
 import { join } from 'path'
 import { WebflowScripts } from '@/components/WebflowScripts'
+import { AnchorLinkHandler } from '@/components/marketing/AnchorLinkHandler'
+import { HomepageVerification } from '@/components/marketing/HomepageVerification'
 
 export default function HomePage() {
   // Read the static HTML file
@@ -35,6 +37,8 @@ export default function HomePage() {
 
   return (
     <>
+      <AnchorLinkHandler />
+      <HomepageVerification />
       <div dangerouslySetInnerHTML={{ __html: bodyContent }} />
       <WebflowScripts />
     </>

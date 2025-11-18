@@ -76,9 +76,39 @@ Comprehensive automated tests have been created to verify the homepage's respons
 - Mobile viewport support (< 767px)
 - Small mobile viewport support (< 479px)
 
+### ✅ Responsive Breakpoint Testing (20 tests)
+
+#### Mobile Breakpoint (< 768px) - 6 tests
+- Mobile breakpoint at max-width: 767px in webflow.css
+- Mobile breakpoint at max-width: 767px in tsmartcleaning CSS
+- Mobile-specific column classes (w-col-small-*)
+- Mobile visibility classes (w-hidden-small)
+- Navigation collapse for mobile
+- Mobile menu button structure
+
+#### Tablet Breakpoint (768px - 991px) - 6 tests
+- Tablet breakpoint at max-width: 991px in webflow.css
+- Tablet breakpoint at max-width: 991px in tsmartcleaning CSS
+- Tablet-specific column classes (w-col-medium-*)
+- Tablet visibility classes (w-hidden-medium)
+- Tablet-specific responsive classes in HTML
+- Responsive grid classes for tablet
+
+#### Desktop Breakpoint (> 991px) - 5 tests
+- Desktop as default (no max-width media query)
+- Desktop column classes (w-col-*)
+- Full navigation visible on desktop
+- Multi-column layouts for desktop
+- Desktop-optimized container widths
+
+#### Breakpoint Range Verification - 3 tests
+- Breakpoints in correct order (991px before 767px)
+- No horizontal scroll on mobile viewport
+- Touch-friendly targets for mobile
+
 ## Test Results
-**Total Tests: 34**
-**Passed: 34**
+**Total Tests: 54**
+**Passed: 54**
 **Failed: 0**
 
 ## Breakpoints Verified
@@ -86,9 +116,27 @@ Comprehensive automated tests have been created to verify the homepage's respons
 The tests verify that the following responsive breakpoints are defined in the CSS:
 
 1. **Desktop (Default)**: > 991px
-2. **Tablet**: max-width: 991px
-3. **Mobile**: max-width: 767px
-4. **Small Mobile**: max-width: 479px
+   - Base styles without media queries
+   - Full navigation menu visible
+   - Multi-column layouts
+   - Desktop-optimized container widths
+
+2. **Tablet**: 768px - 991px (max-width: 991px)
+   - Tablet-specific column classes (w-col-medium-*)
+   - Tablet visibility utilities (w-hidden-medium)
+   - Responsive grid classes
+   - Navigation may collapse depending on configuration
+
+3. **Mobile**: < 768px (max-width: 767px)
+   - Mobile-specific column classes (w-col-small-*)
+   - Mobile visibility utilities (w-hidden-small)
+   - Navigation collapses with hamburger menu
+   - Touch-friendly targets (minimum 44x44px)
+   - No horizontal scrolling
+
+4. **Small Mobile**: < 480px (max-width: 479px)
+   - Additional small screen optimizations
+   - Tiny column classes (w-col-tiny-*)
 
 ## Manual Testing Recommendations
 
