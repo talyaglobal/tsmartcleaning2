@@ -1,11 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabase } from '@/lib/supabase'
+import { handleApiError, ApiErrors, logError } from '@/lib/api/errors'
+import { validateQueryParams } from '@/lib/api/validation'
+import { z } from 'zod'
 
 // Get all services
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const category = searchParams.get('category')
+    // Validate query parameters
+    const querySchema = z.object({
+      category: z.enum(['residential', 'commercial']).optional(),
+    })
+    
+    const validation = validateQueryParams(request, querySchema)
+    if (!validation.success) {
+      return validation.response
+    }
+    
+    const { category } = validation.data
     
     const supabase = createServerSupabase()
     let query = supabase
@@ -25,16 +37,12 @@ export async function GET(request: NextRequest) {
     const { data, error } = await query.order('name', { ascending: true })
 
     if (error) {
-      console.error('[v0] Get services supabase error:', error)
-      return NextResponse.json({ error: 'Failed to load services' }, { status: 500 })
+      logError('services', error, { operation: 'list_services', category })
+      return ApiErrors.databaseError('Failed to load services')
     }
 
     return NextResponse.json({ services: data ?? [] })
   } catch (error) {
-    console.error('[v0] Get services error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return handleApiError('services', error, { operation: 'list_services' })
   }
 }

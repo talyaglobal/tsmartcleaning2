@@ -72,6 +72,23 @@ export async function middleware(request: NextRequest) {
 		},
 	})
 
+	// Add caching headers for static assets and API responses
+	if (pathname.startsWith('/_next/static') || pathname.startsWith('/images/') || pathname.startsWith('/css/') || pathname.startsWith('/js/')) {
+		response.headers.set('Cache-Control', 'public, max-age=31536000, immutable')
+	} else if (pathname.startsWith('/api/')) {
+		// Cache API responses based on endpoint type
+		if (pathname.includes('/services') || pathname.includes('/companies/search')) {
+			// Cache public data for 5 minutes
+			response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600')
+		} else {
+			// Short cache for dynamic data
+			response.headers.set('Cache-Control', 'private, no-cache, no-store, must-revalidate')
+		}
+	} else {
+		// Cache HTML pages for 1 hour, revalidate in background
+		response.headers.set('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400')
+	}
+
 	// Redirect unauthenticated root-admin attempts to login page
 	if (pathname.startsWith('/root-admin') && pathname !== '/root-admin/login') {
 		const isRootAdmin = requestHeaders.get('x-user-role') === 'root_admin'

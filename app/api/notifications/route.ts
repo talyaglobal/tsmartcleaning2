@@ -1,23 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabase, resolveTenantFromRequest } from '@/lib/supabase'
+import { withAuth } from '@/lib/auth/rbac'
+import { isAdminRole } from '@/lib/auth/roles'
 
 // Get user notifications
-export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get('userId')
+export const GET = withAuth(
+  async (request: NextRequest, { user, supabase, tenantId }) => {
+    try {
+      const { searchParams } = new URL(request.url)
+      const requestedUserId = searchParams.get('userId')
+      
+      // If userId is provided, verify the authenticated user owns it (unless admin)
+      const userId = requestedUserId || user.id
+      const isAdmin = isAdminRole(user.role)
+      
+      if (!isAdmin && userId !== user.id) {
+        return NextResponse.json(
+          { error: 'You can only view your own notifications' },
+          { status: 403 }
+        )
+      }
 
-    if (!userId) {
-      return NextResponse.json({ error: 'userId is required' }, { status: 400 })
-    }
-
-    const tenantId = resolveTenantFromRequest(request)
-    const supabase = createServerSupabase(tenantId ?? undefined)
-    const { data, error } = await supabase
-      .from('notifications')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
+      const resolvedTenantId = tenantId || resolveTenantFromRequest(request)
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
 
     if (error) {
       console.error('[v0] notifications GET supabase error:', error)
@@ -34,23 +43,44 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+  }
+)
 
 // Mark notification as read
-export async function PATCH(request: NextRequest) {
-  try {
-    const { notificationId } = await request.json()
+export const PATCH = withAuth(
+  async (request: NextRequest, { user, supabase, tenantId }) => {
+    try {
+      const { notificationId } = await request.json()
 
-    if (!notificationId) {
-      return NextResponse.json({ error: 'notificationId is required' }, { status: 400 })
-    }
+      if (!notificationId) {
+        return NextResponse.json({ error: 'notificationId is required' }, { status: 400 })
+      }
 
-    const tenantId = resolveTenantFromRequest(request)
-    const supabase = createServerSupabase(tenantId ?? undefined)
-    const { error } = await supabase
-      .from('notifications')
-      .update({ read: true })
-      .eq('id', notificationId)
+      const resolvedTenantId = tenantId || resolveTenantFromRequest(request)
+      
+      // Verify user owns the notification
+      const { data: notification, error: fetchError } = await supabase
+        .from('notifications')
+        .select('user_id')
+        .eq('id', notificationId)
+        .single()
+      
+      if (fetchError || !notification) {
+        return NextResponse.json({ error: 'Notification not found' }, { status: 404 })
+      }
+      
+      const isAdmin = isAdminRole(user.role)
+      if (!isAdmin && notification.user_id !== user.id) {
+        return NextResponse.json(
+          { error: 'You can only update your own notifications' },
+          { status: 403 }
+        )
+      }
+      
+      const { error } = await supabase
+        .from('notifications')
+        .update({ read: true })
+        .eq('id', notificationId)
 
     return NextResponse.json({
       message: 'Notification marked as read',
@@ -62,4 +92,5 @@ export async function PATCH(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+  }
+)

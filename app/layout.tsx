@@ -12,11 +12,19 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { WebflowNavbar } from "@/components/marketing/WebflowNavbar";
 import { WebflowScripts } from "@/components/WebflowScripts";
 import { WhatsAppFloatButton } from "@/components/WhatsAppFloatButton";
+import { KeyboardNavigation } from "@/components/marketing/KeyboardNavigation";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { generateOrganizationSchema, generateWebsiteSchema } from "@/lib/seo";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
+import { WebVitals } from "@/components/analytics/WebVitals";
+import { AnalyticsProvider } from "@/components/analytics/AnalyticsProvider";
 
 export async function generateMetadata(): Promise<Metadata> {
   const tenantId = await getTenantIdFromHeaders();
   const branding = await loadBranding(tenantId);
-  const siteName = "tsmartcleaning.com";
+  const siteName = "tSmartCleaning";
   const title = "Professional Cleaning Services Made Simple";
   return {
     title: {
@@ -110,10 +118,18 @@ export default async function RootLayout({
         <LanguageProvider>
           <AuthProvider>
             <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-              <WebflowScripts />
-              <WebflowNavbar />
-              <LanguageSwitcher />
-              <main id="main">{children}</main>
+              <AnalyticsProvider>
+                <JsonLd data={[generateOrganizationSchema(), generateWebsiteSchema('/find-cleaners?q={search_term_string}')]} />
+                <GoogleAnalytics />
+                <WebVitals />
+                <WebflowScripts />
+                <KeyboardNavigation />
+                <WebflowNavbar />
+                <LanguageSwitcher />
+                <main id="main">{children}</main>
+              </AnalyticsProvider>
+              <Analytics />
+              <SpeedInsights />
               {/* Global tSmartCard floating CTA */}
               <a
                 href="/tsmartcard"

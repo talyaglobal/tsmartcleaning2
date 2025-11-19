@@ -29,6 +29,15 @@ export default function TerritoriesPage() {
 		const res = await fetch("/api/root-admin/tenants");
 		const j = await res.json();
 		setTenants(j.tenants ?? []);
+		// Check URL params first, then default to first tenant
+		if (typeof window !== 'undefined') {
+			const params = new URLSearchParams(window.location.search);
+			const urlTenantId = params.get('tenantId');
+			if (urlTenantId && !selectedTenantId) {
+				setSelectedTenantId(urlTenantId);
+				return;
+			}
+		}
 		if (!selectedTenantId && j.tenants?.length) {
 			setSelectedTenantId(j.tenants[0].id);
 		}

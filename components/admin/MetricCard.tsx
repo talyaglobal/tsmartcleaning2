@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 type MetricCardProps = {
 	title: string;
 	value: string | number;
-	change?: { value: number; positive?: boolean };
+	change?: { value: number; positive?: boolean; label?: string };
 	icon?: React.ReactNode;
 	className?: string;
 	subtitle?: string;
@@ -25,7 +25,7 @@ export function MetricCard({ title, value, change, icon, className, subtitle }: 
 			</div>
 			{change ? (
 				<p className={`mt-3 text-xs ${changeColor}`}>
-					{change.positive ? "▲" : change.value === 0 ? "■" : "▼"} {Math.abs(change.value)}%
+					{change.positive ? "▲" : change.value === 0 ? "■" : "▼"} {change.label || `${Math.abs(change.value)}%`}
 				</p>
 			) : null}
 		</div>

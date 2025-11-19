@@ -9,13 +9,23 @@ export default defineConfig({
 	test: {
 		environment: 'node',
 		globals: true,
-		include: ['tests/**/*.test.ts'],
+		include: [
+			'tests/**/*.test.ts',
+			'tests/unit/**/*.test.ts',
+			'tests/integration/**/*.test.ts',
+			'tests/performance/**/*.test.ts',
+		],
 		setupFiles: ['tests/test.setup.ts'],
 		coverage: {
 			provider: 'v8',
 			reportsDirectory: 'coverage',
-			reporter: ['text', 'html'],
-			exclude: ['tests/**', 'vitest.config.ts'],
+			reporter: ['text', 'html', 'json'],
+			exclude: [
+				'tests/**',
+				'vitest.config.ts',
+				'playwright.config.ts',
+				'**/*.spec.ts',
+			],
 		},
 	},
 	resolve: {

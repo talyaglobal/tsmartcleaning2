@@ -1,17 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabase } from '@/lib/supabase'
+import { withAuth } from '@/lib/auth/rbac'
+import { isAdminRole } from '@/lib/auth/roles'
 
-export async function POST(req: NextRequest) {
-	try {
-		const body = await req.json()
-		const userId = body.user_id || req.headers.get('x-user-id')
-		const requestedPoints = Number(body.requested_points ?? 0)
-		const orderSubtotal = Number(body.order_subtotal ?? 0) // pre-tax, post-discount
-		const capPercent = Number(body.cap_percent ?? 50) // optional override
+export const POST = withAuth(
+	async (request: NextRequest, { user, supabase }) => {
+		try {
+			const body = await request.json()
+			const requestedUserId = body.user_id
+			const requestedPoints = Number(body.requested_points ?? 0)
+			const orderSubtotal = Number(body.order_subtotal ?? 0) // pre-tax, post-discount
+			const capPercent = Number(body.cap_percent ?? 50) // optional override
 
-		if (!userId) {
-			return NextResponse.json({ error: 'Missing user_id' }, { status: 400 })
-		}
+			// If user_id is provided, verify the authenticated user owns it (unless admin)
+			const userId = requestedUserId || user.id
+			const isAdmin = isAdminRole(user.role)
+			
+			if (!isAdmin && userId !== user.id) {
+				return NextResponse.json(
+					{ error: 'You can only redeem points from your own account' },
+					{ status: 403 }
+				)
+			}
 		if (!Number.isFinite(requestedPoints) || requestedPoints <= 0) {
 			return NextResponse.json({ error: 'Invalid requested_points' }, { status: 400 })
 		}
@@ -66,6 +76,7 @@ export async function POST(req: NextRequest) {
 		console.error('[loyalty] redeem error', e)
 		return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
 	}
-}
+	}
+)
 
 

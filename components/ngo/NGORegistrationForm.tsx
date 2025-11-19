@@ -97,13 +97,65 @@ const Section2Schema = z.object({
 	timezone: z.string().min(2),
 })
 
+// File validation helper
+const validateFile = (file: File | undefined, maxSizeMB: number, allowedTypes: string[]) => {
+	if (!file) return true
+	if (file.size > maxSizeMB * 1024 * 1024) {
+		return `File size must be less than ${maxSizeMB}MB`
+	}
+	const fileType = file.type || file.name.split('.').pop()?.toLowerCase() || ''
+	const isValidType = allowedTypes.some(type => 
+		fileType.includes(type) || file.name.toLowerCase().endsWith(`.${type}`)
+	)
+	if (!isValidType) {
+		return `File type must be one of: ${allowedTypes.join(', ')}`
+	}
+	return true
+}
+
 const Section3Schema = z.object({
-	nonProfitDoc: z.instanceof(File).optional(),
-	businessLicense: z.instanceof(File).optional(),
-	insuranceProof: z.instanceof(File).optional(),
+	nonProfitDoc: z
+		.instanceof(File)
+		.optional()
+		.refine((file) => !file || validateFile(file, 5, ['pdf']) === true, {
+			message: (file) => typeof validateFile(file, 5, ['pdf']) === 'string' 
+				? validateFile(file, 5, ['pdf']) as string 
+				: 'Invalid file',
+		}),
+	businessLicense: z
+		.instanceof(File)
+		.optional()
+		.refine((file) => !file || validateFile(file, 5, ['pdf']) === true, {
+			message: (file) => typeof validateFile(file, 5, ['pdf']) === 'string' 
+				? validateFile(file, 5, ['pdf']) as string 
+				: 'Invalid file',
+		}),
+	insuranceProof: z
+		.instanceof(File)
+		.optional()
+		.refine((file) => !file || validateFile(file, 5, ['pdf']) === true, {
+			message: (file) => typeof validateFile(file, 5, ['pdf']) === 'string' 
+				? validateFile(file, 5, ['pdf']) as string 
+				: 'Invalid file',
+		}),
 	insuranceExpiry: z.string().min(1, 'Required'),
-	boardList: z.instanceof(File).optional(),
-	annualReport: z.instanceof(File).optional().nullable(),
+	boardList: z
+		.instanceof(File)
+		.optional()
+		.refine((file) => !file || validateFile(file, 2, ['pdf', 'doc', 'docx']) === true, {
+			message: (file) => typeof validateFile(file, 2, ['pdf', 'doc', 'docx']) === 'string' 
+				? validateFile(file, 2, ['pdf', 'doc', 'docx']) as string 
+				: 'Invalid file',
+		}),
+	annualReport: z
+		.instanceof(File)
+		.optional()
+		.nullable()
+		.refine((file) => !file || validateFile(file, 10, ['pdf']) === true, {
+			message: (file) => typeof validateFile(file, 10, ['pdf']) === 'string' 
+				? validateFile(file, 10, ['pdf']) as string 
+				: 'Invalid file',
+		}),
 	references: z.array(
 		z.object({
 			name: z.string().min(2),
@@ -178,6 +230,7 @@ function MultiSelect({
 export default function NGORegistrationForm() {
 	const router = useRouter()
 	const [step, setStep] = React.useState(0)
+	const [isSubmitting, setIsSubmitting] = React.useState(false)
 
 	const form = useForm<FormValues>({
 		resolver: zodResolver(FormSchema),
@@ -206,6 +259,7 @@ export default function NGORegistrationForm() {
 	})
 
 	const onSubmit = async (values: FormValues) => {
+		setIsSubmitting(true)
 		try {
 			const formData = new FormData()
 			formData.append('payload', JSON.stringify(values))
@@ -232,10 +286,12 @@ export default function NGORegistrationForm() {
 			}
 
 			const data = await res.json()
-			toast.success('Application submitted')
+			toast.success('Application submitted successfully!')
 			router.push(`/ngo/register/success?id=${encodeURIComponent(data.applicationId)}`)
 		} catch (e: any) {
-			toast.error(e.message || 'Failed to submit')
+			toast.error(e.message || 'Failed to submit application')
+		} finally {
+			setIsSubmitting(false)
 		}
 	}
 
@@ -260,12 +316,29 @@ export default function NGORegistrationForm() {
 						<CardTitle>NGO/Agency Registration</CardTitle>
 					</CardHeader>
 					<CardContent className="space-y-6">
-						<div className="flex items-center justify-between">
-							<div className="text-sm text-muted-foreground">Step {step + 1} of 4</div>
-							<div className="flex gap-2">
-								{[0, 1, 2, 3].map((i) => (
-									<div key={i} className={cn('h-2 w-10 rounded-full bg-muted', i <= step && 'bg-primary')} />
-								))}
+						<div className="space-y-4">
+							<div className="flex items-center justify-between">
+								<div className="text-sm font-medium text-muted-foreground">Step {step + 1} of 4</div>
+								<div className="text-sm text-muted-foreground">
+									{step === 0 && 'Organization Information'}
+									{step === 1 && 'Contact Information'}
+									{step === 2 && 'Credentials & Verification'}
+									{step === 3 && 'Service Capacity'}
+								</div>
+							</div>
+							<div className="relative w-full">
+								<div className="flex h-2 w-full overflow-hidden rounded-full bg-muted">
+									<div 
+										className="h-full bg-primary transition-all duration-300 ease-out"
+										style={{ width: `${((step + 1) / 4) * 100}%` }}
+									/>
+								</div>
+								<div className="mt-2 flex justify-between text-xs text-muted-foreground">
+									<span className={cn(step >= 0 && 'font-medium text-primary')}>1. Organization</span>
+									<span className={cn(step >= 1 && 'font-medium text-primary')}>2. Contact</span>
+									<span className={cn(step >= 2 && 'font-medium text-primary')}>3. Credentials</span>
+									<span className={cn(step >= 3 && 'font-medium text-primary')}>4. Capacity</span>
+								</div>
 							</div>
 						</div>
 
@@ -275,15 +348,27 @@ export default function NGORegistrationForm() {
 						{step === 3 && <Section4 />}
 
 						<div className="flex items-center justify-between pt-2">
-							<Button type="button" variant="outline" onClick={prevStep} disabled={step === 0}>
+							<Button type="button" variant="outline" onClick={prevStep} disabled={step === 0 || isSubmitting}>
 								Back
 							</Button>
 							{step < 3 ? (
-								<Button type="button" onClick={nextStep}>
+								<Button type="button" onClick={nextStep} disabled={isSubmitting}>
 									Next
 								</Button>
 							) : (
-								<Button type="submit">Submit Partnership Application →</Button>
+								<Button type="submit" disabled={isSubmitting}>
+									{isSubmitting ? (
+										<>
+											<svg className="mr-2 h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+												<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+												<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+											</svg>
+											Submitting...
+										</>
+									) : (
+										'Submit Partnership Application →'
+									)}
+								</Button>
 							)}
 						</div>
 					</CardContent>
@@ -507,27 +592,69 @@ function FileInput({
 	label,
 	accept,
 	required,
+	maxSizeMB,
 }: {
 	name: string
 	label: string
 	accept?: string
 	required?: boolean
+	maxSizeMB?: number
 }) {
-	const { setValue } = useFormContext<FormValues>()
+	const { setValue, watch } = useFormContext<FormValues>()
+	const file: File | undefined = watch(name as any)
+	const fileId = React.useId()
+	
+	const formatFileSize = (bytes: number) => {
+		if (bytes < 1024) return bytes + ' B'
+		if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
+		return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
+	}
+
 	return (
 		<div className="space-y-1.5">
-			<Label htmlFor={name}>{label}{required ? ' *' : ''}</Label>
-			<input
-				id={name}
-				name={name}
-				type="file"
-				accept={accept}
-				onChange={(e) => {
-					const file = e.currentTarget.files?.[0]
-					setValue(name as any, file, { shouldValidate: true })
-				}}
-				className="block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-primary file:px-4 file:py-2 file:text-white hover:file:bg-primary/90"
-			/>
+			<Label htmlFor={fileId}>{label}{required ? ' *' : ''}</Label>
+			<div className="space-y-2">
+				<input
+					id={fileId}
+					name={name}
+					type="file"
+					accept={accept}
+					onChange={(e) => {
+						const selectedFile = e.currentTarget.files?.[0]
+						setValue(name as any, selectedFile, { shouldValidate: true })
+					}}
+					className="block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-primary file:px-4 file:py-2 file:text-white hover:file:bg-primary/90 cursor-pointer"
+				/>
+				{file && (
+					<div className="flex items-center justify-between rounded-md border bg-muted/50 p-2 text-sm">
+						<div className="flex items-center gap-2">
+							<svg className="h-4 w-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+							</svg>
+							<span className="truncate font-medium">{file.name}</span>
+						</div>
+						<div className="flex items-center gap-2">
+							<span className="text-muted-foreground">{formatFileSize(file.size)}</span>
+							<button
+								type="button"
+								onClick={() => {
+									setValue(name as any, undefined, { shouldValidate: true })
+									const input = document.getElementById(fileId) as HTMLInputElement
+									if (input) input.value = ''
+								}}
+								className="text-muted-foreground hover:text-destructive"
+							>
+								<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+								</svg>
+							</button>
+						</div>
+					</div>
+				)}
+				{maxSizeMB && (
+					<p className="text-xs text-muted-foreground">Maximum file size: {maxSizeMB}MB</p>
+				)}
+			</div>
 			<FieldError name={name} />
 		</div>
 	)
@@ -548,12 +675,12 @@ function Section3() {
 		<div className="space-y-6">
 			<SectionTitle>Section 3: Organization Credentials & Verification</SectionTitle>
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<FileInput name="section3.nonProfitDoc" label="Non-Profit Registration Document (PDF, max 5MB)" accept="application/pdf" />
-				<FileInput name="section3.businessLicense" label="Business/Operating License (PDF, max 5MB)" accept="application/pdf" />
-				<FileInput name="section3.insuranceProof" label="Proof of Insurance (PDF, max 5MB)" accept="application/pdf" />
+				<FileInput name="section3.nonProfitDoc" label="Non-Profit Registration Document" accept="application/pdf,.pdf" maxSizeMB={5} />
+				<FileInput name="section3.businessLicense" label="Business/Operating License" accept="application/pdf,.pdf" maxSizeMB={5} />
+				<FileInput name="section3.insuranceProof" label="Proof of Insurance" accept="application/pdf,.pdf" maxSizeMB={5} />
 				<RHFInput name="section3.insuranceExpiry" label="Insurance Expiration Date *" type="date" />
-				<FileInput name="section3.boardList" label="Board of Directors List (PDF/DOC, max 2MB)" accept=".pdf,.doc,.docx" />
-				<FileInput name="section3.annualReport" label="Annual Report/Financial Statement (Optional, PDF max 10MB)" accept="application/pdf" />
+				<FileInput name="section3.boardList" label="Board of Directors List" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" maxSizeMB={2} />
+				<FileInput name="section3.annualReport" label="Annual Report/Financial Statement (Optional)" accept="application/pdf,.pdf" maxSizeMB={10} />
 			</div>
 
 			<div className="space-y-3">

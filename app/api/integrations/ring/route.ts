@@ -1,19 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { WebhookResult } from '@/lib/integrations/types';
+import { handleRingWebhook } from '@/lib/integrations/ring';
+import { RingWebhookPayload } from '@/lib/integrations/ring';
 
 export async function POST(request: NextRequest) {
 	try {
-		const body = (await request.json()) as { event?: string; deviceId?: string; timestamp?: string };
-		if (!body?.event || !body?.deviceId || !body?.timestamp) {
-			return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+		const body = (await request.json()) as RingWebhookPayload;
+		if (!body) {
+			return NextResponse.json({ error: 'Request body is required' }, { status: 400 });
 		}
-		const result: WebhookResult = {
-			status: 'ok',
-			message: `Ring ${body.event} on ${body.deviceId} at ${body.timestamp}`,
-		};
+		if (!body.event || !body.deviceId || !body.timestamp) {
+			return NextResponse.json({ error: 'Missing required fields: event, deviceId, and timestamp are required' }, { status: 400 });
+		}
+		const result = await handleRingWebhook(body);
 		return NextResponse.json(result);
 	} catch (error) {
-		return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+		const errorMessage = error instanceof Error ? error.message : 'Invalid request';
+		return NextResponse.json({ error: errorMessage }, { status: 400 });
 	}
 }
 

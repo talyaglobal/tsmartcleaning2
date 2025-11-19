@@ -11,8 +11,8 @@ export default async function ProviderSignupPage() {
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Form */}
-      <div className="flex-1 flex items-center justify-center p-8">
-        <div className="w-full max-w-md">
+      <div className="flex-1 flex items-center justify-center p-8 overflow-y-auto">
+        <div className="w-full max-w-2xl">
           <div className="mb-8">
             <BrandLogo className="mb-8" />
             <h1 className="text-3xl font-bold mb-2">Become a Provider</h1>

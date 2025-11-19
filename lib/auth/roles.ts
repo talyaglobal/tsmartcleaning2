@@ -3,7 +3,7 @@ export enum UserRole {
 	PARTNER_ADMIN = 'partner_admin',
 	REGIONAL_MANAGER = 'regional_manager',
 	CLEANING_COMPANY = 'cleaning_company',
-	DAYIBASI = 'dayibasi',
+	AMBASSADOR = 'ambassador',
 	CLEANING_LADY = 'cleaning_lady',
 	NGO_AGENCY = 'ngo_agency',
 	TSMART_TEAM = 'tsmart_team',

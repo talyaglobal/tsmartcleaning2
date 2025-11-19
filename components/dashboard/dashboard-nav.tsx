@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Calendar, User, Settings, LogOut, LayoutDashboard, Users, DollarSign, FileText, Menu, X } from 'lucide-react'
+import { Home, Calendar, User, Settings, LogOut, LayoutDashboard, Users, DollarSign, FileText, Menu, X, ShieldCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { BrandLogoClient } from '@/components/BrandLogoClient'
 import {
@@ -43,6 +43,7 @@ export function DashboardNav({ userType, userName }: DashboardNavProps) {
     { href: '/admin/companies', label: 'Companies', icon: Users },
     { href: '/admin/users', label: 'Users', icon: Users },
     { href: '/admin/bookings', label: 'Bookings', icon: Calendar },
+    { href: '/admin/insurance', label: 'Insurance', icon: ShieldCheck },
     { href: '/admin/reports', label: 'Reports', icon: FileText },
   ]
 
@@ -73,18 +74,26 @@ export function DashboardNav({ userType, userName }: DashboardNavProps) {
             })}
           </nav>
           <button
-            className="md:hidden inline-flex items-center justify-center rounded-md p-2 hover:bg-muted transition-colors"
+            className="md:hidden inline-flex items-center justify-center rounded-md p-2 hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle menu"
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-menu"
+            type="button"
           >
-            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {mobileMenuOpen ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
           </button>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+            <Button 
+              variant="ghost" 
+              className="relative h-10 w-10 rounded-full"
+              aria-label={`${userName} menu`}
+              aria-haspopup="true"
+            >
               <Avatar>
-                <AvatarFallback>{initials}</AvatarFallback>
+                <AvatarFallback aria-hidden="true">{initials}</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
@@ -113,7 +122,12 @@ export function DashboardNav({ userType, userName }: DashboardNavProps) {
         </DropdownMenu>
       </div>
       {mobileMenuOpen && (
-        <div className="md:hidden border-t bg-background">
+        <div 
+          id="mobile-menu"
+          className="md:hidden border-t bg-background"
+          role="navigation"
+          aria-label="Mobile navigation"
+        >
           <nav className="container mx-auto px-4 py-4 space-y-2">
             {links.map((link) => {
               const Icon = link.icon

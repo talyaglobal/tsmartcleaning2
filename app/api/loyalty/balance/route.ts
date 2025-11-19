@@ -1,19 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerSupabase } from '@/lib/supabase'
+import { withAuth } from '@/lib/auth/rbac'
+import { isAdminRole } from '@/lib/auth/roles'
 
-export async function GET(req: NextRequest) {
+export const GET = withAuth(async (req: NextRequest, auth) => {
 	try {
 		const { searchParams } = new URL(req.url)
-		const userId = searchParams.get('user_id') || req.headers.get('x-user-id')
-		if (!userId) {
-			return NextResponse.json({ error: 'Missing user_id' }, { status: 400 })
+		const requestedUserId = searchParams.get('user_id') || req.headers.get('x-user-id')
+		
+		// Use authenticated user ID if no user_id provided, otherwise verify ownership
+		const userId = requestedUserId || auth.user.id
+		const isAdmin = isAdminRole(auth.user.role)
+		
+		// Verify user can only access their own balance (unless admin)
+		if (!isAdmin && userId !== auth.user.id) {
+			return NextResponse.json(
+				{ error: 'You can only view your own loyalty balance' },
+				{ status: 403 }
+			)
 		}
-		const supabase = createServerSupabase()
 
 		// ensure account exists
-		await supabase.rpc('ensure_loyalty_account', { p_user_id: userId })
+		await auth.supabase.rpc('ensure_loyalty_account', { p_user_id: userId })
 
-		const { data: account, error } = await supabase
+		const { data: account, error } = await auth.supabase
 			.from('loyalty_accounts')
 			.select('*')
 			.eq('user_id', userId)
@@ -63,6 +72,7 @@ export async function GET(req: NextRequest) {
 		console.error('[loyalty] balance error', e)
 		return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
 	}
-}
+	}
+)
 
 

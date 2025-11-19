@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabase, resolveTenantFromRequest } from '@/lib/supabase'
 import { InsuranceEmailTemplates, createInsuranceEmailClient } from '@/lib/emails/insurance'
 import { sendWhatsAppMessage } from '@/lib/whatsapp'
+import { withAuth } from '@/lib/auth/rbac'
+import { isAdminRole } from '@/lib/auth/roles'
 
 async function sendEmailViaApi(request: NextRequest, payload: { to: string; subject: string; html: string }) {
 	const tenantId = resolveTenantFromRequest(request) || ''
@@ -15,27 +17,37 @@ async function sendEmailViaApi(request: NextRequest, payload: { to: string; subj
 	})
 }
 
-export async function GET(request: NextRequest) {
-	try {
-		const tenantId = resolveTenantFromRequest(request)
-		const supabase = createServerSupabase(tenantId || undefined)
-		const { searchParams } = new URL(request.url)
-		const userId = searchParams.get('user_id')
-		if (!userId) {
-			return NextResponse.json({ error: 'user_id is required' }, { status: 400 })
+export const GET = withAuth(
+	async (request: NextRequest, { user, supabase, tenantId: authTenantId }) => {
+		try {
+			const tenantId = authTenantId || resolveTenantFromRequest(request)
+			const { searchParams } = new URL(request.url)
+			const requestedUserId = searchParams.get('user_id')
+			
+			// If user_id is provided, verify the authenticated user owns it (unless admin)
+			const userId = requestedUserId || user.id
+			const isAdmin = isAdminRole(user.role)
+			
+			if (!isAdmin && userId !== user.id) {
+				return NextResponse.json(
+					{ error: 'You can only view your own insurance policies' },
+					{ status: 403 }
+				)
+			}
+			
+			const { data, error } = await supabase
+				.from('insurance_policies')
+				.select('*, insurance_plans(*)')
+				.eq('user_id', userId)
+				.order('created_at', { ascending: false })
+			if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+			return NextResponse.json({ policies: data || [] })
+		} catch (error: any) {
+			console.error('[insurance/policies] GET error', error)
+			return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
 		}
-		const { data, error } = await supabase
-			.from('insurance_policies')
-			.select('*, insurance_plans(*)')
-			.eq('user_id', userId)
-			.order('created_at', { ascending: false })
-		if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-		return NextResponse.json({ policies: data || [] })
-	} catch (error: any) {
-		console.error('[insurance/policies] GET error', error)
-		return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
 	}
-}
+)
 
 export async function POST(request: NextRequest) {
 	try {

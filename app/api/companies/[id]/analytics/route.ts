@@ -1,41 +1,63 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerSupabase } from '@/lib/supabase'
+import { withAuth } from '@/lib/auth/rbac'
+import { verifyCompanyMembership } from '@/lib/auth/rbac'
 
-export async function GET(
-	_request: NextRequest,
-	{ params }: { params: { id: string } }
-) {
-	try {
-		const supabase = createServerSupabase()
+export const GET = withAuth(
+	async (
+		request: NextRequest,
+		auth: { user: any, supabase: any, tenantId: string | null },
+		context?: { params: { id: string } }
+	) => {
+		try {
+			if (!context?.params?.id) {
+				return NextResponse.json({ error: 'Company ID is required' }, { status: 400 })
+			}
+
+			const { id } = context.params
+
+			// Verify user is a member of this company or is an admin
+			const hasAccess = await verifyCompanyMembership(
+				id,
+				auth.user.id,
+				auth.supabase,
+				auth.user.role
+			)
+
+			if (!hasAccess) {
+				return NextResponse.json(
+					{ error: 'You do not have access to this company' },
+					{ status: 403 }
+				)
+			}
 		const now = new Date()
 		const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
 		const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1)
 		const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0)
 
 		// This month jobs count
-		const { count: thisMonthJobs } = await supabase
+		const { count: thisMonthJobs } = await auth.supabase
 			.from('jobs')
 			.select('*', { count: 'exact', head: true })
-			.eq('company_id', params.id)
+			.eq('company_id', id)
 			.gte('start_datetime', startOfMonth.toISOString())
 			.lte('start_datetime', now.toISOString())
 			.eq('status', 'completed')
 
 		// Last month jobs count
-		const { count: lastMonthJobs } = await supabase
+		const { count: lastMonthJobs } = await auth.supabase
 			.from('jobs')
 			.select('*', { count: 'exact', head: true })
-			.eq('company_id', params.id)
+			.eq('company_id', id)
 			.gte('start_datetime', lastMonthStart.toISOString())
 			.lte('startOfMonth' in {} ? '' : lastMonthEnd.toISOString()) // TS hint noop
 			.lte('start_datetime', lastMonthEnd.toISOString())
 			.eq('status', 'completed')
 
 		// Spending this month
-		const { data: thisMonthTotals } = await supabase
+		const { data: thisMonthTotals } = await auth.supabase
 			.from('jobs')
 			.select('total_amount')
-			.eq('company_id', params.id)
+			.eq('company_id', id)
 			.gte('start_datetime', startOfMonth.toISOString())
 			.lte('start_datetime', now.toISOString())
 			.eq('status', 'completed')
@@ -44,10 +66,10 @@ export async function GET(
 			(thisMonthTotals ?? []).reduce((s, j: any) => s + (j.total_amount || 0), 0) || 0
 
 		// Ratings
-		const { data: ratings } = await supabase
+		const { data: ratings } = await auth.supabase
 			.from('reviews')
 			.select('rating')
-			.eq('company_id', params.id)
+			.eq('company_id', id)
 			.gte('created_at', startOfMonth.toISOString())
 
 		const averageRating =
@@ -56,10 +78,10 @@ export async function GET(
 
 		// Simple activity chart (last 30 days)
 		const start30 = new Date(now.getTime() - 29 * 24 * 60 * 60 * 1000)
-		const { data: last30 } = await supabase
+		const { data: last30 } = await auth.supabase
 			.from('jobs')
 			.select('id,start_datetime')
-			.eq('company_id', params.id)
+			.eq('company_id', id)
 			.gte('start_datetime', start30.toISOString())
 			.lte('start_datetime', now.toISOString())
 			.eq('status', 'completed')
@@ -77,10 +99,10 @@ export async function GET(
 
 		// Spending chart (last 6 months)
 		const sixMonthsBack = new Date(now.getFullYear(), now.getMonth() - 5, 1)
-		const { data: spendingRows } = await supabase
+		const { data: spendingRows } = await auth.supabase
 			.from('jobs')
 			.select('total_amount,start_datetime')
-			.eq('company_id', params.id)
+			.eq('company_id', id)
 			.gte('start_datetime', sixMonthsBack.toISOString())
 			.lte('start_datetime', now.toISOString())
 			.eq('status', 'completed')
@@ -103,10 +125,10 @@ export async function GET(
 
 		// Revenue analytics (use completed jobs total_amount as proxy)
 		const twelveMonthsBack = new Date(now.getFullYear(), now.getMonth() - 11, 1)
-		const { data: revenueRows } = await supabase
+		const { data: revenueRows } = await auth.supabase
 			.from('jobs')
 			.select('total_amount,start_datetime')
-			.eq('company_id', params.id)
+			.eq('company_id', id)
 			.gte('start_datetime', twelveMonthsBack.toISOString())
 			.lte('start_datetime', now.toISOString())
 			.eq('status', 'completed')
@@ -121,15 +143,15 @@ export async function GET(
 			.map(([month, revenue]) => ({ month, revenue }))
 
 		// Performance metrics (completion rate in last 30 days)
-		const { count: total30 } = await supabase
+		const { count: total30 } = await auth.supabase
 			.from('jobs')
 			.select('*', { count: 'exact', head: true })
-			.eq('company_id', params.id)
+			.eq('company_id', id)
 			.gte('start_datetime', start30.toISOString())
-		const { count: completed30 } = await supabase
+		const { count: completed30 } = await auth.supabase
 			.from('jobs')
 			.select('*', { count: 'exact', head: true })
-			.eq('company_id', params.id)
+			.eq('company_id', id)
 			.gte('start_datetime', start30.toISOString())
 			.eq('status', 'completed')
 		const performance = {
@@ -139,10 +161,10 @@ export async function GET(
 		}
 
 		// CLV (rough): average spend per unique customer in last 6 months
-		const { data: clvRows } = await supabase
+		const { data: clvRows } = await auth.supabase
 			.from('bookings')
 			.select('user_id,total_amount,booking_date')
-			.eq('company_id', params.id)
+			.eq('company_id', id)
 			.gte('booking_date', sixMonthsBack.toISOString().slice(0, 10))
 			.lte('booking_date', now.toISOString().slice(0, 10))
 			.eq('status', 'completed')
@@ -158,10 +180,10 @@ export async function GET(
 
 		// Churn prediction (heuristic): customers with no bookings in last 60 days
 		const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000)
-		const { data: recentCustomerRows } = await supabase
+		const { data: recentCustomerRows } = await auth.supabase
 			.from('bookings')
 			.select('user_id,booking_date')
-			.eq('company_id', params.id)
+			.eq('company_id', id)
 			.gte('booking_date', new Date(now.getFullYear(), now.getMonth() - 6, 1).toISOString().slice(0, 10))
 			.order('booking_date', { ascending: false })
 		const lastSeen: Record<string, Date> = {}
@@ -178,10 +200,10 @@ export async function GET(
 
 		// Demand forecasting (naive): next 4 weeks = moving average of last 12 weeks
 		const twelveWeeksAgo = new Date(now.getTime() - 12 * 7 * 24 * 60 * 60 * 1000)
-		const { data: weekRows } = await supabase
+		const { data: weekRows } = await auth.supabase
 			.from('jobs')
 			.select('id,start_datetime')
-			.eq('company_id', params.id)
+			.eq('company_id', id)
 			.gte('start_datetime', twelveWeeksAgo.toISOString())
 		const byWeek: Record<string, number> = {}
 		for (const r of weekRows ?? []) {
@@ -226,6 +248,7 @@ export async function GET(
 			{ status: 500 }
 		)
 	}
-}
+	}
+)
 
 

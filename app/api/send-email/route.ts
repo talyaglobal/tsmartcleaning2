@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireTenantId } from '@/lib/tenant'
 import { recordUsageEvent } from '@/lib/usage'
+import { sendEmail } from '@/lib/emails/smtp'
 
-// Minimal email endpoint used by payout notifications and other flows.
-// In production, integrate with an email provider (e.g., Resend, SendGrid).
+// Email endpoint used by payout notifications and other flows.
+// Uses GoDaddy Workspace SMTP for sending emails.
 export async function POST(request: NextRequest) {
   try {
     const tenantId = requireTenantId(request)
-    const { to, subject, html, text } = await request.json()
+    const { to, subject, html, text, from, replyTo } = await request.json()
 
     if (!to || !subject || (!html && !text)) {
       return NextResponse.json(
@@ -16,33 +17,44 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Stub implementation: log payload for now.
-    // Replace with actual email sending integration as needed.
-    console.log('[v0] send-email request:', {
-      to,
-      subject,
-      hasHtml: Boolean(html),
-      hasText: Boolean(text),
-    })
+    try {
+      // Send email via SMTP
+      await sendEmail({
+        to,
+        subject,
+        html: html || text,
+        text,
+        from,
+        replyTo,
+      })
 
-    // If you add a provider, do it here and return its response id
-    const result = {
-      success: true,
-      messageId: `queued-${Date.now()}`,
+      const result = {
+        success: true,
+        messageId: `sent-${Date.now()}`,
+      }
+
+      // Best-effort usage metering for outbound email as messages
+      recordUsageEvent({
+        tenantId,
+        resource: 'message',
+        quantity: 1,
+        metadata: { channel: 'email', recipient: to, subject },
+      }).catch(() => {})
+
+      return NextResponse.json(result)
+    } catch (emailError: any) {
+      console.error('[send-email] SMTP error:', emailError)
+      return NextResponse.json(
+        { error: 'Failed to send email', details: emailError.message },
+        { status: 500 }
+      )
     }
-
-    // Best-effort usage metering for outbound email as messages
-    recordUsageEvent({
-      tenantId,
-      resource: 'message',
-      quantity: 1,
-      metadata: { channel: 'email', recipient: to, subject },
-    }).catch(() => {})
-
-    return NextResponse.json(result)
-  } catch (error) {
-    console.error('[v0] send-email error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  } catch (error: any) {
+    console.error('[send-email] Request error:', error)
+    return NextResponse.json(
+      { error: error.message || 'Internal server error' },
+      { status: 500 }
+    )
   }
 }
 

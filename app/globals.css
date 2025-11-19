@@ -5,8 +5,9 @@
 /* Brand color variables (from CSS Color Design Plan) */
 :root {
   /* Core Accent Colors */
-  --accent-primary: #c98769;
-  --accent-primary-hover: #d9ab96;
+  /* Updated for WCAG AA contrast: darker shade for better contrast with white text */
+  --accent-primary: #a06547; /* Darker shade for better contrast (was #c98769) */
+  --accent-primary-hover: #c98769; /* Original color for hover state */
 
   /* Neutral Colors */
   --neutral-primary: #f5f1eb; /* Main Background */
@@ -45,7 +46,7 @@
   --color-border: var(--border-primary);
   --color-input: #ffffff;
   --color-ring: var(--accent-primary);
-  --color-destructive: #dc2626;
+  --color-destructive: #b91c1c; /* Darker red for better contrast (was #dc2626) */
   --color-destructive-foreground: #ffffff;
 
   /* Radii */
@@ -108,6 +109,97 @@
   --text-xxl-size: 2.5rem; /* Increased from 2rem */
   --text-xxl-line: 1.6em;
   --text-xxl-tracking: 0em;
+}
+
+/* Blog content styling */
+.blog-content {
+  line-height: 1.75;
+  color: inherit;
+}
+
+.blog-content h1,
+.blog-content h2,
+.blog-content h3,
+.blog-content h4,
+.blog-content h5,
+.blog-content h6 {
+  font-weight: 700;
+  margin-top: 2em;
+  margin-bottom: 1em;
+  line-height: 1.2;
+}
+
+.blog-content h1 {
+  font-size: 2.25em;
+}
+
+.blog-content h2 {
+  font-size: 1.875em;
+}
+
+.blog-content h3 {
+  font-size: 1.5em;
+}
+
+.blog-content p {
+  margin-bottom: 1.25em;
+  color: inherit;
+}
+
+.blog-content a {
+  color: hsl(var(--primary));
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.blog-content a:hover {
+  text-decoration-thickness: 2px;
+}
+
+.blog-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 2em 0;
+}
+
+.blog-content ul,
+.blog-content ol {
+  margin: 1.25em 0;
+  padding-left: 1.625em;
+}
+
+.blog-content li {
+  margin: 0.5em 0;
+}
+
+.blog-content blockquote {
+  border-left: 4px solid hsl(var(--primary));
+  padding-left: 1em;
+  margin: 1.5em 0;
+  font-style: italic;
+  color: hsl(var(--muted-foreground));
+}
+
+.blog-content code {
+  background-color: hsl(var(--muted));
+  padding: 0.125em 0.375em;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+}
+
+.blog-content pre {
+  background-color: hsl(var(--muted));
+  padding: 1em;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 1.5em 0;
+}
+
+.blog-content pre code {
+  background-color: transparent;
+  padding: 0;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -384,6 +476,8 @@ h6 {
   min-height: 80px !important;
   max-height: 80px !important;
   align-items: center !important;
+  z-index: 1000 !important; /* Ensure navigation is above other content */
+  position: relative !important;
 }
 
 .nav_left {
@@ -473,6 +567,12 @@ img[style*="max-height"] {
   padding-right: 0.75rem !important;
   border-radius: 0.5rem;
   transition: background-color 0.2s, color 0.2s;
+}
+
+/* Ensure dropdown menus have proper z-index */
+.w-dropdown-list,
+.mega-nav_dropdown-list {
+  z-index: 1001 !important; /* Above navigation */
 }
 
 .nav_dropdown-link:hover {
@@ -586,4 +686,640 @@ header.section .ix_parallax-scale-out-hero {
 
 .animate-accordion-up {
   animation: accordion-up 0.2s ease-out;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN IMPROVEMENTS
+   ============================================ */
+
+/* Mobile Navigation Enhancements */
+@media screen and (max-width: 767px) {
+  /* Ensure mobile menu button is easily tappable */
+  .w-nav-button,
+  .nav_mobile-menu-button {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  }
+
+  /* Mobile menu overlay improvements */
+  .w-nav-menu {
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Ensure mobile menu links are tappable */
+  .w-nav-menu a,
+  .nav_link,
+  .nav_dropdown-link {
+    min-height: 44px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    touch-action: manipulation;
+  }
+
+  /* Mobile dropdown improvements */
+  .w-dropdown-list {
+    position: static !important;
+    box-shadow: none;
+    border: none;
+  }
+
+  /* Mega nav mobile improvements */
+  .mega-nav_dropdown-list {
+    max-height: 70vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mega-nav_link-item {
+    min-height: 60px;
+    padding: 12px 16px;
+    touch-action: manipulation;
+  }
+}
+
+/* Tablet Navigation Enhancements */
+@media screen and (min-width: 768px) and (max-width: 991px) {
+  .nav_link {
+    padding: 10px 14px;
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+
+  /* Tablet menu adjustments */
+  .w-nav-menu {
+    gap: 0.5rem;
+  }
+}
+
+/* Form Mobile Optimizations */
+@media screen and (max-width: 767px) {
+  /* Input fields - larger touch targets */
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="password"],
+  input[type="number"],
+  input[type="search"],
+  input[type="url"],
+  textarea,
+  select {
+    min-height: 44px;
+    font-size: 16px !important; /* Prevents zoom on iOS */
+    padding: 12px 16px;
+    -webkit-appearance: none;
+    appearance: none;
+    touch-action: manipulation;
+  }
+
+  /* Textarea specific */
+  textarea {
+    min-height: 120px;
+    resize: vertical;
+  }
+
+  /* Select dropdowns */
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 12px;
+    padding-right: 40px;
+  }
+
+  /* Form labels */
+  label {
+    font-size: 14px;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  /* Form groups - stack vertically on mobile */
+  .grid[class*="md:grid-cols-2"],
+  .grid.md\:grid-cols-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Form buttons - full width on mobile */
+  form button[type="submit"],
+  form .button {
+    width: 100%;
+    min-height: 48px;
+    font-size: 16px;
+    touch-action: manipulation;
+  }
+
+  /* Form cards - reduce padding on mobile */
+  .card {
+    padding: 1.25rem !important;
+  }
+}
+
+/* Tablet Form Optimizations */
+@media screen and (min-width: 768px) and (max-width: 991px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="password"],
+  input[type="number"],
+  input[type="search"],
+  input[type="url"],
+  textarea,
+  select {
+    min-height: 44px;
+    padding: 10px 14px;
+  }
+
+  /* Two-column forms on tablet */
+  .grid[class*="md:grid-cols-2"],
+  .grid.md\:grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+}
+
+/* Touch Target Improvements - All Interactive Elements */
+@media (pointer: coarse) {
+  /* Ensure all buttons meet minimum touch target size */
+  button,
+  .button,
+  .w-button,
+  a.button,
+  [role="button"] {
+    min-width: 44px;
+    min-height: 44px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  }
+
+  /* Links should be easily tappable */
+  a:not(.button):not(.w-button) {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 4px;
+    touch-action: manipulation;
+  }
+
+  /* Icon buttons */
+  button[aria-label],
+  .icon-button {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 10px;
+  }
+
+  /* Checkboxes and radio buttons */
+  input[type="checkbox"],
+  input[type="radio"] {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+    touch-action: manipulation;
+  }
+
+  /* Labels for checkboxes/radios should be tappable */
+  label input[type="checkbox"],
+  label input[type="radio"] {
+    margin-right: 8px;
+  }
+
+  /* Make label containers tappable when they contain checkboxes/radios */
+  label {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+}
+
+/* Image Mobile Optimizations */
+@media screen and (max-width: 767px) {
+  /* Ensure images are responsive */
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* Hero images on mobile */
+  .hero img,
+  header img,
+  section img {
+    width: 100%;
+    object-fit: cover;
+  }
+
+  /* Reduce image sizes on mobile for performance */
+  img[loading="lazy"] {
+    content-visibility: auto;
+  }
+
+  /* Avatar images */
+  .avatar img,
+  [class*="avatar"] img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* Tablet Image Optimizations */
+@media screen and (min-width: 768px) and (max-width: 991px) {
+  /* Images should scale appropriately on tablet */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Grid images on tablet */
+  .grid img {
+    width: 100%;
+    object-fit: cover;
+  }
+}
+
+/* Layout Mobile Optimizations */
+@media screen and (max-width: 767px) {
+  /* Container padding */
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  /* Section padding */
+  .section {
+    padding-block: 3rem;
+  }
+
+  /* Grid layouts - single column on mobile */
+  .grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem;
+  }
+
+  /* Stack cards vertically */
+  .flex.flex-row {
+    flex-direction: column;
+  }
+
+  /* Reduce heading sizes on mobile */
+  h1 {
+    font-size: 2rem;
+    line-height: 1.2;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+    line-height: 1.3;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+    line-height: 1.3;
+  }
+
+  /* Text sizes */
+  .text-4xl {
+    font-size: 2rem;
+  }
+
+  .text-5xl {
+    font-size: 2.5rem;
+  }
+
+  /* Spacing adjustments */
+  .space-y-8 > * + * {
+    margin-top: 1.5rem;
+  }
+
+  .space-y-6 > * + * {
+    margin-top: 1.25rem;
+  }
+
+  /* Card spacing */
+  .card {
+    margin-bottom: 1rem;
+  }
+
+  /* Hide some elements on mobile if needed */
+  .hidden-mobile {
+    display: none !important;
+  }
+}
+
+/* Tablet Layout Optimizations */
+@media screen and (min-width: 768px) and (max-width: 991px) {
+  /* Container max-width */
+  .container {
+    max-width: 100%;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  /* Section padding */
+  .section {
+    padding-block: 4rem;
+  }
+
+  /* Two-column grids on tablet */
+  .grid[class*="md:grid-cols-2"],
+  .grid.md\:grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Three-column grids become two-column */
+  .grid[class*="md:grid-cols-3"],
+  .grid.md\:grid-cols-3,
+  .grid[class*="lg:grid-cols-3"],
+  .grid.lg\:grid-cols-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Four-column grids become two-column */
+  .grid[class*="md:grid-cols-4"],
+  .grid.md\:grid-cols-4,
+  .grid[class*="lg:grid-cols-4"],
+  .grid.lg\:grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Heading sizes on tablet */
+  h1 {
+    font-size: 2.5rem;
+  }
+
+  h2 {
+    font-size: 2rem;
+  }
+
+  h3 {
+    font-size: 1.75rem;
+  }
+}
+
+/* Prevent horizontal scroll on all devices */
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Smooth scrolling on mobile */
+@media screen and (max-width: 767px) {
+  html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Improve scrolling performance */
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Floating buttons mobile adjustments */
+@media screen and (max-width: 767px) {
+  /* tSmartCard floating button */
+  a[href="/tsmartcard"] {
+    bottom: 80px !important; /* Above WhatsApp button */
+    left: 1rem !important;
+    right: auto !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 14px !important;
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+
+  /* WhatsApp floating button adjustments */
+  [class*="whatsapp"],
+  [class*="WhatsApp"] {
+    bottom: 1rem !important;
+    right: 1rem !important;
+    min-width: 56px;
+    min-height: 56px;
+    touch-action: manipulation;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY IMPROVEMENTS
+   ============================================ */
+
+/* Enhanced Focus Indicators for Keyboard Navigation */
+*:focus-visible {
+  outline: 2px solid var(--color-ring, var(--accent-primary));
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Ensure all interactive elements have visible focus */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[role="button"]:focus-visible,
+[role="link"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-ring, var(--accent-primary));
+  outline-offset: 2px;
+}
+
+/* Skip to main content link - visible on focus */
+a[href="#main"]:focus {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  z-index: 9999;
+  padding: 0.75rem 1rem;
+  background-color: var(--neutral-inverse);
+  color: var(--neutral-primary);
+  border-radius: 0.25rem;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* Screen reader only class */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.sr-only:focus,
+.sr-only:focus-visible {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Keep essential transitions for usability */
+  *:focus-visible {
+    transition: outline 0.01ms !important;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  * {
+    border-color: currentColor !important;
+  }
+
+  button,
+  a.button,
+  .button {
+    border: 2px solid currentColor !important;
+  }
+
+  input,
+  textarea,
+  select {
+    border: 2px solid currentColor !important;
+  }
+}
+
+/* Color Contrast Improvements */
+/* Ensure text meets WCAG AA standards (4.5:1 for normal text, 3:1 for large text) */
+.text-muted,
+.text-color_secondary {
+  color: #373d36cc; /* ~80% opacity for better contrast (was 60%) */
+}
+
+/* Ensure links have sufficient contrast - use darker accent color */
+a:not(.button):not(.w-button) {
+  color: #8b5538; /* Darker accent for better contrast on light backgrounds */
+}
+
+a:not(.button):not(.w-button):hover,
+a:not(.button):not(.w-button):focus {
+  color: var(--accent-primary); /* Use primary accent on hover */
+}
+
+/* Links are styled above in Color Contrast Improvements section */
+
+/* Form Accessibility */
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* Error states for form inputs */
+input[aria-invalid="true"],
+textarea[aria-invalid="true"],
+select[aria-invalid="true"] {
+  border-color: var(--color-destructive);
+  border-width: 2px;
+}
+
+/* Required field indicator */
+label:has(+ input[required]),
+label:has(+ textarea[required]),
+label:has(+ select[required])::after {
+  content: " *";
+  color: var(--color-destructive);
+  font-weight: 600;
+}
+
+/* Live regions for dynamic content */
+[role="status"],
+[role="alert"],
+[aria-live] {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+[role="status"]:focus,
+[role="alert"]:focus,
+[aria-live]:focus {
+  position: static;
+  left: auto;
+  width: auto;
+  height: auto;
+  overflow: visible;
+}
+
+/* Print styles for legal pages */
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+  
+  .print\:hidden {
+    display: none !important;
+  }
+  
+  /* Hide navigation, footer, buttons */
+  nav, footer, button, .no-print {
+    display: none !important;
+  }
+  
+  /* Ensure proper page breaks */
+  section {
+    page-break-inside: avoid;
+  }
+  
+  h1, h2, h3 {
+    page-break-after: avoid;
+  }
+  
+  /* Optimize text for printing */
+  .prose {
+    max-width: 100%;
+  }
+  
+  a {
+    text-decoration: underline;
+  }
+  
+  a[href^="http"]:after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #666;
+  }
+  
+  /* Print-friendly margins */
+  @page {
+    margin: 2cm;
+  }
 }

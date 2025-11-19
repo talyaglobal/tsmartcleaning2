@@ -1,8 +1,40 @@
 import { readFileSync } from 'fs'
 import { join } from 'path'
+import type { Metadata } from 'next'
+import dynamic from 'next/dynamic'
 import { WebflowScripts } from '@/components/WebflowScripts'
 import { AnchorLinkHandler } from '@/components/marketing/AnchorLinkHandler'
-import { HomepageVerification } from '@/components/marketing/HomepageVerification'
+import { JsonLd } from '@/components/seo/JsonLd'
+import { generateSEOMetadata, generateBreadcrumbSchema, generateServiceSchema } from '@/lib/seo'
+
+// Dynamically import dev-only components to reduce initial bundle size
+const HomepageVerification = dynamic(
+  () => import('@/components/marketing/HomepageVerification').then(mod => ({ default: mod.HomepageVerification })),
+  { ssr: false }
+)
+const WebflowInteractionsTest = dynamic(
+  () => import('@/components/marketing/WebflowInteractionsTest').then(mod => ({ default: mod.WebflowInteractionsTest })),
+  { ssr: false }
+)
+const ResponsiveDesignTest = dynamic(
+  () => import('@/components/marketing/ResponsiveDesignTest').then(mod => ({ default: mod.ResponsiveDesignTest })),
+  { ssr: false }
+)
+const WebflowDesignVerification = dynamic(
+  () => import('@/components/marketing/WebflowDesignVerification').then(mod => ({ default: mod.WebflowDesignVerification })),
+  { ssr: false }
+)
+const AssetPathFixer = dynamic(
+  () => import('@/components/marketing/AssetPathFixer').then(mod => ({ default: mod.AssetPathFixer })),
+  { ssr: false }
+)
+
+export const metadata: Metadata = generateSEOMetadata({
+  title: 'Professional Cleaning Services Made Simple',
+  description: 'Connect with verified cleaning professionals in minutes. Book, manage, and pay for residential, commercial, and specialized cleaning services all in one place.',
+  path: '/',
+  keywords: ['cleaning services', 'house cleaning', 'commercial cleaning', 'professional cleaners', 'cleaning company', 'residential cleaning', 'office cleaning'],
+})
 
 export default function HomePage() {
   // Read the static HTML file
@@ -28,6 +60,29 @@ export default function HomePage() {
       if (navStartIndex !== -1 && headerStartIndex !== -1 && navStartIndex < headerStartIndex) {
         bodyContent = bodyContent.substring(0, navStartIndex) + bodyContent.substring(headerStartIndex)
       }
+      
+      // Fix asset paths: convert relative paths to absolute paths for Next.js
+      // images/ -> /images/
+      bodyContent = bodyContent.replace(/(src|href)=["'](images\/[^"']+)["']/gi, (match, attr, path) => {
+        if (!path.startsWith('/') && !path.startsWith('http')) {
+          return `${attr}="/${path}"`
+        }
+        return match
+      })
+      // css/ -> /css/ (though CSS is already loaded in layout, this is for any inline references)
+      bodyContent = bodyContent.replace(/(src|href)=["'](css\/[^"']+)["']/gi, (match, attr, path) => {
+        if (!path.startsWith('/') && !path.startsWith('http')) {
+          return `${attr}="/${path}"`
+        }
+        return match
+      })
+      // js/ -> /js/
+      bodyContent = bodyContent.replace(/(src|href)=["'](js\/[^"']+)["']/gi, (match, attr, path) => {
+        if (!path.startsWith('/') && !path.startsWith('http')) {
+          return `${attr}="/${path}"`
+        }
+        return match
+      })
     }
   } catch (error) {
     console.error('Error reading index.html:', error)
@@ -35,10 +90,42 @@ export default function HomePage() {
     return <div>Loading...</div>
   }
 
+  const services = [
+    {
+      name: 'Residential Cleaning',
+      description: 'Professional home cleaning services for apartments, houses, and condos. Regular and one-time cleaning available.',
+    },
+    {
+      name: 'Commercial Cleaning',
+      description: 'Office and commercial space cleaning services. Keep your workplace clean and professional.',
+    },
+    {
+      name: 'Specialized Cleaning',
+      description: 'Deep cleaning, move-in/move-out cleaning, post-construction cleaning, and more specialized services.',
+    },
+  ]
+
   return (
     <>
+      <JsonLd
+        data={[
+          generateBreadcrumbSchema([
+            { name: 'Home', url: '/' },
+          ]),
+          ...services.map(service => generateServiceSchema(service)),
+        ]}
+      />
       <AnchorLinkHandler />
-      <HomepageVerification />
+      {/* Dev-only components loaded dynamically to reduce initial bundle */}
+      {process.env.NODE_ENV === 'development' && (
+        <>
+          <HomepageVerification />
+          <WebflowInteractionsTest />
+          <ResponsiveDesignTest />
+          <WebflowDesignVerification />
+          <AssetPathFixer />
+        </>
+      )}
       <div dangerouslySetInnerHTML={{ __html: bodyContent }} />
       <WebflowScripts />
     </>

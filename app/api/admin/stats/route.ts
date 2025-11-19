@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabase } from '@/lib/supabase'
+import { withAuth } from '@/lib/auth/rbac'
 
 // Get admin dashboard stats
-export async function GET(request: NextRequest) {
-  try {
-    const supabase = createServerSupabase()
+export const GET = withAuth(
+  async (request: NextRequest, { supabase }) => {
+    try {
 
     // Total users
     const { count: usersCount } = await supabase
@@ -104,11 +105,15 @@ export async function GET(request: NextRequest) {
       monthlyRevenue,
       totalRevenue,
     })
-  } catch (error) {
-    console.error('[v0] Get stats error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    } catch (error) {
+      console.error('[v0] Get stats error:', error)
+      return NextResponse.json(
+        { error: 'Internal server error' },
+        { status: 500 }
+      )
+    }
+  },
+  {
+    requireAdmin: true,
   }
-}
+)

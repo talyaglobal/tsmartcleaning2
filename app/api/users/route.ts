@@ -1,63 +1,60 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerSupabase } from '@/lib/supabase'
+import { withAuth } from '@/lib/auth/rbac'
+import { handleApiError, ApiErrors, logError } from '@/lib/api/errors'
 
-// List users
-export async function GET(request: NextRequest) {
-  try {
-    const supabase = createServerSupabase()
-    const { data, error } = await supabase
-      .from('users')
-      .select('id, email, full_name, name, role, phone')
-      .order('created_at', { ascending: false })
+// List users (admin only)
+export const GET = withAuth(
+  { requireAdmin: true },
+  async (request: NextRequest, auth) => {
+    try {
+      const { data, error } = await auth.supabase
+        .from('users')
+        .select('id, email, full_name, name, role, phone')
+        .order('created_at', { ascending: false })
 
-    if (error) {
-      console.error('[v0] List users supabase error:', error)
-      return NextResponse.json({ error: 'Failed to load users' }, { status: 500 })
+      if (error) {
+        logError('users', error, { operation: 'list_users' })
+        return ApiErrors.databaseError('Failed to load users')
+      }
+
+      const users = (data ?? []).map((u) => ({
+        id: u.id,
+        email: u.email,
+        name: (u as any).name || (u as any).full_name,
+        role: (u as any).role,
+        phone: (u as any).phone || '',
+      }))
+
+      return NextResponse.json({ users })
+    } catch (error) {
+      return handleApiError('users', error, { operation: 'list_users' })
     }
-
-    const users = (data ?? []).map((u) => ({
-      id: u.id,
-      email: u.email,
-      name: (u as any).name || (u as any).full_name,
-      role: (u as any).role,
-      phone: (u as any).phone || '',
-    }))
-
-    return NextResponse.json({ users })
-  } catch (error) {
-    console.error('[v0] List users error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
   }
-}
+)
 
-// Create user
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json()
-    // Create/Upsert into public.users (expects an existing auth user id)
-    const supabase = createServerSupabase()
-    const { data, error } = await supabase
-      .from('users')
-      .insert(body)
-      .select()
-      .single()
+// Create user (admin only)
+export const POST = withAuth(
+  { requireAdmin: true },
+  async (request: NextRequest, auth) => {
+    try {
+      const body = await request.json().catch(() => ({}))
+      // Create/Upsert into public.users (expects an existing auth user id)
+      const { data, error } = await auth.supabase
+        .from('users')
+        .insert(body)
+        .select()
+        .single()
 
-    if (error) {
-      console.error('[v0] Create user supabase error:', error)
-      return NextResponse.json({ error: 'Failed to create user' }, { status: 500 })
+      if (error) {
+        logError('users', error, { operation: 'create_user' })
+        return ApiErrors.databaseError('Failed to create user')
+      }
+
+      return NextResponse.json({ user: data, message: 'User created successfully' }, { status: 201 })
+    } catch (error) {
+      return handleApiError('users', error, { operation: 'create_user' })
     }
-
-    return NextResponse.json({ user: data, message: 'User created successfully' }, { status: 201 })
-  } catch (error) {
-    console.error('[v0] Create user error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
   }
-}
+)
 
 

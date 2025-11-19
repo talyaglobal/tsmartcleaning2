@@ -35,11 +35,22 @@ export function WebflowNavbar() {
                   data-hover="false"
                   className="nav_dropdown-menu w-dropdown"
                 >
-                  <div className="nav_link w-dropdown-toggle">
+                  <div 
+                    className="nav_link w-dropdown-toggle"
+                    role="button"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                    aria-label="Services menu"
+                    tabIndex={0}
+                  >
                     <div>Services</div>
-                    <div className="nav-caret w-icon-dropdown-toggle"></div>
+                    <div className="nav-caret w-icon-dropdown-toggle" aria-hidden="true"></div>
                   </div>
-                  <nav className="mega-nav_dropdown-list w-dropdown-list">
+                  <nav 
+                    className="mega-nav_dropdown-list w-dropdown-list"
+                    role="menu"
+                    aria-label="Services submenu"
+                  >
                     <div className="mega-nav_dropdown-list-wrapper">
                       <ul
                         role="list"
@@ -54,14 +65,16 @@ export function WebflowNavbar() {
                                   <Link
                                     href="/customer/book"
                                     className="mega-nav_link-item w-inline-block"
+                                    role="menuitem"
                                   >
-                                    <div className="icon is-medium on-inverse">
+                                    <div className="icon is-medium on-inverse" aria-hidden="true">
                                       <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="100%"
                                         height="100%"
                                         viewBox="0 0 32 32"
                                         fill="currentColor"
+                                        aria-hidden="true"
                                       >
                                         <path
                                           d="m25.7 9.3l-7-7A.9.9 0 0 0 18 2H8a2.006 2.006 0 0 0-2 2v24a2.006 2.006 0 0 0 2 2h16a2.006 2.006 0 0 0 2-2V10a.9.9 0 0 0-.3-.7M18 4.4l5.6 5.6H18ZM24 28H8V4h8v6a2.006 2.006 0 0 0 2 2h6Z"
@@ -83,14 +96,16 @@ export function WebflowNavbar() {
                                   <Link
                                     href="/find-cleaners"
                                     className="mega-nav_link-item w-inline-block"
+                                    role="menuitem"
                                   >
-                                    <div className="icon is-medium on-inverse">
+                                    <div className="icon is-medium on-inverse" aria-hidden="true">
                                       <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="100%"
                                         height="100%"
                                         viewBox="0 0 32 32"
                                         fill="currentColor"
+                                        aria-hidden="true"
                                       >
                                         <path
                                           d="m25.7 9.3l-7-7A.9.9 0 0 0 18 2H8a2.006 2.006 0 0 0-2 2v24a2.006 2.006 0 0 0 2 2h16a2.006 2.006 0 0 0 2-2V10a.9.9 0 0 0-.3-.7M18 4.4l5.6 5.6H18ZM24 28H8V4h8v6a2.006 2.006 0 0 0 2 2h6Z"
@@ -112,14 +127,16 @@ export function WebflowNavbar() {
                                   <Link
                                     href="#pricing"
                                     className="mega-nav_link-item w-inline-block"
+                                    role="menuitem"
                                   >
-                                    <div className="icon is-medium on-inverse">
+                                    <div className="icon is-medium on-inverse" aria-hidden="true">
                                       <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="100%"
                                         height="100%"
                                         viewBox="0 0 32 32"
                                         fill="currentColor"
+                                        aria-hidden="true"
                                       >
                                         <path
                                           d="m25.7 9.3l-7-7A.9.9 0 0 0 18 2H8a2.006 2.006 0 0 0-2 2v24a2.006 2.006 0 0 0 2 2h16a2.006 2.006 0 0 0 2-2V10a.9.9 0 0 0-.3-.7M18 4.4l5.6 5.6H18ZM24 28H8V4h8v6a2.006 2.006 0 0 0 2 2h6Z"
@@ -146,14 +163,16 @@ export function WebflowNavbar() {
                                   <Link
                                     href="/provider-signup"
                                     className="mega-nav_link-item w-inline-block"
+                                    role="menuitem"
                                   >
-                                    <div className="icon is-medium on-inverse">
+                                    <div className="icon is-medium on-inverse" aria-hidden="true">
                                       <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="100%"
                                         height="100%"
                                         viewBox="0 0 32 32"
                                         fill="currentColor"
+                                        aria-hidden="true"
                                       >
                                         <path
                                           d="m25.7 9.3l-7-7A.9.9 0 0 0 18 2H8a2.006 2.006 0 0 0-2 2v24a2.006 2.006 0 0 0 2 2h16a2.006 2.006 0 0 0 2-2V10a.9.9 0 0 0-.3-.7M18 4.4l5.6 5.6H18ZM24 28H8V4h8v6a2.006 2.006 0 0 0 2 2h6Z"
@@ -175,14 +194,16 @@ export function WebflowNavbar() {
                                   <Link
                                     href="/provider"
                                     className="mega-nav_link-item w-inline-block"
+                                    role="menuitem"
                                   >
-                                    <div className="icon is-medium on-inverse">
+                                    <div className="icon is-medium on-inverse" aria-hidden="true">
                                       <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="100%"
                                         height="100%"
                                         viewBox="0 0 32 32"
                                         fill="currentColor"
+                                        aria-hidden="true"
                                       >
                                         <path
                                           d="m25.7 9.3l-7-7A.9.9 0 0 0 18 2H8a2.006 2.006 0 0 0-2 2v24a2.006 2.006 0 0 0 2 2h16a2.006 2.006 0 0 0 2-2V10a.9.9 0 0 0-.3-.7M18 4.4l5.6 5.6H18ZM24 28H8V4h8v6a2.006 2.006 0 0 0 2 2h6Z"
@@ -204,14 +225,16 @@ export function WebflowNavbar() {
                                   <Link
                                     href="/contact"
                                     className="mega-nav_link-item w-inline-block"
+                                    role="menuitem"
                                   >
-                                    <div className="icon is-medium on-inverse">
+                                    <div className="icon is-medium on-inverse" aria-hidden="true">
                                       <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="100%"
                                         height="100%"
                                         viewBox="0 0 32 32"
                                         fill="currentColor"
+                                        aria-hidden="true"
                                       >
                                         <path
                                           d="m25.7 9.3l-7-7A.9.9 0 0 0 18 2H8a2.006 2.006 0 0 0-2 2v24a2.006 2.006 0 0 0 2 2h16a2.006 2.006 0 0 0 2-2V10a.9.9 0 0 0-.3-.7M18 4.4l5.6 5.6H18ZM24 28H8V4h8v6a2.006 2.006 0 0 0 2 2h6Z"
@@ -238,14 +261,16 @@ export function WebflowNavbar() {
                                   <Link
                                     href="/company"
                                     className="mega-nav_link-item w-inline-block"
+                                    role="menuitem"
                                   >
-                                    <div className="icon is-medium on-inverse">
+                                    <div className="icon is-medium on-inverse" aria-hidden="true">
                                       <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="100%"
                                         height="100%"
                                         viewBox="0 0 32 32"
                                         fill="currentColor"
+                                        aria-hidden="true"
                                       >
                                         <path
                                           d="m25.7 9.3l-7-7A.9.9 0 0 0 18 2H8a2.006 2.006 0 0 0-2 2v24a2.006 2.006 0 0 0 2 2h16a2.006 2.006 0 0 0 2-2V10a.9.9 0 0 0-.3-.7M18 4.4l5.6 5.6H18ZM24 28H8V4h8v6a2.006 2.006 0 0 0 2 2h6Z"
@@ -267,14 +292,16 @@ export function WebflowNavbar() {
                                   <Link
                                     href="/tsmartcard"
                                     className="mega-nav_link-item w-inline-block"
+                                    role="menuitem"
                                   >
-                                    <div className="icon is-medium on-inverse">
+                                    <div className="icon is-medium on-inverse" aria-hidden="true">
                                       <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="100%"
                                         height="100%"
                                         viewBox="0 0 32 32"
                                         fill="currentColor"
+                                        aria-hidden="true"
                                       >
                                         <path
                                           d="m25.7 9.3l-7-7A.9.9 0 0 0 18 2H8a2.006 2.006 0 0 0-2 2v24a2.006 2.006 0 0 0 2 2h16a2.006 2.006 0 0 0 2-2V10a.9.9 0 0 0-.3-.7M18 4.4l5.6 5.6H18ZM24 28H8V4h8v6a2.006 2.006 0 0 0 2 2h6Z"
@@ -296,14 +323,16 @@ export function WebflowNavbar() {
                                   <Link
                                     href="/insurance"
                                     className="mega-nav_link-item w-inline-block"
+                                    role="menuitem"
                                   >
-                                    <div className="icon is-medium on-inverse">
+                                    <div className="icon is-medium on-inverse" aria-hidden="true">
                                       <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="100%"
                                         height="100%"
                                         viewBox="0 0 32 32"
                                         fill="currentColor"
+                                        aria-hidden="true"
                                       >
                                         <path
                                           d="m25.7 9.3l-7-7A.9.9 0 0 0 18 2H8a2.006 2.006 0 0 0-2 2v24a2.006 2.006 0 0 0 2 2h16a2.006 2.006 0 0 0 2-2V10a.9.9 0 0 0-.3-.7M18 4.4l5.6 5.6H18ZM24 28H8V4h8v6a2.006 2.006 0 0 0 2 2h6Z"
@@ -382,11 +411,22 @@ export function WebflowNavbar() {
                   data-hover="false"
                   className="nav_dropdown-menu w-dropdown"
                 >
-                  <div className="nav_link w-dropdown-toggle">
+                  <div 
+                    className="nav_link w-dropdown-toggle"
+                    role="button"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                    aria-label="Support menu"
+                    tabIndex={0}
+                  >
                     <div>Support</div>
-                    <div className="nav-caret w-icon-dropdown-toggle"></div>
+                    <div className="nav-caret w-icon-dropdown-toggle" aria-hidden="true"></div>
                   </div>
-                  <div className="nav_dropdown-list w-dropdown-list">
+                  <div 
+                    className="nav_dropdown-list w-dropdown-list"
+                    role="menu"
+                    aria-label="Support submenu"
+                  >
                     <div className="nav-menu_dropdown-list-wrapper">
                       <ul
                         role="list"
@@ -396,6 +436,7 @@ export function WebflowNavbar() {
                           <Link
                             href="/contact"
                             className="nav_dropdown-link w-inline-block"
+                            role="menuitem"
                           >
                             <div className="button_label">Help Center</div>
                           </Link>
@@ -404,6 +445,7 @@ export function WebflowNavbar() {
                           <Link
                             href="/contact"
                             className="nav_dropdown-link w-inline-block"
+                            role="menuitem"
                           >
                             <div className="button_label">Contact</div>
                           </Link>
@@ -423,13 +465,20 @@ export function WebflowNavbar() {
             </Link>
           </div>
         </div>
-        <div className="nav_mobile-menu-button w-nav-button">
-          <div className="icon">
+        <button 
+          className="nav_mobile-menu-button w-nav-button"
+          type="button"
+          aria-label="Toggle mobile menu"
+          aria-expanded="false"
+          aria-controls="mobile-menu"
+        >
+          <div className="icon" aria-hidden="true">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
               height="24"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <g
                 className="nc-icon-wrapper"
@@ -446,7 +495,7 @@ export function WebflowNavbar() {
               </g>
             </svg>
           </div>
-        </div>
+        </button>
       </div>
     </div>
   )

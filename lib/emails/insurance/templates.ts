@@ -112,10 +112,30 @@ export const InsuranceEmailTemplates = {
   // Newly added generic status update
   claimStatusUpdate: async (p: InsuranceEmailPayload) => {
     const b = await loadBranding(p.tenantId ?? null)
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || ''
+    const claimUrl = `${baseUrl}/insurance/claims/${p.claimId}`
     return {
       subject: `Update on Your Claim #${p.claimId}`,
       html: wrapBrandingHtml(
-        `<p>Your claim #${p.claimId} has an update. Please check the dashboard for details.</p>`,
+        `
+          <h1 style="margin: 0 0 8px 0;">Claim Update</h1>
+          <p>Hi ${p.userName},</p>
+          <p>Your claim <strong>#${p.claimId}</strong> has been updated.</p>
+          <p>This could be due to:</p>
+          <ul>
+            <li>New documents have been uploaded</li>
+            <li>Your claim status has changed</li>
+            <li>Additional information has been added</li>
+          </ul>
+          <p style="margin: 20px 0;">
+            <a href="${claimUrl}" style="background: ${b.primaryColor}; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+              View Claim Details
+            </a>
+          </p>
+          <p style="font-size: 14px; color: #6b7280;">
+            If you have any questions, please contact our support team.
+          </p>
+        `.trim(),
         { logoUrl: b.logoUrl, primaryColor: b.primaryColor }
       ),
     }

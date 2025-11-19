@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { BrandLogoClient as BrandLogo } from '@/components/BrandLogoClient'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -10,6 +9,8 @@ import { CheckCircle2, Star, CreditCard, Sparkles, Shield, Clock3, Gift, Trophy,
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Progress } from '@/components/ui/progress'
+import { JsonLd } from '@/components/seo/JsonLd'
+import { generateBreadcrumbSchema, generateServiceSchema } from '@/lib/seo'
 
 export default function TSmartCardPage() {
   const [amount, setAmount] = useState<number>(150)
@@ -52,8 +53,13 @@ export default function TSmartCardPage() {
   const annualDiscount = annualWithout * discountRate
   const annualWith = Math.max(0, annualWithout - annualDiscount)
   const netSavings = Math.max(0, Math.round((annualDiscount - planAnnualCost) * 100) / 100)
-  const breakEvenOrders = Math.ceil(planAnnualCost / (amount * discountRate || 1))
-  const progressToBreakEven = Math.min(100, Math.round((Math.min(ordersPerYear, breakEvenOrders) / breakEvenOrders) * 100))
+  const discountPerOrder = amount * discountRate
+  const breakEvenOrders = discountPerOrder > 0 && planAnnualCost > 0 
+    ? Math.ceil(planAnnualCost / discountPerOrder)
+    : Infinity
+  const progressToBreakEven = isFinite(breakEvenOrders) && breakEvenOrders > 0
+    ? Math.min(100, Math.round((Math.min(ordersPerYear, breakEvenOrders) / breakEvenOrders) * 100))
+    : 0
   const planLabel = plan === 'card' ? 'tSmartCard' : plan === 'pro' ? 'tSmartPro' : plan === 'elite' ? 'tSmartElite' : 'tSmartBasic'
   const features = {
     priorityBooking: plan === 'card' || plan === 'pro' || plan === 'elite',
@@ -68,7 +74,26 @@ export default function TSmartCardPage() {
   }
 
   return (
-    <div className="min-h-screen">
+    <>
+      <JsonLd
+        data={[
+          generateBreadcrumbSchema([
+            { name: 'Home', url: '/' },
+            { name: 'tSmartCard', url: '/tsmartcard' },
+          ]),
+          generateServiceSchema({
+            name: 'tSmartCard Premium Membership',
+            description: 'Premium membership program offering 10% off every cleaning service, priority booking, and exclusive perks for $99/year.',
+            provider: {
+              name: 'tSmartCleaning',
+              url: 'https://tsmartcleaning.com',
+            },
+            areaServed: 'US',
+            serviceType: 'Membership Service',
+          }),
+        ]}
+      />
+      <div className="min-h-screen">
 
       {/* Hero */}
       <section className="relative overflow-hidden py-16 md:py-24 bg-gradient-to-br from-indigo-600/10 via-purple-600/5 to-background">
@@ -327,9 +352,9 @@ export default function TSmartCardPage() {
                   <div className="text-sm font-medium mb-2">Break-even progress</div>
                   <Progress value={progressToBreakEven} />
                   <div className="mt-2 text-xs text-muted-foreground">
-                    {plan === 'basic' || discountRate === 0
+                    {plan === 'basic' || discountRate === 0 || !isFinite(breakEvenOrders)
                       ? 'No membership selected—no break-even.'
-                      : <>Membership pays for itself after about <span className="font-medium">{isFinite(breakEvenOrders) ? breakEvenOrders : 0}</span> orders.</>}
+                      : <>Membership pays for itself after about <span className="font-medium">{breakEvenOrders}</span> orders.</>}
                   </div>
                 </div>
               </div>
@@ -613,7 +638,8 @@ export default function TSmartCardPage() {
           </div>
         </div>
       </section>
-    </div>
+      </div>
+    </>
   )
 }
 

@@ -1,14 +1,204 @@
+'use client'
+
+import { useState, FormEvent } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Mail, Phone, MapPin, Clock, Sparkles } from 'lucide-react'
+import { Mail, Phone, MapPin, Clock, Sparkles, Loader2, CheckCircle2, AlertCircle } from 'lucide-react'
+import { JsonLd } from '@/components/seo/JsonLd'
+import { generateBreadcrumbSchema, generateLocalBusinessSchema } from '@/lib/seo'
+
+interface FormData {
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  serviceType: string
+  message: string
+  website?: string // honeypot field
+}
+
+interface FormErrors {
+  firstName?: string
+  lastName?: string
+  email?: string
+  phone?: string
+  serviceType?: string
+  message?: string
+}
+
+const MAX_MESSAGE_LENGTH = 2000
 
 export default function ContactPage() {
+  const [formData, setFormData] = useState<FormData>({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    serviceType: '',
+    message: '',
+    website: '', // honeypot
+  })
+  const [errors, setErrors] = useState<FormErrors>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [submitMessage, setSubmitMessage] = useState('')
+
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {}
+
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = 'First name is required'
+    } else if (formData.firstName.trim().length < 2) {
+      newErrors.firstName = 'First name must be at least 2 characters'
+    }
+
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = 'Last name is required'
+    } else if (formData.lastName.trim().length < 2) {
+      newErrors.lastName = 'Last name must be at least 2 characters'
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address'
+    }
+
+    if (formData.phone && !/^[\d\s\-\+\(\)]+$/.test(formData.phone)) {
+      newErrors.phone = 'Please enter a valid phone number'
+    }
+
+    if (!formData.serviceType) {
+      newErrors.serviceType = 'Please select a service type'
+    }
+
+    if (!formData.message.trim()) {
+      newErrors.message = 'Message is required'
+    } else if (formData.message.trim().length < 10) {
+      newErrors.message = 'Message must be at least 10 characters'
+    } else if (formData.message.length > MAX_MESSAGE_LENGTH) {
+      newErrors.message = `Message must be no more than ${MAX_MESSAGE_LENGTH} characters`
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleChange = (field: keyof FormData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+    // Clear error for this field when user starts typing
+    if (errors[field as keyof FormErrors]) {
+      setErrors(prev => ({ ...prev, [field]: undefined }))
+    }
+    // Clear submit status when user makes changes
+    if (submitStatus !== 'idle') {
+      setSubmitStatus('idle')
+      setSubmitMessage('')
+    }
+  }
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    // Honeypot check - if website field is filled, it's likely a bot
+    if (formData.website) {
+      console.warn('Honeypot field filled - potential spam submission')
+      setSubmitStatus('error')
+      setSubmitMessage('Invalid submission detected. Please try again.')
+      return
+    }
+
+    if (!validateForm()) {
+      return
+    }
+
+    setIsSubmitting(true)
+    setSubmitStatus('idle')
+    setSubmitMessage('')
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName: formData.firstName.trim(),
+          lastName: formData.lastName.trim(),
+          email: formData.email.trim(),
+          phone: formData.phone.trim() || undefined,
+          serviceType: formData.serviceType,
+          message: formData.message.trim(),
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to submit form')
+      }
+
+      // Success
+      setSubmitStatus('success')
+      setSubmitMessage('Thank you for contacting us! We\'ll get back to you soon.')
+      
+      // Reset form
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        serviceType: '',
+        message: '',
+        website: '',
+      })
+      setErrors({})
+
+      // Scroll to top of form to show success message
+      const formCard = document.getElementById('contact-form')
+      formCard?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    } catch (error) {
+      console.error('Form submission error:', error)
+      setSubmitStatus('error')
+      setSubmitMessage(
+        error instanceof Error
+          ? error.message
+          : 'Something went wrong. Please try again later.'
+      )
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const messageLength = formData.message.length
+  const messageRemaining = MAX_MESSAGE_LENGTH - messageLength
+
   return (
     <div className="min-h-screen">
+      <JsonLd
+        data={[
+          generateBreadcrumbSchema([
+            { name: 'Home', url: '/' },
+            { name: 'Contact', url: '/contact' },
+          ]),
+          generateLocalBusinessSchema({
+            name: 'tSmartCleaning',
+            description: 'Professional cleaning services made simple',
+            url: 'https://tsmartcleaning.com',
+            telephone: '+1-561-975-0455',
+            address: {
+              addressLocality: 'Boston',
+              addressRegion: 'MA',
+              postalCode: '02101',
+              addressCountry: 'US',
+            },
+          }),
+        ]}
+      />
 
       {/* Hero Section */}
       <section className="py-16 bg-gradient-to-b from-primary/5 to-background">
@@ -30,32 +220,124 @@ export default function ContactPage() {
           <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
             {/* Contact Form */}
             <div>
-              <Card className="p-8">
+              <Card id="contact-form" className="p-8">
                 <h2 className="text-2xl font-bold mb-6">Send us a message</h2>
-                <form className="space-y-6">
+                
+                {/* Success/Error Messages */}
+                {submitStatus === 'success' && (
+                  <div className="mb-6 p-4 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900 flex items-start gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                    <p className="text-sm text-green-800 dark:text-green-200">{submitMessage}</p>
+                  </div>
+                )}
+
+                {submitStatus === 'error' && (
+                  <div className="mb-6 p-4 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 flex items-start gap-3">
+                    <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                    <p className="text-sm text-red-800 dark:text-red-200">{submitMessage}</p>
+                  </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Honeypot field - hidden from users */}
+                  <div className="hidden" aria-hidden="true">
+                    <Label htmlFor="website">Website</Label>
+                    <Input
+                      id="website"
+                      type="text"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      value={formData.website}
+                      onChange={(e) => handleChange('website', e.target.value)}
+                    />
+                  </div>
+
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="firstName">First Name</Label>
-                      <Input id="firstName" placeholder="John" />
+                      <Label htmlFor="firstName">First Name *</Label>
+                      <Input
+                        id="firstName"
+                        placeholder="John"
+                        value={formData.firstName}
+                        onChange={(e) => handleChange('firstName', e.target.value)}
+                        aria-invalid={errors.firstName ? 'true' : 'false'}
+                        aria-describedby={errors.firstName ? 'firstName-error' : undefined}
+                        disabled={isSubmitting}
+                      />
+                      {errors.firstName && (
+                        <p id="firstName-error" className="text-sm text-destructive" role="alert">
+                          {errors.firstName}
+                        </p>
+                      )}
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="lastName">Last Name</Label>
-                      <Input id="lastName" placeholder="Doe" />
+                      <Label htmlFor="lastName">Last Name *</Label>
+                      <Input
+                        id="lastName"
+                        placeholder="Doe"
+                        value={formData.lastName}
+                        onChange={(e) => handleChange('lastName', e.target.value)}
+                        aria-invalid={errors.lastName ? 'true' : 'false'}
+                        aria-describedby={errors.lastName ? 'lastName-error' : undefined}
+                        disabled={isSubmitting}
+                      />
+                      {errors.lastName && (
+                        <p id="lastName-error" className="text-sm text-destructive" role="alert">
+                          {errors.lastName}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" placeholder="john@example.com" />
+                    <Label htmlFor="email">Email *</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="john@example.com"
+                      value={formData.email}
+                      onChange={(e) => handleChange('email', e.target.value)}
+                      aria-invalid={errors.email ? 'true' : 'false'}
+                      aria-describedby={errors.email ? 'email-error' : undefined}
+                      disabled={isSubmitting}
+                    />
+                    {errors.email && (
+                      <p id="email-error" className="text-sm text-destructive" role="alert">
+                        {errors.email}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="phone">Phone</Label>
-                    <Input id="phone" type="tel" placeholder="+1 (555) 000-0000" />
+                    <Input
+                      id="phone"
+                      type="tel"
+                      placeholder="+1 (555) 000-0000"
+                      value={formData.phone}
+                      onChange={(e) => handleChange('phone', e.target.value)}
+                      aria-invalid={errors.phone ? 'true' : 'false'}
+                      aria-describedby={errors.phone ? 'phone-error' : undefined}
+                      disabled={isSubmitting}
+                    />
+                    {errors.phone && (
+                      <p id="phone-error" className="text-sm text-destructive" role="alert">
+                        {errors.phone}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="serviceType">Service Type</Label>
+                    <Label htmlFor="serviceType">Service Type *</Label>
                     <select
                       id="serviceType"
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      value={formData.serviceType}
+                      onChange={(e) => handleChange('serviceType', e.target.value)}
+                      className={`flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                        errors.serviceType
+                          ? 'border-destructive ring-destructive/20 dark:ring-destructive/40'
+                          : 'border-input'
+                      }`}
+                      aria-invalid={errors.serviceType ? 'true' : 'false'}
+                      aria-describedby={errors.serviceType ? 'serviceType-error' : undefined}
+                      disabled={isSubmitting}
                     >
                       <option value="">Select a service</option>
                       <option value="residential">Residential Cleaning</option>
@@ -63,17 +345,53 @@ export default function ContactPage() {
                       <option value="specialized">Specialized Services</option>
                       <option value="other">Other</option>
                     </select>
+                    {errors.serviceType && (
+                      <p id="serviceType-error" className="text-sm text-destructive" role="alert">
+                        {errors.serviceType}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="message">Message</Label>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="message">Message *</Label>
+                      <span
+                        className={`text-xs ${
+                          messageRemaining < 50
+                            ? 'text-destructive'
+                            : messageRemaining < 100
+                            ? 'text-orange-600 dark:text-orange-400'
+                            : 'text-muted-foreground'
+                        }`}
+                      >
+                        {messageLength} / {MAX_MESSAGE_LENGTH}
+                      </span>
+                    </div>
                     <Textarea
                       id="message"
                       placeholder="Tell us about your cleaning needs..."
                       rows={5}
+                      value={formData.message}
+                      onChange={(e) => handleChange('message', e.target.value)}
+                      aria-invalid={errors.message ? 'true' : 'false'}
+                      aria-describedby={errors.message ? 'message-error' : undefined}
+                      disabled={isSubmitting}
+                      maxLength={MAX_MESSAGE_LENGTH}
                     />
+                    {errors.message && (
+                      <p id="message-error" className="text-sm text-destructive" role="alert">
+                        {errors.message}
+                      </p>
+                    )}
                   </div>
-                  <Button type="submit" size="lg" className="w-full">
-                    Send Message
+                  <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      'Send Message'
+                    )}
                   </Button>
                 </form>
               </Card>

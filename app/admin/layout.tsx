@@ -17,7 +17,7 @@ export default function AdminSectionLayout({
 	// Allow any signed-in role to view admin pages,
 	// but prefer using the new role-specific sections going forward.
 	return (
-		<RoleGate allow={[UserRole.ROOT_ADMIN, UserRole.CLEANING_COMPANY, UserRole.DAYIBASI, UserRole.CLEANING_LADY, UserRole.NGO_AGENCY, UserRole.TSMART_TEAM]}>
+		<RoleGate allow={[UserRole.ROOT_ADMIN, UserRole.CLEANING_COMPANY, UserRole.AMBASSADOR, UserRole.CLEANING_LADY, UserRole.NGO_AGENCY, UserRole.TSMART_TEAM]}>
 			<AdminLayout role={role}>{children}</AdminLayout>
 		</RoleGate>
 	);

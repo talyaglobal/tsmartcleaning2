@@ -48,10 +48,19 @@ function Button({
   }) {
   const Comp = asChild ? Slot : 'button'
 
+  // Ensure icon-only buttons have accessible labels
+  const isIconOnly = props.children && 
+    typeof props.children !== 'string' && 
+    !props['aria-label'] && 
+    !props['aria-labelledby']
+
   return (
     <Comp
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
+      {...(isIconOnly && !props['aria-label'] && !props['aria-labelledby'] 
+        ? { 'aria-label': 'Button' } 
+        : {})}
       {...props}
     />
   )

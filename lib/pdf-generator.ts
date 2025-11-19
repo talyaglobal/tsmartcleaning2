@@ -38,7 +38,9 @@ export async function generatePropertyReport(
 	companyId: string,
 	propertyId?: string,
 	startDate?: Date,
-	endDate?: Date
+	endDate?: Date,
+	template: ReportTemplate = 'detailed',
+	format: 'html' | 'pdf' = 'html'
 ): Promise<string> {
 	const supabase = createServerSupabase()
 
@@ -135,8 +137,8 @@ export async function generatePropertyReport(
 		summary,
 	}
 
-	// Generate document (HTML for MVP)
-	const documentUrl = await createReportDocument(reportData)
+	// Generate document with specified template and format
+	const documentUrl = await createReportDocument(reportData, template, format)
 
 	// Persist report record (best-effort; do not fail generation if insert fails)
 	try {
@@ -157,8 +159,49 @@ export async function generatePropertyReport(
 	return documentUrl
 }
 
-async function createReportDocument(data: ReportData): Promise<string> {
-	const htmlTemplate = `
+export type ReportTemplate = 'detailed' | 'summary' | 'executive'
+
+async function createReportDocument(
+	data: ReportData,
+	template: ReportTemplate = 'detailed',
+	format: 'html' | 'pdf' = 'html'
+): Promise<string> {
+	const htmlTemplate = generateReportHTML(data, template)
+
+	// Generate PDF if requested and puppeteer is available
+	if (format === 'pdf') {
+		try {
+			const pdfUrl = await generatePDFFromHTML(htmlTemplate, data.company.name)
+			return pdfUrl
+		} catch (error) {
+			console.error('[v0] PDF generation failed, falling back to HTML:', error)
+			// Fall through to HTML generation
+		}
+	}
+
+	// Upload HTML report
+	const reportId = `report_${Date.now()}_${Math.random()
+		.toString(36)
+		.slice(2, 9)}`
+	const htmlUrl = await uploadReportHTML(htmlTemplate, reportId)
+
+	return htmlUrl
+}
+
+function generateReportHTML(data: ReportData, template: ReportTemplate): string {
+	switch (template) {
+		case 'summary':
+			return generateSummaryTemplate(data)
+		case 'executive':
+			return generateExecutiveTemplate(data)
+		case 'detailed':
+		default:
+			return generateDetailedTemplate(data)
+	}
+}
+
+function generateDetailedTemplate(data: ReportData): string {
+	return `
     <!DOCTYPE html>
     <html>
     <head>
@@ -192,7 +235,7 @@ async function createReportDocument(data: ReportData): Promise<string> {
                     <p><strong>Total Hours:</strong> ${data.summary.totalHours.toFixed(1)}</p>
                 </div>
                 <div>
-                    <p><strong>Total Cost:</strong> ${data.summary.totalCost.toFixed(2)}</p>
+                    <p><strong>Total Cost:</strong> $${data.summary.totalCost.toFixed(2)}</p>
                     <p><strong>Average Rating:</strong> ${data.summary.averageRating.toFixed(1)}/5 ⭐</p>
                 </div>
             </div>
@@ -207,12 +250,12 @@ async function createReportDocument(data: ReportData): Promise<string> {
                     <div>
                         <h3>${job.date.toLocaleDateString()} - ${job.date.toLocaleTimeString()}</h3>
                         <p><strong>Provider:</strong> ${job.provider}</p>
-                        <p><strong>Services:</strong> ${job.services.join(', ')}</p>
+                        <p><strong>Services:</strong> ${job.services.join(', ') || 'N/A'}</p>
                         <p><strong>Duration:</strong> ${(job.duration / 60).toFixed(1)} hours</p>
                         ${job.rating ? `<p class="rating">Rating: ${job.rating}/5 ⭐</p>` : ''}
                     </div>
                     <div style="text-align: right;">
-                        <p><strong>${job.cost.toFixed(2)}</strong></p>
+                        <p><strong>$${job.cost.toFixed(2)}</strong></p>
                     </div>
                 </div>
                 ${job.notes ? `<p><strong>Notes:</strong> ${job.notes}</p>` : ''}
@@ -236,20 +279,301 @@ async function createReportDocument(data: ReportData): Promise<string> {
     </body>
     </html>
   `
-
-	// For MVP: "upload" HTML and return a fake URL (replace with real storage)
-	const reportId = `report_${Date.now()}_${Math.random()
-		.toString(36)
-		.slice(2, 9)}`
-	const htmlUrl = await uploadReportHTML(htmlTemplate, reportId)
-
-	return htmlUrl
 }
 
+function generateSummaryTemplate(data: ReportData): string {
+	return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <title>Summary Report - ${data.company.name}</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            .header { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
+            .summary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px; margin-bottom: 20px; }
+            .metric { display: inline-block; margin: 15px 30px 15px 0; }
+            .metric-value { font-size: 32px; font-weight: bold; }
+            .metric-label { font-size: 14px; opacity: 0.9; }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h1>Cleaning Summary Report</h1>
+            <p><strong>Company:</strong> ${data.company.name}</p>
+            ${data.property ? `<p><strong>Property:</strong> ${data.property.name}</p>` : ''}
+            <p><strong>Period:</strong> ${data.period.start.toLocaleDateString()} - ${data.period.end.toLocaleDateString()}</p>
+        </div>
+
+        <div class="summary">
+            <h2 style="margin-top: 0;">Key Metrics</h2>
+            <div class="metric">
+                <div class="metric-value">${data.summary.totalJobs}</div>
+                <div class="metric-label">Total Cleanings</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value">${data.summary.totalHours.toFixed(1)}h</div>
+                <div class="metric-label">Total Hours</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value">$${data.summary.totalCost.toFixed(0)}</div>
+                <div class="metric-label">Total Cost</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value">${data.summary.averageRating.toFixed(1)}⭐</div>
+                <div class="metric-label">Avg Rating</div>
+            </div>
+        </div>
+
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #333; text-align: center; color: #666;">
+            <p>Generated by KolayCleaning - Professional Cleaning Services</p>
+        </div>
+    </body>
+    </html>
+  `
+}
+
+function generateExecutiveTemplate(data: ReportData): string {
+	const completionRate = data.summary.totalJobs > 0 ? 100 : 0
+	const avgCostPerJob = data.summary.totalJobs > 0 ? data.summary.totalCost / data.summary.totalJobs : 0
+
+	return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <title>Executive Report - ${data.company.name}</title>
+        <style>
+            body { font-family: 'Georgia', serif; margin: 40px; background: #fafafa; }
+            .container { background: white; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+            .header { border-bottom: 3px solid #2c3e50; padding-bottom: 20px; margin-bottom: 30px; }
+            .section { margin: 30px 0; }
+            .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 20px 0; }
+            .metric-card { background: #f8f9fa; padding: 20px; border-left: 4px solid #3498db; }
+            .metric-value { font-size: 28px; font-weight: bold; color: #2c3e50; }
+            .metric-label { color: #7f8c8d; font-size: 14px; margin-top: 5px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1 style="margin: 0; color: #2c3e50;">Executive Summary Report</h1>
+                <p style="color: #7f8c8d; margin: 10px 0 0 0;"><strong>${data.company.name}</strong></p>
+                ${data.property ? `<p style="color: #7f8c8d;">${data.property.name}</p>` : ''}
+                <p style="color: #7f8c8d;">${data.period.start.toLocaleDateString()} - ${data.period.end.toLocaleDateString()}</p>
+            </div>
+
+            <div class="section">
+                <h2 style="color: #2c3e50;">Performance Overview</h2>
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <div class="metric-value">${data.summary.totalJobs}</div>
+                        <div class="metric-label">Services Completed</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">$${data.summary.totalCost.toFixed(2)}</div>
+                        <div class="metric-label">Total Revenue</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">${data.summary.averageRating.toFixed(1)}</div>
+                        <div class="metric-label">Average Rating</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">${data.summary.totalHours.toFixed(1)}h</div>
+                        <div class="metric-label">Total Service Hours</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">$${avgCostPerJob.toFixed(2)}</div>
+                        <div class="metric-label">Avg Cost per Service</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">${completionRate}%</div>
+                        <div class="metric-label">Completion Rate</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 style="color: #2c3e50;">Quality Metrics</h2>
+                <p>Average customer rating: <strong>${data.summary.averageRating.toFixed(2)}/5.0</strong></p>
+                <p>Total jobs completed: <strong>${data.summary.totalJobs}</strong></p>
+            </div>
+
+            <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #ecf0f1; text-align: center; color: #95a5a6; font-size: 12px;">
+                <p>Generated by KolayCleaning - Professional Cleaning Services</p>
+                <p>Confidential - For internal use only</p>
+            </div>
+        </div>
+    </body>
+    </html>
+  `
+}
+
+/**
+ * Generates a PDF from HTML using Puppeteer (if available)
+ * Falls back to HTML if Puppeteer is not available
+ */
+async function generatePDFFromHTML(html: string, filename: string): Promise<string> {
+	// Try to use Puppeteer if available
+	try {
+		const puppeteer = await import('puppeteer').catch(() => null)
+		if (!puppeteer) {
+			throw new Error('Puppeteer not available')
+		}
+
+		const browser = await puppeteer.launch({
+			headless: true,
+			args: ['--no-sandbox', '--disable-setuid-sandbox'],
+		})
+
+		const page = await browser.newPage()
+		await page.setContent(html, { waitUntil: 'networkidle0' })
+
+		const pdfBuffer = await page.pdf({
+			format: 'A4',
+			printBackground: true,
+			margin: {
+				top: '20px',
+				right: '20px',
+				bottom: '20px',
+				left: '20px',
+			},
+		})
+
+		await browser.close()
+
+		// Upload PDF to storage
+		const reportId = `report_${Date.now()}_${Math.random()
+			.toString(36)
+			.slice(2, 9)}`
+		const pdfUrl = await uploadReportPDF(pdfBuffer, reportId)
+
+		return pdfUrl
+	} catch (error) {
+		// If Puppeteer fails, throw to fall back to HTML
+		throw error
+	}
+}
+
+/**
+ * Uploads report HTML to Supabase Storage
+ * @param html - The HTML content to upload
+ * @param reportId - Unique identifier for the report
+ * @returns Public URL to access the uploaded file
+ */
 async function uploadReportHTML(html: string, reportId: string): Promise<string> {
-	// TODO: Replace with Supabase Storage upload
-	// This is a placeholder URL for MVP
-	return `https://example.com/reports/${reportId}.html`
+	const supabase = createServerSupabase()
+	
+	// Convert HTML string to Buffer
+	const buffer = Buffer.from(html, 'utf-8')
+	
+	// Validate file size (10MB limit for HTML reports)
+	const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+	if (buffer.length > MAX_FILE_SIZE) {
+		throw new Error(`Report file size (${(buffer.length / 1024 / 1024).toFixed(2)}MB) exceeds maximum allowed size of ${MAX_FILE_SIZE / 1024 / 1024}MB`)
+	}
+	
+	// Create storage path: reports/{reportId}.html
+	const storagePath = `reports/${reportId}.html`
+	
+	// Upload to Supabase Storage bucket 'reports'
+	const { error: uploadError } = await supabase.storage
+		.from('reports')
+		.upload(storagePath, buffer, {
+			contentType: 'text/html',
+			upsert: false, // Don't overwrite existing files
+		})
+	
+	if (uploadError) {
+		// If file already exists, try with timestamp suffix
+		if (uploadError.message?.includes('already exists')) {
+			const timestampedPath = `reports/${reportId}_${Date.now()}.html`
+			const { error: retryError } = await supabase.storage
+				.from('reports')
+				.upload(timestampedPath, buffer, {
+					contentType: 'text/html',
+					upsert: false,
+				})
+			
+			if (retryError) {
+				throw new Error(`Failed to upload report: ${retryError.message}`)
+			}
+			
+			// Get public URL
+			const { data: urlData } = supabase.storage
+				.from('reports')
+				.getPublicUrl(timestampedPath)
+			
+			return urlData.publicUrl
+		}
+		
+		throw new Error(`Failed to upload report: ${uploadError.message}`)
+	}
+	
+	// Get public URL for the uploaded file
+	const { data: urlData } = supabase.storage
+		.from('reports')
+		.getPublicUrl(storagePath)
+	
+	return urlData.publicUrl
 }
 
-
+/**
+ * Uploads report PDF to Supabase Storage
+ * @param pdfBuffer - The PDF buffer to upload
+ * @param reportId - Unique identifier for the report
+ * @returns Public URL to access the uploaded file
+ */
+async function uploadReportPDF(pdfBuffer: Buffer, reportId: string): Promise<string> {
+	const supabase = createServerSupabase()
+	
+	// Validate file size (50MB limit for PDF reports)
+	const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50MB
+	if (pdfBuffer.length > MAX_FILE_SIZE) {
+		throw new Error(`Report PDF size (${(pdfBuffer.length / 1024 / 1024).toFixed(2)}MB) exceeds maximum allowed size of ${MAX_FILE_SIZE / 1024 / 1024}MB`)
+	}
+	
+	// Create storage path: reports/{reportId}.pdf
+	const storagePath = `reports/${reportId}.pdf`
+	
+	// Upload to Supabase Storage bucket 'reports'
+	const { error: uploadError } = await supabase.storage
+		.from('reports')
+		.upload(storagePath, pdfBuffer, {
+			contentType: 'application/pdf',
+			upsert: false, // Don't overwrite existing files
+		})
+	
+	if (uploadError) {
+		// If file already exists, try with timestamp suffix
+		if (uploadError.message?.includes('already exists')) {
+			const timestampedPath = `reports/${reportId}_${Date.now()}.pdf`
+			const { error: retryError } = await supabase.storage
+				.from('reports')
+				.upload(timestampedPath, pdfBuffer, {
+					contentType: 'application/pdf',
+					upsert: false,
+				})
+			
+			if (retryError) {
+				throw new Error(`Failed to upload PDF report: ${retryError.message}`)
+			}
+			
+			// Get public URL
+			const { data: urlData } = supabase.storage
+				.from('reports')
+				.getPublicUrl(timestampedPath)
+			
+			return urlData.publicUrl
+		}
+		
+		throw new Error(`Failed to upload PDF report: ${uploadError.message}`)
+	}
+	
+	// Get public URL for the uploaded file
+	const { data: urlData } = supabase.storage
+		.from('reports')
+		.getPublicUrl(storagePath)
+	
+	return urlData.publicUrl
+}

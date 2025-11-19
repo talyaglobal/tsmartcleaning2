@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 
 /**
  * Client component to handle anchor link navigation and smooth scrolling
@@ -9,7 +9,6 @@ import { usePathname, useSearchParams } from 'next/navigation'
  */
 export function AnchorLinkHandler() {
   const pathname = usePathname()
-  const searchParams = useSearchParams()
 
   useEffect(() => {
     // Handle anchor links on the homepage
@@ -61,7 +60,7 @@ export function AnchorLinkHandler() {
         document.removeEventListener('click', handleAnchorClick)
       }
     }
-  }, [pathname, searchParams])
+  }, [pathname])
 
   return null
 }

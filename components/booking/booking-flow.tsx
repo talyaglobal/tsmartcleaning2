@@ -2,17 +2,21 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
+import { format } from 'date-fns'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
-import { Calendar, Clock, MapPin, CheckCircle2, Home, Building2, Briefcase } from 'lucide-react'
+import { Calendar as CalendarIcon, Clock, MapPin, CheckCircle2, Home, Building2, Briefcase, Search, Repeat, CreditCard } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { createAnonSupabase } from '@/lib/supabase'
 import { calculateSalesTax } from '@/lib/usa-compliance'
 import { getAverageServicePrice } from '@/lib/cleaning-service-prices'
+import { Calendar } from '@/components/ui/calendar'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { cn } from '@/lib/utils'
 
 export function BookingFlow() {
   const router = useRouter()
@@ -37,6 +41,18 @@ export function BookingFlow() {
   const [availabilityLoading, setAvailabilityLoading] = useState(false)
   const [availableSlots, setAvailableSlots] = useState<Array<{ time: string, availableProviders: number }>>([])
   const [availabilityError, setAvailabilityError] = useState<string | null>(null)
+  
+  // Enhanced features
+  const [serviceSearchQuery, setServiceSearchQuery] = useState('')
+  const [calendarOpen, setCalendarOpen] = useState(false)
+  const [dateValue, setDateValue] = useState<Date | undefined>(undefined)
+  const [recurringOption, setRecurringOption] = useState<'none' | 'weekly' | 'biweekly' | 'monthly'>('none')
+  const [recurringEndDate, setRecurringEndDate] = useState<Date | undefined>(undefined)
+  const [recurringEndDateOpen, setRecurringEndDateOpen] = useState(false)
+  const [addressSearch, setAddressSearch] = useState('')
+  const [addressSuggestions, setAddressSuggestions] = useState<Array<{ description: string, place_id: string }>>([])
+  const [showAddressSuggestions, setShowAddressSuggestions] = useState(false)
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false)
 
   // Services fetched from DB
   const [services, setServices] = useState<Array<{ id: string, name: string, base_price: number, description?: string, category?: string, unit?: string }>>([])
@@ -100,11 +116,11 @@ export function BookingFlow() {
     // t is "HH:MM"
     const [hhStr, mmStr] = t.split(':')
     let hh = parseInt(hhStr, 10)
-    const mm = parseInt(mmStr, 10)
+    const minutes = parseInt(mmStr, 10)
     const ampm = hh >= 12 ? 'PM' : 'AM'
     hh = hh % 12
     if (hh === 0) hh = 12
-    return `${hh}:${String(isNaN(mm) ? 0 : mm).padStart(2, '0')} ${ampm}`
+    return `${hh}:${String(isNaN(minutes) ? 0 : minutes).padStart(2, '0')} ${ampm}`
   }
 
   const selectedServiceObj = services.find(s => s.id === selectedService)
@@ -224,6 +240,61 @@ export function BookingFlow() {
     })
   }, [])
 
+  // Sync date picker with selectedDate
+  useEffect(() => {
+    if (selectedDate) {
+      const date = new Date(selectedDate)
+      if (!isNaN(date.getTime())) {
+        setDateValue(date)
+      }
+    } else {
+      setDateValue(undefined)
+    }
+  }, [selectedDate])
+
+  // Handle date selection from calendar
+  const handleDateSelect = (date: Date | undefined) => {
+    if (date) {
+      setDateValue(date)
+      setSelectedDate(format(date, 'yyyy-MM-dd'))
+      setCalendarOpen(false)
+    }
+  }
+
+  // Filter services by search query
+  const filteredServices = services.filter(service =>
+    service.name.toLowerCase().includes(serviceSearchQuery.toLowerCase()) ||
+    service.description?.toLowerCase().includes(serviceSearchQuery.toLowerCase()) ||
+    service.category?.toLowerCase().includes(serviceSearchQuery.toLowerCase())
+  )
+
+  // Address autocomplete (using a simple debounced API call - in production, use Google Places API)
+  useEffect(() => {
+    if (!addressSearch.trim() || addressSearch.length < 3) {
+      setAddressSuggestions([])
+      setShowAddressSuggestions(false)
+      return
+    }
+
+    const timeoutId = setTimeout(async () => {
+      // In production, replace this with Google Places API autocomplete
+      // For now, this is a placeholder that could be enhanced with your own address API
+      try {
+        // Placeholder: You would call Google Places API here
+        // const response = await fetch(`/api/places/autocomplete?input=${encodeURIComponent(addressSearch)}`)
+        // const data = await response.json()
+        // setAddressSuggestions(data.predictions || [])
+        setAddressSuggestions([])
+        setShowAddressSuggestions(true)
+      } catch (error) {
+        console.error('Address autocomplete error:', error)
+        setAddressSuggestions([])
+      }
+    }, 300)
+
+    return () => clearTimeout(timeoutId)
+  }, [addressSearch])
+
   // Saved addresses for picker
   const [addresses, setAddresses] = useState<Array<{ id: string, label: string }>>([])
   const [addressesLoading, setAddressesLoading] = useState(false)
@@ -337,51 +408,134 @@ export function BookingFlow() {
   const maxRedeem = Math.max(0, Math.min(maxRedeemByBalance, maxRedeemByCap))
 
   const handleBooking = async () => {
-    if (isSubmitting) return
+    if (isSubmitting || isProcessingPayment) return
     try {
       setIsSubmitting(true)
+      setIsProcessingPayment(true)
       // Basic validations before any side-effects
       if (!userId) {
         alert('Please log in to continue.')
+        setIsSubmitting(false)
+        setIsProcessingPayment(false)
         return
       }
       // Require a real UUID service id; current UI uses placeholders, so guard it.
       const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
       if (!uuidRegex.test(selectedService)) {
         alert('Service catalog not linked. Please select a real service from catalog.')
+        setIsSubmitting(false)
+        setIsProcessingPayment(false)
         return
       }
       if (!selectedDate || !selectedTime) {
         alert('Please select a date and time.')
+        setIsSubmitting(false)
+        setIsProcessingPayment(false)
         return
       }
       if (!uuidRegex.test(addressId)) {
         alert('Please provide a valid Address ID (UUID).')
+        setIsSubmitting(false)
+        setIsProcessingPayment(false)
         return
       }
 
-      // Attempt instant booking first
-      const instantRes = await fetch('/api/bookings/instant', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          customerId: userId,
-          serviceId: selectedService,
-          date: selectedDate,
-          time: selectedTime, // in HH:MM
-          durationHours: 2,
-          addressId,
-          notes: notes || undefined,
-        }),
-      })
-      if (!instantRes.ok) {
-        const err = await instantRes.json().catch(() => ({}))
-        if (instantRes.status === 409) {
-          alert(err?.error || 'Requested time is not available. Please pick another slot.')
+      // Step 1: Create payment intent with Stripe
+      let paymentIntentId: string | null = null
+      try {
+        const paymentRes = await fetch('/api/payments/create-intent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amount: Math.round(total * 100), // Convert to cents
+            currency: 'usd',
+            metadata: {
+              customerId: userId,
+              serviceId: selectedService,
+              recurringOption: recurringOption !== 'none' ? recurringOption : undefined,
+            },
+          }),
+        })
+
+        if (!paymentRes.ok) {
+          const error = await paymentRes.json().catch(() => ({}))
+          throw new Error(error.error || 'Failed to create payment intent')
+        }
+
+        const paymentData = await paymentRes.json()
+        paymentIntentId = paymentData.paymentIntentId
+
+        // In production, use Stripe Elements to collect payment method
+        // For now, this is a placeholder - you would integrate Stripe.js here
+        // For demo purposes, we'll proceed with booking creation
+      } catch (paymentError: any) {
+        console.error('Payment error:', paymentError)
+        alert(paymentError.message || 'Payment processing failed. Please try again.')
+        setIsSubmitting(false)
+        setIsProcessingPayment(false)
+        return
+      }
+
+      // Step 2: Create booking (recurring or instant)
+      if (recurringOption !== 'none') {
+        // Create recurring booking
+        const selectedDateObj = new Date(selectedDate)
+        const dayOfWeek = selectedDateObj.getDay()
+        const dayOfMonth = selectedDateObj.getDate()
+        
+        const recurringRes = await fetch('/api/bookings/recurring', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customerId: userId,
+            serviceId: selectedService,
+            addressId,
+            frequency: recurringOption,
+            dayOfWeek: recurringOption === 'monthly' ? undefined : dayOfWeek,
+            dayOfMonth: recurringOption === 'monthly' ? dayOfMonth : undefined,
+            time: selectedTime,
+            durationHours: 2,
+            startDate: selectedDate,
+            endDate: recurringEndDate ? format(recurringEndDate, 'yyyy-MM-dd') : undefined,
+            notes: notes || undefined,
+          }),
+        })
+        
+        if (!recurringRes.ok) {
+          const err = await recurringRes.json().catch(() => ({}))
+          setIsSubmitting(false)
+          setIsProcessingPayment(false)
+          alert(err?.error || 'Failed to create recurring booking.')
           return
         }
-        alert(err?.error || 'Failed to create instant booking.')
-        return
+      } else {
+        // Attempt instant booking for one-time bookings
+        const instantRes = await fetch('/api/bookings/instant', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customerId: userId,
+            serviceId: selectedService,
+            date: selectedDate,
+            time: selectedTime, // in HH:MM
+            durationHours: 2,
+            addressId,
+            notes: notes || undefined,
+            paymentIntentId,
+          }),
+        })
+        
+        if (!instantRes.ok) {
+          const err = await instantRes.json().catch(() => ({}))
+          setIsSubmitting(false)
+          setIsProcessingPayment(false)
+          if (instantRes.status === 409) {
+            alert(err?.error || 'Requested time is not available. Please pick another slot.')
+            return
+          }
+          alert(err?.error || 'Failed to create instant booking.')
+          return
+        }
       }
 
       let appliedPoints = 0
@@ -411,6 +565,7 @@ export function BookingFlow() {
       })
     } finally {
       setIsSubmitting(false)
+      setIsProcessingPayment(false)
       // Create insurance policy draft if selected
       if (userId && selectedInsurance !== 'none') {
         try {
@@ -508,13 +663,36 @@ export function BookingFlow() {
       {step === 1 && (
         <Card className="p-6">
           <h2 className="text-2xl font-bold mb-6">Select a Service</h2>
+          {/* Enhanced: Service Search */}
+          {services.length > 0 && (
+            <div className="mb-6">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Search services by name, description, or category..."
+                  value={serviceSearchQuery}
+                  onChange={(e) => setServiceSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              {serviceSearchQuery && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  {filteredServices.length} service{filteredServices.length !== 1 ? 's' : ''} found
+                </p>
+              )}
+            </div>
+          )}
           {servicesLoading && <div className="text-sm text-muted-foreground mb-4">Loading services…</div>}
           {servicesError && <div className="text-sm text-red-600 mb-4">{servicesError}</div>}
           {!servicesLoading && services.length === 0 && !servicesError && (
             <div className="text-sm text-muted-foreground mb-4">No services available for this type.</div>
           )}
+          {!servicesLoading && filteredServices.length === 0 && serviceSearchQuery && (
+            <div className="text-sm text-muted-foreground mb-4">No services match your search.</div>
+          )}
           <div className="grid md:grid-cols-3 gap-4">
-            {services.map((service) => {
+            {filteredServices.map((service) => {
               return (
                 <Card
                   key={service.id}
@@ -558,15 +736,103 @@ export function BookingFlow() {
             <Card className="p-6">
           <h2 className="text-2xl font-bold mb-6">Schedule Your Service</h2>
           <div className="space-y-6">
+            {/* Enhanced: Calendar Date Picker */}
             <div className="space-y-2">
               <Label htmlFor="date">Select Date</Label>
-              <Input
-                id="date"
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                min={new Date().toISOString().split('T')[0]}
-              />
+              <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      'w-full justify-start text-left font-normal',
+                      !dateValue && 'text-muted-foreground'
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateValue ? format(dateValue, 'PPP') : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dateValue}
+                    onSelect={handleDateSelect}
+                    disabled={(date) => date < new Date()}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            
+            {/* Enhanced: Recurring Booking Options */}
+            <div className="space-y-2">
+              <Label>Recurring Service (Optional)</Label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <Button
+                  type="button"
+                  variant={recurringOption === 'none' ? 'default' : 'outline'}
+                  onClick={() => setRecurringOption('none')}
+                  className="flex items-center gap-2"
+                >
+                  <Repeat className="h-4 w-4" />
+                  One-time
+                </Button>
+                <Button
+                  type="button"
+                  variant={recurringOption === 'weekly' ? 'default' : 'outline'}
+                  onClick={() => setRecurringOption('weekly')}
+                  className="flex items-center gap-2"
+                >
+                  Weekly
+                </Button>
+                <Button
+                  type="button"
+                  variant={recurringOption === 'biweekly' ? 'default' : 'outline'}
+                  onClick={() => setRecurringOption('biweekly')}
+                  className="flex items-center gap-2"
+                >
+                  Bi-weekly
+                </Button>
+                <Button
+                  type="button"
+                  variant={recurringOption === 'monthly' ? 'default' : 'outline'}
+                  onClick={() => setRecurringOption('monthly')}
+                  className="flex items-center gap-2"
+                >
+                  Monthly
+                </Button>
+              </div>
+              {recurringOption !== 'none' && (
+                <div className="mt-3 space-y-2">
+                  <Label>End Date (Optional)</Label>
+                  <Popover open={recurringEndDateOpen} onOpenChange={setRecurringEndDateOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          'w-full justify-start text-left font-normal',
+                          !recurringEndDate && 'text-muted-foreground'
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {recurringEndDate ? format(recurringEndDate, 'PPP') : <span>No end date (ongoing)</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={recurringEndDate}
+                        onSelect={(date) => {
+                          setRecurringEndDate(date)
+                          setRecurringEndDateOpen(false)
+                        }}
+                        disabled={(date) => date < (dateValue || new Date())}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              )}
             </div>
             <div className="space-y-2">
               <Label>Select Time</Label>
@@ -707,14 +973,46 @@ export function BookingFlow() {
                       </button>
                     </div>
                     <div className="grid grid-cols-1 gap-3">
-                      <div>
+                      {/* Enhanced: Address Autocomplete */}
+                      <div className="relative">
                         <Label htmlFor="addr_street">Street Address</Label>
-                        <Input
-                          id="addr_street"
-                          value={newAddr.street_address}
-                          onChange={(e) => setNewAddr({ ...newAddr, street_address: e.target.value })}
-                          placeholder="123 Main St"
-                        />
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            id="addr_street"
+                            value={newAddr.street_address}
+                            onChange={(e) => {
+                              setNewAddr({ ...newAddr, street_address: e.target.value })
+                              setAddressSearch(e.target.value)
+                            }}
+                            onFocus={() => setShowAddressSuggestions(true)}
+                            placeholder="Start typing your address..."
+                            className="pl-10"
+                          />
+                        </div>
+                        {showAddressSuggestions && addressSuggestions.length > 0 && (
+                          <div className="absolute z-50 w-full mt-1 bg-background border rounded-md shadow-lg max-h-60 overflow-auto">
+                            {addressSuggestions.map((suggestion) => (
+                              <button
+                                key={suggestion.place_id}
+                                type="button"
+                                className="w-full text-left px-4 py-2 hover:bg-accent text-sm"
+                                onClick={async () => {
+                                  // In production, fetch place details from Google Places API
+                                  // const details = await fetch(`/api/places/details?place_id=${suggestion.place_id}`)
+                                  // const data = await details.json()
+                                  // Parse address components and populate form
+                                  setAddressSearch('')
+                                  setShowAddressSuggestions(false)
+                                  // For now, just set the street address
+                                  setNewAddr({ ...newAddr, street_address: suggestion.description })
+                                }}
+                              >
+                                {suggestion.description}
+                              </button>
+                            ))}
+                          </div>
+                        )}
                         {addressErrors.street_address && <div className="mt-1 text-xs text-red-600">{addressErrors.street_address}</div>}
                       </div>
                       <div>
@@ -980,21 +1278,44 @@ export function BookingFlow() {
                 </div>
               </div>
             </Card>
-            <Card className="p-4 bg-muted/50">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Service</span>
-                  <span className="font-medium">
-                    {services.find(s => s.id === selectedService)?.name}
-                  </span>
+            {/* Enhanced: Booking Summary */}
+            <Card className="p-6 bg-muted/50">
+              <h3 className="text-lg font-semibold mb-4">Booking Summary</h3>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 border-b">
+                  <div>
+                    <span className="text-sm text-muted-foreground">Service</span>
+                    <p className="font-medium mt-1">
+                      {services.find(s => s.id === selectedService)?.name}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-sm text-muted-foreground">Date & Time</span>
+                    <p className="font-medium mt-1">
+                      {dateValue ? format(dateValue, 'EEEE, MMMM d, yyyy') : selectedDate} at {selectedTime ? formatTimeDisplay(selectedTime) : 'TBD'}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Date</span>
-                  <span className="font-medium">{selectedDate}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Time</span>
-                  <span className="font-medium">{selectedTime}</span>
+                {recurringOption !== 'none' && (
+                  <div className="pb-4 border-b">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Repeat className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-medium">Recurring Service</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {recurringOption === 'weekly' && 'Weekly'}
+                      {recurringOption === 'biweekly' && 'Every 2 weeks'}
+                      {recurringOption === 'monthly' && 'Monthly'}
+                      {recurringEndDate && ` until ${format(recurringEndDate, 'MMMM d, yyyy')}`}
+                      {!recurringEndDate && ' (ongoing)'}
+                    </p>
+                  </div>
+                )}
+                <div className="pb-4 border-b">
+                  <span className="text-sm text-muted-foreground">Service Address</span>
+                  <p className="font-medium mt-1">
+                    {addresses.find(a => a.id === addressId)?.label || 'Address not selected'}
+                  </p>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Base Service</span>
@@ -1080,27 +1401,49 @@ export function BookingFlow() {
                 Applying: {redemptionPoints} pts → ${ (redemptionPoints * 0.1).toFixed(2) } credit
               </div>
             </Card>
+            {/* Enhanced: Payment Section */}
             <div className="space-y-2">
-              <Label>Payment Method</Label>
+              <Label className="flex items-center gap-2">
+                <CreditCard className="h-4 w-4" />
+                Payment Method
+              </Label>
               <Card className="p-4">
-                <div className="flex items-center gap-4">
-                  <div className="h-10 w-16 rounded bg-muted flex items-center justify-center text-xs font-medium">
-                    VISA
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="h-10 w-16 rounded bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-xs font-medium text-white">
+                      VISA
+                    </div>
+                    <div>
+                      <div className="font-medium">•••• 4242</div>
+                      <div className="text-sm text-muted-foreground">Expires 12/25</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="font-medium">•••• 4242</div>
-                    <div className="text-sm text-muted-foreground">Expires 12/25</div>
-                  </div>
+                  <Button variant="outline" size="sm" onClick={() => router.push('/customer/profile')}>
+                    Change
+                  </Button>
                 </div>
               </Card>
+              <p className="text-xs text-muted-foreground">
+                Payment will be processed securely through Stripe. Your card will be charged ${total.toFixed(2)} upon booking confirmation.
+              </p>
             </div>
           </div>
           <div className="flex justify-between mt-6">
             <Button variant="outline" onClick={() => setStep(3)}>
               Back
             </Button>
-            <Button onClick={handleBooking} size="lg" disabled={isSubmitting}>
-              Confirm & Pay
+            <Button onClick={handleBooking} size="lg" disabled={isSubmitting || isProcessingPayment} className="w-full sm:w-auto">
+              {isProcessingPayment ? (
+                <>
+                  <span className="mr-2">Processing Payment...</span>
+                  <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                </>
+              ) : (
+                <>
+                  <CreditCard className="mr-2 h-4 w-4" />
+                  Confirm & Pay ${total.toFixed(2)}
+                </>
+              )}
             </Button>
           </div>
         </Card>

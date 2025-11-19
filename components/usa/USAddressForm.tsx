@@ -131,21 +131,34 @@ export function USAddressForm({ onValidAddress, initialAddress }: USAddressFormP
 			</CardHeader>
 			<CardContent className="space-y-4">
 				<div>
-					<label className="block text-sm font-medium mb-2">Street Address *</label>
+					<label htmlFor="address-line1" className="block text-sm font-medium mb-2">
+						Street Address <span className="text-destructive" aria-label="required">*</span>
+					</label>
 					<Input
+						id="address-line1"
+						name="line1"
 						value={address.line1}
 						onChange={(e) => setAddress((prev) => ({ ...prev, line1: e.target.value }))}
 						placeholder="123 Main Street"
 						className={validation.errors.line1 ? 'border-red-500' : ''}
+						aria-invalid={validation.errors.line1 ? 'true' : 'false'}
+						aria-describedby={validation.errors.line1 ? 'line1-error' : undefined}
+						aria-required="true"
 					/>
 					{validation.errors.line1 && (
-						<p className="text-sm text-red-600 mt-1">{validation.errors.line1}</p>
+						<p id="line1-error" role="alert" aria-live="polite" className="text-sm text-red-600 mt-1">
+							{validation.errors.line1}
+						</p>
 					)}
 				</div>
 
 				<div>
-					<label className="block text-sm font-medium mb-2">Apartment, Suite, etc. (optional)</label>
+					<label htmlFor="address-line2" className="block text-sm font-medium mb-2">
+						Apartment, Suite, etc. (optional)
+					</label>
 					<Input
+						id="address-line2"
+						name="line2"
 						value={address.line2}
 						onChange={(e) => setAddress((prev) => ({ ...prev, line2: e.target.value }))}
 						placeholder="Apt 4B, Suite 100, etc."
@@ -154,24 +167,41 @@ export function USAddressForm({ onValidAddress, initialAddress }: USAddressFormP
 
 				<div className="grid grid-cols-2 gap-4">
 					<div>
-						<label className="block text-sm font-medium mb-2">ZIP Code *</label>
+						<label htmlFor="address-zip" className="block text-sm font-medium mb-2">
+							ZIP Code <span className="text-destructive" aria-label="required">*</span>
+						</label>
 						<Input
+							id="address-zip"
+							name="zip"
 							value={address.zip}
 							onChange={(e) => handleZipChange(e.target.value)}
 							placeholder="10001"
 							className={validation.errors.zip ? 'border-red-500' : ''}
+							aria-invalid={validation.errors.zip ? 'true' : 'false'}
+							aria-describedby={validation.errors.zip ? 'zip-error' : undefined}
+							aria-required="true"
 						/>
 						{validation.errors.zip && (
-							<p className="text-sm text-red-600 mt-1">{validation.errors.zip}</p>
+							<p id="zip-error" role="alert" aria-live="polite" className="text-sm text-red-600 mt-1">
+								{validation.errors.zip}
+							</p>
 						)}
 					</div>
 					<div>
-						<label className="block text-sm font-medium mb-2">State *</label>
+						<label htmlFor="address-state" className="block text-sm font-medium mb-2">
+							State <span className="text-destructive" aria-label="required">*</span>
+						</label>
 						<Select
 							value={address.state}
 							onValueChange={(value) => setAddress((prev) => ({ ...prev, state: value }))}
 						>
-							<SelectTrigger className={validation.errors.state ? 'border-red-500' : ''}>
+							<SelectTrigger 
+								id="address-state"
+								className={validation.errors.state ? 'border-red-500' : ''}
+								aria-invalid={validation.errors.state ? 'true' : 'false'}
+								aria-describedby={validation.errors.state ? 'state-error' : undefined}
+								aria-required="true"
+							>
 								<SelectValue placeholder="Select state" />
 							</SelectTrigger>
 							<SelectContent>
@@ -183,45 +213,71 @@ export function USAddressForm({ onValidAddress, initialAddress }: USAddressFormP
 							</SelectContent>
 						</Select>
 						{validation.errors.state && (
-							<p className="text-sm text-red-600 mt-1">{validation.errors.state}</p>
+							<p id="state-error" role="alert" aria-live="polite" className="text-sm text-red-600 mt-1">
+								{validation.errors.state}
+							</p>
 						)}
 					</div>
 				</div>
 
 				<div className="grid grid-cols-2 gap-4">
 					<div>
-						<label className="block text-sm font-medium mb-2">City *</label>
+						<label htmlFor="address-city" className="block text-sm font-medium mb-2">
+							City <span className="text-destructive" aria-label="required">*</span>
+						</label>
 						<Input
+							id="address-city"
+							name="city"
 							value={address.city}
 							onChange={(e) => setAddress((prev) => ({ ...prev, city: e.target.value }))}
 							placeholder="New York"
 							className={validation.errors.city ? 'border-red-500' : ''}
+							aria-invalid={validation.errors.city ? 'true' : 'false'}
+							aria-describedby={validation.errors.city ? 'city-error' : undefined}
+							aria-required="true"
 						/>
 						{validation.errors.city && (
-							<p className="text-sm text-red-600 mt-1">{validation.errors.city}</p>
+							<p id="city-error" role="alert" aria-live="polite" className="text-sm text-red-600 mt-1">
+								{validation.errors.city}
+							</p>
 						)}
 					</div>
 					<div>
-						<label className="block text-sm font-medium mb-2">Phone (optional)</label>
+						<label htmlFor="address-phone" className="block text-sm font-medium mb-2">
+							Phone (optional)
+						</label>
 						<Input
+							id="address-phone"
+							name="phone"
+							type="tel"
 							value={address.phone}
 							onChange={(e) =>
 								setAddress((prev) => ({ ...prev, phone: e.target.value }))
 							}
 							placeholder="(555) 123-4567"
 							className={validation.errors.phone ? 'border-red-500' : ''}
+							aria-invalid={validation.errors.phone ? 'true' : 'false'}
+							aria-describedby={validation.errors.phone ? 'phone-error' : undefined}
 						/>
 						{validation.errors.phone && (
-							<p className="text-sm text-red-600 mt-1">{validation.errors.phone}</p>
+							<p id="phone-error" role="alert" aria-live="polite" className="text-sm text-red-600 mt-1">
+								{validation.errors.phone}
+							</p>
 						)}
 					</div>
 				</div>
 
 				<div className="flex items-center justify-between">
 					{validation.errors.general && (
-						<p className="text-sm text-red-600">{validation.errors.general}</p>
+						<p role="alert" aria-live="assertive" className="text-sm text-red-600">
+							{validation.errors.general}
+						</p>
 					)}
-					<Button onClick={validateAddress} disabled={validating}>
+					<Button 
+						onClick={validateAddress} 
+						disabled={validating}
+						aria-label={validating ? 'Validating address' : 'Validate address'}
+					>
 						{validating ? 'Validating…' : 'Validate Address'}
 					</Button>
 				</div>

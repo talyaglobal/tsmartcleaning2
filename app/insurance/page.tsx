@@ -1,13 +1,39 @@
 "use client"
 
 import Link from 'next/link'
+import Image from 'next/image'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { CheckCircle2, ShieldCheck } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { CheckCircle2, ShieldCheck, Calculator, Compare, Check, X } from 'lucide-react'
+import { createAnonSupabase } from '@/lib/supabase'
+import { JsonLd } from '@/components/seo/JsonLd'
+import { generateBreadcrumbSchema, generateServiceSchema } from '@/lib/seo'
 
 export default function InsurancePage() {
   return (
-    <div className="min-h-screen">
+    <>
+      <JsonLd
+        data={[
+          generateBreadcrumbSchema([
+            { name: 'Home', url: '/' },
+            { name: 'Insurance', url: '/insurance' },
+          ]),
+          generateServiceSchema({
+            name: 'CleanGuard Protection',
+            description: 'Comprehensive insurance coverage for cleaning services with up to $100K property damage protection, theft coverage, and liability protection.',
+            provider: {
+              name: 'tSmartCleaning',
+              url: 'https://tsmartcleaning.com',
+            },
+            areaServed: 'US',
+            serviceType: 'Insurance Service',
+          }),
+        ]}
+      />
+      <div className="min-h-screen">
 
       {/* HERO */}
       <section className="py-16 md:py-24 bg-muted/30">
@@ -31,12 +57,13 @@ export default function InsurancePage() {
             </div>
           </div>
           <div className="w-full">
-            <div className="aspect-[3/2] rounded-xl bg-muted overflow-hidden">
-              <img
+            <div className="aspect-[3/2] rounded-xl bg-muted overflow-hidden relative">
+              <Image
                 src="/tsmartcleaning.webflow/images/390d4b90-ab8f-4298-bb01-24aad70695c5.avif"
                 alt="Protected cleaning"
-                className="h-full w-full object-cover"
-                loading="lazy"
+                fill
+                className="object-cover"
+                priority
               />
             </div>
           </div>
@@ -115,15 +142,44 @@ export default function InsurancePage() {
         </div>
       </section>
 
+      {/* PRICING CALCULATOR */}
+      <section id="calculator" className="py-12 md:py-20 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl md:text-4xl font-bold flex items-center justify-center gap-2">
+              <Calculator className="h-8 w-8" /> Pricing Calculator
+            </h2>
+            <p className="text-muted-foreground mt-2">Calculate your savings with annual billing</p>
+          </div>
+          <PricingCalculator />
+        </div>
+      </section>
+
+      {/* PLAN COMPARISON TABLE */}
+      <section id="comparison" className="py-12 md:py-20 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl md:text-4xl font-bold flex items-center justify-center gap-2">
+              <Compare className="h-8 w-8" /> Compare All Plans
+            </h2>
+            <p className="text-muted-foreground mt-2">Side-by-side comparison of all coverage options</p>
+          </div>
+          <PlanComparisonTable />
+        </div>
+      </section>
+
       {/* PRICING */}
       <section id="pricing" className="py-12 md:py-20 bg-background">
         <div className="container mx-auto px-4">
           <div className="text-center mb-10">
             <h2 className="text-3xl md:text-4xl font-bold">Choose Your Level of Protection</h2>
             <p className="text-muted-foreground mt-2">All plans include basic damage coverage. Upgrade for complete peace of mind.</p>
+            <Button variant="outline" className="mt-4" asChild>
+              <Link href="#comparison">View Detailed Comparison Table</Link>
+            </Button>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
-            <PriceTier title="Basic" emoji="🛡️" monthly="$9.99/mo" annual="$95.90/yr" rows={[
+            <PriceTier planCode="basic" title="Basic" emoji="🛡️" monthly="$9.99/mo" annual="$95.90/yr" rows={[
               ['Property Damage', 'Up to $5K'],
               ['Theft Protection', '✗'],
               ['Liability', '$50K'],
@@ -132,7 +188,7 @@ export default function InsurancePage() {
               ['Emergency Cleans', '✗'],
               ['Deductible', '$100'],
             ]} cta="Select Basic" />
-            <PriceTier title="Premium" emoji="🏆" badge="MOST POPULAR" monthly="$19.99/mo" annual="$191.90/yr" rows={[
+            <PriceTier planCode="premium" title="Premium" emoji="🏆" badge="MOST POPULAR" monthly="$19.99/mo" annual="$191.90/yr" rows={[
               ['Property Damage', 'Up to $25K'],
               ['Theft Protection', 'Up to $10K'],
               ['Liability', '$500K'],
@@ -141,7 +197,7 @@ export default function InsurancePage() {
               ['Emergency Cleans', '1 per year'],
               ['Deductible', '$50'],
             ]} cta="Select Premium" highlight />
-            <PriceTier title="Ultimate" emoji="💎" monthly="$34.99/mo" annual="$335.90/yr" rows={[
+            <PriceTier planCode="ultimate" title="Ultimate" emoji="💎" monthly="$34.99/mo" annual="$335.90/yr" rows={[
               ['Property Damage', 'Up to $100K'],
               ['Theft Protection', 'Up to $50K'],
               ['Liability', '$2M'],
@@ -184,6 +240,10 @@ export default function InsurancePage() {
       {/* TESTIMONIALS */}
       <section className="py-12 md:py-20 bg-background">
         <div className="container mx-auto px-4">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl md:text-4xl font-bold">What Our Members Say</h2>
+            <p className="text-muted-foreground mt-2">Real experiences from satisfied customers</p>
+          </div>
           <div className="grid md:grid-cols-3 gap-6">
             <Testimonial quote="Ultimate Plan is worth every penny — claim approved same day." author="Jennifer K., Toronto" detail="$3,800 antique mirror" />
             <Testimonial quote="Premium covered full re‑keying — saved us $600 and stress." author="Michael R., Los Angeles" detail="Key replacement" />
@@ -222,7 +282,8 @@ export default function InsurancePage() {
           <div className="mt-4 text-sm text-muted-foreground">Questions? Call 1‑800‑XXX‑XXXX (Mon–Fri 8AM–8PM EST)</div>
         </div>
       </section>
-    </div>
+      </div>
+    </>
   )
 }
 
@@ -263,6 +324,7 @@ function CoverageCard({
 }
 
 function PriceTier({
+  planCode,
   title,
   emoji,
   badge,
@@ -272,6 +334,7 @@ function PriceTier({
   cta,
   highlight,
 }: {
+  planCode: string
   title: string
   emoji: string
   badge?: string
@@ -301,7 +364,9 @@ function PriceTier({
           </tbody>
         </table>
       </div>
-      <Button className="mt-6" asChild><Link href="/signup">{cta}</Link></Button>
+      <PlanSelectionDialog planCode={planCode} planName={title} monthly={monthly} annual={annual}>
+        <Button className="mt-6 w-full">{cta}</Button>
+      </PlanSelectionDialog>
     </Card>
   )
 }
@@ -320,10 +385,263 @@ const FAQ = [
   { q: 'Do I need this if you already have insurance?', a: 'Standard service includes basic coverage, but CleanGuard adds higher limits, theft coverage, key replacement, emergency services, and faster claims.' },
   { q: 'Can I add insurance after I start my membership?', a: 'Yes. Existing annual members can add protection anytime. Coverage begins upon approval and payment.' },
   { q: 'What if I cancel my cleaning membership?', a: 'Insurance is valid with active service. If you cancel, your policy is prorated and refunded for the unused portion.' },
-  { q: 'Are there exclusions?', a: 'We don’t cover intentional damage, normal wear and tear, pre‑existing damage, or items over plan thresholds unless registered.' },
+  { q: 'Are there exclusions?', a: 'We don\'t cover intentional damage, normal wear and tear, pre-existing damage, or items over plan thresholds unless registered.' },
   { q: 'How many claims per year?', a: 'No hard limit; coverage limits apply per incident and annually for theft.' },
-  { q: 'What’s the deductible?', a: 'Basic $100 · Premium $50 · Ultimate $0.' },
+  { q: 'What\'s the deductible?', a: 'Basic $100 · Premium $50 · Ultimate $0.' },
   { q: 'Can I change plans?', a: 'Upgrade anytime (pay difference) or change at renewal.' },
 ]
+
+// Pricing Calculator Component
+function PricingCalculator() {
+  const [selectedPlan, setSelectedPlan] = useState<'basic' | 'premium' | 'ultimate'>('premium')
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('annual')
+  
+  const plans = {
+    basic: { monthly: 9.99, annual: 95.90 },
+    premium: { monthly: 19.99, annual: 191.90 },
+    ultimate: { monthly: 34.99, annual: 335.90 },
+  }
+  
+  const selectedPrice = plans[selectedPlan][billingCycle]
+  const monthlyEquivalent = billingCycle === 'annual' ? selectedPrice / 12 : selectedPrice
+  const annualTotal = billingCycle === 'annual' ? selectedPrice : plans[selectedPlan].monthly * 12
+  const savings = billingCycle === 'annual' ? (plans[selectedPlan].monthly * 12) - selectedPrice : 0
+  
+  return (
+    <Card className="p-6 max-w-2xl mx-auto">
+      <div className="space-y-6">
+        <div>
+          <label className="text-sm font-medium mb-2 block">Select Plan</label>
+          <div className="grid grid-cols-3 gap-2">
+            {(['basic', 'premium', 'ultimate'] as const).map((plan) => (
+              <button
+                key={plan}
+                onClick={() => setSelectedPlan(plan)}
+                className={`p-3 rounded-lg border text-sm font-medium transition-colors ${
+                  selectedPlan === plan
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-border hover:bg-muted'
+                }`}
+              >
+                {plan.charAt(0).toUpperCase() + plan.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+        
+        <div>
+          <label className="text-sm font-medium mb-2 block">Billing Cycle</label>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => setBillingCycle('monthly')}
+              className={`p-3 rounded-lg border text-sm font-medium transition-colors ${
+                billingCycle === 'monthly'
+                  ? 'border-primary bg-primary/10 text-primary'
+                  : 'border-border hover:bg-muted'
+              }`}
+            >
+              Monthly
+            </button>
+            <button
+              onClick={() => setBillingCycle('annual')}
+              className={`p-3 rounded-lg border text-sm font-medium transition-colors ${
+                billingCycle === 'annual'
+                  ? 'border-primary bg-primary/10 text-primary'
+                  : 'border-border hover:bg-muted'
+              }`}
+            >
+              Annual (Save 20%)
+            </button>
+          </div>
+        </div>
+        
+        <div className="border-t pt-4 space-y-3">
+          <div className="flex justify-between items-center">
+            <span className="text-muted-foreground">Price per {billingCycle === 'monthly' ? 'month' : 'year'}</span>
+            <span className="text-2xl font-bold">${selectedPrice.toFixed(2)}</span>
+          </div>
+          {billingCycle === 'annual' && (
+            <>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Monthly equivalent</span>
+                <span className="font-medium">${monthlyEquivalent.toFixed(2)}/mo</span>
+              </div>
+              <div className="flex justify-between items-center text-sm text-green-600">
+                <span>You save</span>
+                <span className="font-bold">${savings.toFixed(2)}/year</span>
+              </div>
+            </>
+          )}
+          {billingCycle === 'monthly' && (
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-muted-foreground">Annual total</span>
+              <span className="font-medium">${annualTotal.toFixed(2)}/year</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </Card>
+  )
+}
+
+// Plan Comparison Table Component
+function PlanComparisonTable() {
+  const comparisonData = [
+    { feature: 'Property Damage Coverage', basic: '$5,000', premium: '$25,000', ultimate: '$100,000' },
+    { feature: 'Theft & Loss Protection', basic: '✗', premium: '$10,000/yr', ultimate: '$50,000/yr' },
+    { feature: 'Liability Coverage', basic: '$50,000', premium: '$500,000', ultimate: '$2,000,000' },
+    { feature: 'Key Replacement', basic: '$200/incident', premium: '$500 + 1 re-key/yr', ultimate: '$1,000 + 2 re-keys/yr' },
+    { feature: 'Cancellation Protection', basic: '✗', premium: '48h replacement', ultimate: 'Same-day replacement' },
+    { feature: 'Service Guarantee', basic: '24h', premium: '48h', ultimate: '72h + manager' },
+    { feature: 'Emergency Cleaning', basic: '✗', premium: '1 per year', ultimate: '4 per year' },
+    { feature: 'High-Value Item Registry', basic: '✗', premium: '✗', ultimate: 'Up to 20 items' },
+    { feature: 'Deductible', basic: '$100', premium: '$50', ultimate: '$0' },
+    { feature: 'Monthly Price', basic: '$9.99', premium: '$19.99', ultimate: '$34.99' },
+    { feature: 'Annual Price', basic: '$95.90', premium: '$191.90', ultimate: '$335.90' },
+  ]
+  
+  return (
+    <Card className="p-6 overflow-x-auto">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b">
+            <th className="text-left py-3 px-4 font-semibold">Feature</th>
+            <th className="text-center py-3 px-4 font-semibold">Basic 🛡️</th>
+            <th className="text-center py-3 px-4 font-semibold">Premium 🏆</th>
+            <th className="text-center py-3 px-4 font-semibold">Ultimate 💎</th>
+          </tr>
+        </thead>
+        <tbody>
+          {comparisonData.map((row, idx) => (
+            <tr key={idx} className="border-b last:border-b-0">
+              <td className="py-3 px-4 text-muted-foreground">{row.feature}</td>
+              <td className="py-3 px-4 text-center">{row.basic}</td>
+              <td className="py-3 px-4 text-center font-medium">{row.premium}</td>
+              <td className="py-3 px-4 text-center font-medium">{row.ultimate}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </Card>
+  )
+}
+
+// Plan Selection Dialog Component
+function PlanSelectionDialog({
+  planCode,
+  planName,
+  monthly,
+  annual,
+  children,
+}: {
+  planCode: string
+  planName: string
+  monthly: string
+  annual: string
+  children: React.ReactNode
+}) {
+  const [open, setOpen] = useState(false)
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('annual')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [userId, setUserId] = useState<string | null>(null)
+  
+  useEffect(() => {
+    const supabase = createAnonSupabase()
+    supabase.auth.getUser().then(({ data }) => {
+      setUserId(data?.user?.id || null)
+    })
+  }, [])
+  
+  const handleSelect = async () => {
+    if (!userId) {
+      window.location.href = `/signup?redirect=/insurance&plan=${planCode}`
+      return
+    }
+    
+    setIsSubmitting(true)
+    try {
+      const response = await fetch('/api/insurance/policies', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: userId,
+          plan_code: planCode,
+          billing_cycle: billingCycle,
+        }),
+      })
+      
+      if (response.ok) {
+        window.location.href = '/customer/insurance'
+      } else {
+        const error = await response.json()
+        alert(error.error || 'Failed to select plan. Please try again.')
+      }
+    } catch (error) {
+      alert('An error occurred. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+  
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Select {planName} Plan</DialogTitle>
+          <DialogDescription>
+            Choose your billing cycle and complete your selection
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-4 py-4">
+          <div>
+            <label className="text-sm font-medium mb-2 block">Billing Cycle</label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => setBillingCycle('monthly')}
+                className={`p-3 rounded-lg border text-sm font-medium transition-colors ${
+                  billingCycle === 'monthly'
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-border hover:bg-muted'
+                }`}
+              >
+                Monthly
+                <div className="text-xs text-muted-foreground mt-1">{monthly}</div>
+              </button>
+              <button
+                onClick={() => setBillingCycle('annual')}
+                className={`p-3 rounded-lg border text-sm font-medium transition-colors ${
+                  billingCycle === 'annual'
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-border hover:bg-muted'
+                }`}
+              >
+                Annual
+                <div className="text-xs text-muted-foreground mt-1">{annual}</div>
+                <div className="text-xs text-green-600 mt-1">Save 20%</div>
+              </button>
+            </div>
+          </div>
+          
+          {!userId && (
+            <div className="p-3 rounded-lg bg-muted text-sm text-muted-foreground">
+              You'll need to sign up or log in to complete your selection.
+            </div>
+          )}
+        </div>
+        
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleSelect} disabled={isSubmitting}>
+            {isSubmitting ? 'Processing...' : userId ? 'Confirm Selection' : 'Sign Up to Continue'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
 
 

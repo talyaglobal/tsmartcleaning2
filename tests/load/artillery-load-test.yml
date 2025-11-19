@@ -1,0 +1,44 @@
+# Artillery Load Testing Configuration
+# 
+# Install: npm install -g artillery
+# Run: artillery run tests/load/artillery-load-test.yml
+#
+# This provides an alternative to k6 for load testing
+
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 60
+      arrivalRate: 5
+      name: "Warm up"
+    - duration: 120
+      arrivalRate: 10
+      name: "Ramp up load"
+    - duration: 60
+      arrivalRate: 20
+      name: "Sustained load"
+    - duration: 30
+      arrivalRate: 0
+      name: "Cool down"
+  processor: "./artillery-processor.js"
+  defaults:
+    headers:
+      x-tenant-id: "test-tenant-id"
+
+scenarios:
+  - name: "API Load Test"
+    weight: 100
+    flow:
+      - get:
+          url: "/api/services"
+          capture:
+            - json: "$.services"
+              as: "services"
+      - think: 1
+      - get:
+          url: "/api/bookings?userId=test_user&role=customer"
+      - think: 1
+      - get:
+          url: "/api/users"
+      - think: 1
+

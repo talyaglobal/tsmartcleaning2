@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { logAuditEventFromRequest } from '@/lib/audit'
 import { createServerSupabase, resolveTenantFromRequest } from '@/lib/supabase'
+import { withAuthAndParams } from '@/lib/auth/rbac'
+import { isAdminRole } from '@/lib/auth/roles'
 
-// Get provider profile
+// Get provider profile (public, no auth required)
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -53,40 +55,50 @@ export async function GET(
   }
 }
 
-// Update provider profile
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const { id } = params
-    const updates = await request.json()
+// Update provider profile (requires auth and ownership)
+export const PATCH = withAuthAndParams(
+  async (
+    request: NextRequest,
+    auth,
+    { params }: { params: { id: string } }
+  ) => {
+    try {
+      const { id } = params
+      const updates = await request.json()
 
-    const tenantId = resolveTenantFromRequest(request)
-    const supabase = createServerSupabase(tenantId ?? undefined)
-    const { data, error } = await supabase
-      .from('provider_profiles')
-      .update(updates)
-      .eq('user_id', id)
-      .select()
-      .single()
+      // Verify user owns this provider profile (or is admin)
+      const isAdmin = isAdminRole(auth.user.role)
+      if (!isAdmin && auth.user.id !== id) {
+        return NextResponse.json(
+          { error: 'You can only update your own provider profile' },
+          { status: 403 }
+        )
+      }
 
-    await logAuditEventFromRequest(request, {
-      action: 'update_provider',
-      resource: 'provider_profile',
-      resourceId: id,
-      metadata: { updates },
-    })
-    if (error) {
-      console.error('[v0] provider PATCH supabase error:', error)
-      return NextResponse.json({ error: 'Failed to update provider' }, { status: 500 })
+      const { data, error } = await auth.supabase
+        .from('provider_profiles')
+        .update(updates)
+        .eq('user_id', id)
+        .select()
+        .single()
+
+      await logAuditEventFromRequest(request, {
+        action: 'update_provider',
+        resource: 'provider_profile',
+        resourceId: id,
+        metadata: { updates },
+      })
+      if (error) {
+        console.error('[v0] provider PATCH supabase error:', error)
+        return NextResponse.json({ error: 'Failed to update provider' }, { status: 500 })
+      }
+      return NextResponse.json({ provider: data, message: 'Provider profile updated successfully' })
+    } catch (error) {
+      console.error('[v0] Update provider error:', error)
+      return NextResponse.json(
+        { error: 'Internal server error' },
+        { status: 500 }
+      )
     }
-    return NextResponse.json({ provider: data, message: 'Provider profile updated successfully' })
-  } catch (error) {
-    console.error('[v0] Update provider error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
   }
-}
+)

@@ -1,14 +1,30 @@
-"use client"
-
 import Link from 'next/link'
-import { useState } from 'react'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { ArrowRight, CheckCircle2, ShieldCheck } from 'lucide-react'
+import { ArrowRight, CheckCircle2, ShieldCheck, Star, TrendingUp, Users, Clock, Award } from 'lucide-react'
 import { BrandLogoClient } from '@/components/BrandLogoClient'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Marketing — Solving the Cleaning Industry\'s Labor Crisis',
+  description: 'The first integrated platform connecting cleaning companies with pre-vetted immigrant women cleaners. Recruit, manage, and scale all in one app.',
+  alternates: { canonical: '/marketing' },
+  openGraph: {
+    title: 'Solving the Cleaning Industry\'s Labor Crisis — tSmartCleaning',
+    description: 'The first integrated platform connecting cleaning companies with pre-vetted immigrant women cleaners. Recruit, manage, and scale all in one app.',
+    url: 'https://tsmartcleaning.com/marketing',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Solving the Cleaning Industry\'s Labor Crisis — tSmartCleaning',
+    description: 'The first integrated platform connecting cleaning companies with pre-vetted immigrant women cleaners.',
+  },
+}
 
 export default function MarketingPage() {
   return (
@@ -41,13 +57,38 @@ export default function MarketingPage() {
             </div>
           </div>
           <div className="w-full">
-            <div className="aspect-[3/2] rounded-xl bg-muted overflow-hidden">
-              <img
+            <div className="aspect-[3/2] rounded-xl bg-muted overflow-hidden relative">
+              <Image
                 src="/tsmartcleaning.webflow/images/7a3b972a-7300-4e52-89de-c27861f06954.avif"
                 alt="image of cleaning team in action"
-                className="h-full w-full object-cover"
+                fill
+                className="object-cover"
                 loading="lazy"
               />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-12 md:py-16 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+            <div className="text-center">
+              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">10K+</div>
+              <div className="text-sm text-muted-foreground">Active Cleaners</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">50K+</div>
+              <div className="text-sm text-muted-foreground">Jobs Completed</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">4.8★</div>
+              <div className="text-sm text-muted-foreground">Average Rating</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">500+</div>
+              <div className="text-sm text-muted-foreground">Companies</div>
             </div>
           </div>
         </div>
@@ -85,11 +126,12 @@ export default function MarketingPage() {
               <div className="text-center mb-6">
                 <h3 className="text-3xl font-bold">Fast, mobile-first booking flow</h3>
               </div>
-              <div className="aspect-[16/9] sm:aspect-[24/10] rounded-xl overflow-hidden bg-muted">
-                <img
+              <div className="aspect-[16/9] sm:aspect-[24/10] rounded-xl overflow-hidden bg-muted relative">
+                <Image
                   src="/tsmartcleaning.webflow/images/352ced84-a541-4c36-99c3-c6e27bc3de97.avif"
                   alt="image of cleaning team in action"
-                  className="h-full w-full object-cover"
+                  fill
+                  className="object-cover"
                   loading="lazy"
                 />
               </div>
@@ -98,11 +140,12 @@ export default function MarketingPage() {
               <div className="text-center mb-6">
                 <h3 className="text-3xl font-bold">Convenient features for every user</h3>
               </div>
-              <div className="aspect-[16/9] sm:aspect-[24/10] rounded-xl overflow-hidden bg-muted">
-                <img
+              <div className="aspect-[16/9] sm:aspect-[24/10] rounded-xl overflow-hidden bg-muted relative">
+                <Image
                   src="/tsmartcleaning.webflow/images/d6989f71-4481-4421-abd6-d68ad5f8ad32.avif"
                   alt="Customer portal"
-                  className="h-full w-full object-cover"
+                  fill
+                  className="object-cover"
                   loading="lazy"
                 />
               </div>
@@ -111,11 +154,12 @@ export default function MarketingPage() {
               <div className="text-center mb-6">
                 <h3 className="text-3xl font-bold">Access for all team types</h3>
               </div>
-              <div className="aspect-[16/9] sm:aspect-[24/10] rounded-xl overflow-hidden bg-muted">
-                <img
+              <div className="aspect-[16/9] sm:aspect-[24/10] rounded-xl overflow-hidden bg-muted relative">
+                <Image
                   src="/tsmartcleaning.webflow/images/32e6fded-cf63-4632-9931-c029148376c6.avif"
                   alt="Role management"
-                  className="h-full w-full object-cover"
+                  fill
+                  className="object-cover"
                   loading="lazy"
                 />
               </div>
@@ -136,8 +180,8 @@ export default function MarketingPage() {
           </div>
           <div className="grid gap-6 lg:grid-cols-2">
             <Card className="overflow-hidden">
-              <div className="aspect-[3/2]">
-                <img src="/tsmartcleaning.webflow/images/f1391699-4969-4947-9296-172c397c3c10.avif" alt="Customer portal" className="h-full w-full object-cover" loading="lazy" />
+              <div className="aspect-[3/2] relative">
+                <Image src="/tsmartcleaning.webflow/images/f1391699-4969-4947-9296-172c397c3c10.avif" alt="Customer portal" fill className="object-cover" loading="lazy" />
               </div>
               <div className="p-6">
                 <h3 className="text-xl font-semibold mb-2">Easy online booking</h3>
@@ -150,8 +194,8 @@ export default function MarketingPage() {
               </div>
             </Card>
             <Card className="overflow-hidden">
-              <div className="aspect-[3/2]">
-                <img src="/tsmartcleaning.webflow/images/4c820c83-5b85-4c23-9842-bf8d5f377039.avif" alt="Provider portal" className="h-full w-full object-cover" loading="lazy" />
+              <div className="aspect-[3/2] relative">
+                <Image src="/tsmartcleaning.webflow/images/4c820c83-5b85-4c23-9842-bf8d5f377039.avif" alt="Provider portal" fill className="object-cover" loading="lazy" />
               </div>
               <div className="p-6">
                 <h3 className="text-xl font-semibold mb-2">Flexible scheduling</h3>
@@ -164,8 +208,8 @@ export default function MarketingPage() {
               </div>
             </Card>
             <Card className="overflow-hidden">
-              <div className="aspect-[3/2]">
-                <img src="/tsmartcleaning.webflow/images/a6a55cc7-c2e6-4edb-be65-0e1733ecf1f1.avif" alt="Dispatcher tools" className="h-full w-full object-cover" loading="lazy" />
+              <div className="aspect-[3/2] relative">
+                <Image src="/tsmartcleaning.webflow/images/a6a55cc7-c2e6-4edb-be65-0e1733ecf1f1.avif" alt="Dispatcher tools" fill className="object-cover" loading="lazy" />
               </div>
               <div className="p-6">
                 <h3 className="text-xl font-semibold mb-2">Real-time job board</h3>
@@ -178,8 +222,8 @@ export default function MarketingPage() {
               </div>
             </Card>
             <Card className="overflow-hidden">
-              <div className="aspect-[3/2]">
-                <img src="/tsmartcleaning.webflow/images/ac05d457-20c9-44cc-86bf-4cdc773efbba.avif" alt="Reporting" className="h-full w-full object-cover" loading="lazy" />
+              <div className="aspect-[3/2] relative">
+                <Image src="/tsmartcleaning.webflow/images/ac05d457-20c9-44cc-86bf-4cdc773efbba.avif" alt="Reporting" fill className="object-cover" loading="lazy" />
               </div>
               <div className="p-6">
                 <h3 className="text-xl font-semibold mb-2">Automated reporting</h3>
@@ -339,40 +383,259 @@ export default function MarketingPage() {
             <p className="text-lg text-muted-foreground mt-3">
               Fast, reliable cleaning for homes and businesses. Schedule your service online and get matched with trusted professionals—no hassle, no waiting.
             </p>
-            <div className="mt-6">
+            <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="text-black" asChild>
                 <Link href="/customer/book">Get started</Link>
               </Button>
+              <Button size="lg" variant="outline" asChild>
+                <Link href="/for-providers">Become a provider</Link>
+              </Button>
             </div>
           </div>
-          <div className="rounded-xl overflow-hidden">
-            <img
+          <div className="rounded-xl overflow-hidden relative aspect-[16/9]">
+            <Image
               src="/tsmartcleaning.webflow/images/390d4b90-ab8f-4298-bb01-24aad70695c5.avif"
-              alt="image of a freshly cleaned carpet"
-              className="w-full h-auto object-cover"
+              alt="Freshly cleaned carpet showing professional cleaning results"
+              fill
+              className="object-cover"
               loading="lazy"
             />
           </div>
         </div>
       </section>
 
-      {/* Testimonial blurb */}
-      <section className="py-12 md:py-16 bg-muted/30">
-        <div className="container mx-auto px-4 grid md:grid-cols-2 gap-6 items-center">
-          <div>
-            <h3 className="text-2xl md:text-3xl font-semibold mb-3">Property managers trust our platform</h3>
+      {/* Testimonials Section */}
+      <section className="py-12 md:py-20 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-3">What our customers say</h2>
             <p className="text-muted-foreground">
-              Managing multiple properties is easier with our streamlined cleaning platform. Fast scheduling, transparent pricing, and dedicated support help you deliver consistent results for every unit—saving you time and reducing hassle.
+              Real feedback from property managers, business owners, and cleaning professionals who use our platform.
             </p>
           </div>
-          <div className="flex items-center gap-4">
-            <Avatar className="h-12 w-12">
-              <AvatarImage src="/tsmartcleaning.webflow/images/1aaf9adb-f0e9-4075-8049-83594a4795ee.avif" />
-              <AvatarFallback>JE</AvatarFallback>
-            </Avatar>
-            <div className="text-sm">
-              <div className="font-medium">Jordan Ellis</div>
-              <div className="text-muted-foreground">Property Manager, Skyline Realty</div>
+          <div className="grid md:grid-cols-3 gap-6">
+            <Card className="p-6">
+              <div className="flex items-center gap-1 mb-4">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                ))}
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                "Managing multiple properties is easier with this platform. Fast scheduling, transparent pricing, and dedicated support help us deliver consistent results for every unit."
+              </p>
+              <div className="flex items-center gap-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src="/tsmartcleaning.webflow/images/1aaf9adb-f0e9-4075-8049-83594a4795ee.avif" />
+                  <AvatarFallback>JE</AvatarFallback>
+                </Avatar>
+                <div>
+                  <div className="font-medium text-sm">Jordan Ellis</div>
+                  <div className="text-xs text-muted-foreground">Property Manager, Skyline Realty</div>
+                </div>
+              </div>
+            </Card>
+            <Card className="p-6">
+              <div className="flex items-center gap-1 mb-4">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                ))}
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                "The automated reporting feature saves us hours every week. We can generate professional PDFs with photos and timesheets in seconds, and our clients love the transparency."
+              </p>
+              <div className="flex items-center gap-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarFallback>SM</AvatarFallback>
+                </Avatar>
+                <div>
+                  <div className="font-medium text-sm">Sarah Martinez</div>
+                  <div className="text-xs text-muted-foreground">Operations Director, CleanCo Services</div>
+                </div>
+              </div>
+            </Card>
+            <Card className="p-6">
+              <div className="flex items-center gap-1 mb-4">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                ))}
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                "As a cleaning professional, I love how easy it is to set my availability and get matched with jobs. The mobile app makes everything seamless, and payments are always on time."
+              </p>
+              <div className="flex items-center gap-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarFallback>MR</AvatarFallback>
+                </Avatar>
+                <div>
+                  <div className="font-medium text-sm">Maria Rodriguez</div>
+                  <div className="text-xs text-muted-foreground">Independent Cleaner</div>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Case Studies Section */}
+      <section className="py-12 md:py-20 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <Badge className="mb-3" variant="secondary">Success Stories</Badge>
+            <h2 className="text-3xl md:text-4xl font-bold mb-3">Real results from real companies</h2>
+            <p className="text-muted-foreground">
+              See how businesses like yours have transformed their cleaning operations with our platform.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-2 gap-8">
+            <Card className="overflow-hidden">
+              <div className="aspect-[16/9] bg-muted relative">
+                <Image
+                  src="/tsmartcleaning.webflow/images/7a3b972a-7300-4e52-89de-c27861f06954.avif"
+                  alt="Property management case study"
+                  fill
+                  className="object-cover"
+                  loading="lazy"
+                />
+              </div>
+              <div className="p-6">
+                <Badge variant="outline" className="mb-3">Property Management</Badge>
+                <h3 className="text-xl font-semibold mb-2">50% reduction in turnover time</h3>
+                <p className="text-muted-foreground mb-4 text-sm">
+                  A regional property management company with 200+ units reduced their average turnover cleaning time from 5 days to 2.5 days by using our automated scheduling and quality control features.
+                </p>
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <div className="text-2xl font-bold text-primary">50%</div>
+                    <div className="text-xs text-muted-foreground">Faster Turnovers</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-primary">$40K</div>
+                    <div className="text-xs text-muted-foreground">Annual Savings</div>
+                  </div>
+                </div>
+                <Button variant="outline" size="sm" asChild>
+                  <Link href="/contact">Learn more</Link>
+                </Button>
+              </div>
+            </Card>
+            <Card className="overflow-hidden">
+              <div className="aspect-[16/9] bg-muted relative">
+                <Image
+                  src="/tsmartcleaning.webflow/images/352ced84-a541-4c36-99c3-c6e27bc3de97.avif"
+                  alt="Enterprise case study"
+                  fill
+                  className="object-cover"
+                  loading="lazy"
+                />
+              </div>
+              <div className="p-6">
+                <Badge variant="outline" className="mb-3">Enterprise</Badge>
+                <h3 className="text-xl font-semibold mb-2">Scaling to 15 locations seamlessly</h3>
+                <p className="text-muted-foreground mb-4 text-sm">
+                  A national office cleaning company expanded from 3 to 15 locations in 8 months using our multi-location management tools, standardized quality processes, and dedicated account management.
+                </p>
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <div className="text-2xl font-bold text-primary">5x</div>
+                    <div className="text-xs text-muted-foreground">Growth</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-primary">95%</div>
+                    <div className="text-xs text-muted-foreground">Client Retention</div>
+                  </div>
+                </div>
+                <Button variant="outline" size="sm" asChild>
+                  <Link href="/contact">Learn more</Link>
+                </Button>
+              </div>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits Section */}
+      <section className="py-12 md:py-20 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-3">Why choose our platform</h2>
+            <p className="text-muted-foreground">
+              Built for the modern cleaning industry with features that matter.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            <Card className="p-6">
+              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                <Users className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Pre-vetted professionals</h3>
+              <p className="text-sm text-muted-foreground">
+                All cleaners are background-checked, trained, and verified. We connect you with qualified professionals you can trust.
+              </p>
+            </Card>
+            <Card className="p-6">
+              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                <Clock className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Save time on operations</h3>
+              <p className="text-sm text-muted-foreground">
+                Automate scheduling, reporting, and payments. Focus on growing your business while we handle the operational overhead.
+              </p>
+            </Card>
+            <Card className="p-6">
+              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                <TrendingUp className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Scale with confidence</h3>
+              <p className="text-sm text-muted-foreground">
+                From single properties to enterprise portfolios, our platform grows with you. Multi-location management and dedicated support included.
+              </p>
+            </Card>
+            <Card className="p-6">
+              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                <ShieldCheck className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Insurance & compliance</h3>
+              <p className="text-sm text-muted-foreground">
+                Built-in insurance options and compliance tools ensure you're protected and meet all regulatory requirements.
+              </p>
+            </Card>
+            <Card className="p-6">
+              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                <Award className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Quality guaranteed</h3>
+              <p className="text-sm text-muted-foreground">
+                Our quality control system includes photo verification, inspection reports, and customer feedback to ensure consistent results.
+              </p>
+            </Card>
+            <Card className="p-6">
+              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                <ArrowRight className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Easy integration</h3>
+              <p className="text-sm text-muted-foreground">
+                Connect with property management software, accounting systems, and other tools you already use. APIs available for custom integrations.
+              </p>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section - Mid Page */}
+      <section className="py-12 md:py-16 bg-primary text-primary-foreground">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-2xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to transform your cleaning operations?</h2>
+            <p className="text-lg mb-6 opacity-90">
+              Join hundreds of companies already using our platform to streamline their cleaning management.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button size="lg" variant="secondary" className="text-black" asChild>
+                <Link href="/contact">Schedule a demo</Link>
+              </Button>
+              <Button size="lg" variant="outline" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10" asChild>
+                <Link href="/customer/book">Start booking</Link>
+              </Button>
             </div>
           </div>
         </div>
@@ -393,6 +656,31 @@ export default function MarketingPage() {
               <FaqItem q="Who provides the cleaning services?" a="Our professionals are background-checked, trained, and experienced. We work with both employees and vetted freelancers." />
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Final CTA Section */}
+      <section className="py-12 md:py-20 bg-background">
+        <div className="container mx-auto px-4">
+          <Card className="p-8 md:p-12 bg-gradient-to-br from-primary/5 to-primary/10 border-2">
+            <div className="text-center max-w-2xl mx-auto">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">Start your free trial today</h2>
+              <p className="text-lg text-muted-foreground mb-6">
+                No credit card required. Get started in minutes and see how our platform can transform your cleaning operations.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button size="lg" className="text-black" asChild>
+                  <Link href="/signup">Sign up free</Link>
+                </Button>
+                <Button size="lg" variant="outline" asChild>
+                  <Link href="/contact">Talk to sales</Link>
+                </Button>
+              </div>
+              <p className="text-sm text-muted-foreground mt-4">
+                14-day free trial • Cancel anytime • No setup fees
+              </p>
+            </div>
+          </Card>
         </div>
       </section>
 

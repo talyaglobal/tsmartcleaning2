@@ -3,6 +3,7 @@ import { createServerSupabase } from '@/lib/supabase'
 import { computePrice } from '@/lib/pricing'
 import { requireTenantId } from '@/lib/tenant'
 import { recordUsageEvent } from '@/lib/usage'
+import { sendBookingEmail } from '@/lib/emails/booking/send'
 
 type Interval = { start: number; end: number }
 const parseTimeToMinutes = (t: string) => {
@@ -121,6 +122,28 @@ export async function POST(request: NextRequest) {
       .single()
 
     const basePrice = Number(serviceRow?.base_price || 0)
+
+    // Check for active membership card to apply discount
+    let membershipDiscount = 0
+    let membershipCardId: string | null = null
+    let membershipDiscountPercentage = 0
+
+    const { data: membershipCard } = await supabase
+      .from('membership_cards')
+      .select('id, discount_percentage')
+      .eq('user_id', customerId) // Assuming customerId maps to user_id
+      .eq('status', 'active')
+      .eq('is_activated', true)
+      .gt('expiration_date', new Date().toISOString())
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single()
+
+    if (membershipCard) {
+      membershipCardId = membershipCard.id
+      membershipDiscountPercentage = Number(membershipCard.discount_percentage || 0)
+    }
+
     const pricing = computePrice({
       basePrice,
       addonsTotal: 0,
@@ -133,6 +156,18 @@ export async function POST(request: NextRequest) {
       recurring: null,
       serviceFeePct: 0.1
     })
+
+    // Apply membership discount to subtotal before fees
+    if (membershipDiscountPercentage > 0) {
+      membershipDiscount = (pricing.subtotalBeforeFees * membershipDiscountPercentage) / 100
+      pricing.subtotalBeforeFees = Math.max(0, pricing.subtotalBeforeFees - membershipDiscount)
+      
+      // Recalculate service fee and tax based on discounted subtotal
+      pricing.serviceFee = Math.round(pricing.subtotalBeforeFees * 0.1 * 100) / 100
+      const taxBase = pricing.subtotalBeforeFees + pricing.serviceFee
+      pricing.tax = Math.round(taxBase * 0.13 * 100) / 100 // Assuming 13% tax rate
+      pricing.total = Math.round((pricing.subtotalBeforeFees + pricing.serviceFee + pricing.tax) * 100) / 100
+    }
 
     // 6) Create confirmed booking
     const { data: created, error: createError } = await supabase
@@ -162,6 +197,64 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to create booking' }, { status: 500 })
     }
 
+    // Record membership usage if discount was applied
+    if (membershipCardId && membershipDiscount > 0) {
+      // Get service name for usage tracking
+      const { data: service } = await supabase
+        .from('services')
+        .select('name')
+        .eq('id', serviceId)
+        .single()
+
+      const originalAmount = pricing.subtotalBeforeFees + membershipDiscount + pricing.serviceFee + pricing.tax
+      const finalAmount = pricing.total
+
+      await supabase
+        .from('membership_usage')
+        .insert({
+          membership_card_id: membershipCardId,
+          booking_id: created.id,
+          user_id: customerId,
+          order_date: new Date(date + 'T' + time).toISOString(),
+          service_name: service?.name || 'Cleaning Service',
+          original_amount: originalAmount,
+          discount_amount: membershipDiscount,
+          final_amount: finalAmount,
+          benefit_type: 'discount',
+          metadata: {
+            discount_percentage: membershipDiscountPercentage,
+            booking_id: created.id,
+            source: 'instant',
+          },
+        }).catch((error) => {
+          console.error('[membership] Error recording usage:', error)
+        })
+
+      // Update membership card statistics
+      const { data: currentCard } = await supabase
+        .from('membership_cards')
+        .select('total_savings, order_count')
+        .eq('id', membershipCardId)
+        .single()
+
+      if (currentCard) {
+        const newTotalSavings = Number(currentCard.total_savings || 0) + membershipDiscount
+        const newOrderCount = (currentCard.order_count || 0) + 1
+
+        await supabase
+          .from('membership_cards')
+          .update({
+            total_savings: newTotalSavings,
+            order_count: newOrderCount,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', membershipCardId)
+          .catch((error) => {
+            console.error('[membership] Error updating card stats:', error)
+          })
+      }
+    }
+
     // Best-effort usage metering
     recordUsageEvent({
       tenantId,
@@ -169,6 +262,11 @@ export async function POST(request: NextRequest) {
       quantity: 1,
       metadata: { booking_id: created.id, source: 'instant' },
     }).catch(() => {})
+
+    // Send confirmed email (instant bookings are already confirmed)
+    sendBookingEmail(request, created.id, 'confirmed').catch((error) => {
+      console.error('[instant] Failed to send booking confirmed email:', error)
+    })
 
     return NextResponse.json({
       booking: created,

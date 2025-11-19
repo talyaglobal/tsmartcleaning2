@@ -94,6 +94,13 @@ ADD COLUMN IF NOT EXISTS payouts_enabled BOOLEAN DEFAULT false;
 ALTER TABLE public.provider_profiles
 ADD COLUMN IF NOT EXISTS details_submitted BOOLEAN DEFAULT false;
 
+-- provider_profiles: photo and portfolio
+ALTER TABLE public.provider_profiles
+ADD COLUMN IF NOT EXISTS photo_url TEXT;
+
+ALTER TABLE public.provider_profiles
+ADD COLUMN IF NOT EXISTS portfolio_images JSONB DEFAULT '[]'::jsonb;
+
 -- users: optional 'name' alias used by some routes
 ALTER TABLE public.users
 ADD COLUMN IF NOT EXISTS name TEXT;

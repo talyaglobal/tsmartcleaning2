@@ -1,18 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabase, resolveTenantFromRequest } from "@/lib/supabase";
+import { withRootAdmin } from "@/lib/auth/rbac";
 
-async function assertRootAdmin(req: NextRequest) {
-	try {
-		const role = req.headers.get("x-user-role");
-		if (role === "root_admin") return;
-	} catch {
-		// ignore
-	}
-	throw NextResponse.json({ error: "Forbidden" }, { status: 403 });
-}
-
-export async function GET(req: NextRequest) {
-	await assertRootAdmin(req);
+export const GET = withRootAdmin(async (req: NextRequest) => {
 	const supabase = createServerSupabase(null);
 	const { searchParams } = new URL(req.url);
 	const q = searchParams.get("q");
@@ -29,10 +19,9 @@ export async function GET(req: NextRequest) {
 	const { data, error } = await query;
 	if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 	return NextResponse.json({ tenants: data ?? [] });
-}
+});
 
-export async function POST(req: NextRequest) {
-	await assertRootAdmin(req);
+export const POST = withRootAdmin(async (req: NextRequest) => {
 	const body = await req.json().catch(() => ({}));
 	const { name, slug, domain, owner_user_id, status, metadata } = body ?? {};
 	if (!name) return NextResponse.json({ error: "name is required" }, { status: 400 });
@@ -45,6 +34,6 @@ export async function POST(req: NextRequest) {
 		.single();
 	if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 	return NextResponse.json({ tenant: data }, { status: 201 });
-}
+});
 
 

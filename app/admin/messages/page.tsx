@@ -1,9 +1,13 @@
 'use client'
 
-import { CampaignLauncher } from '@/components/messaging/CampaignLauncher'
+import { AdminMessages } from '@/components/admin/AdminMessages'
 
 export default function MessagesPage() {
-	return <CampaignLauncher />
+	return (
+		<div className="container mx-auto px-4 py-6">
+			<AdminMessages />
+		</div>
+	)
 }
 
 

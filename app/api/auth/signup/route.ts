@@ -3,7 +3,7 @@ import { createAnonSupabase, createServerSupabase, resolveTenantFromRequest } fr
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password, name, role } = await request.json()
+    const { email, password, name, role, referralCode } = await request.json()
 
     if (!email || !password || !name) {
       return NextResponse.json(
@@ -14,11 +14,33 @@ export async function POST(request: NextRequest) {
 
     const tenantId = resolveTenantFromRequest(request)
     const supabaseAuth = createAnonSupabase(tenantId)
+    
+    // Validate referral code if provided
+    let referrerId: string | null = null
+    if (referralCode) {
+      const supabase = createServerSupabase(tenantId)
+      const { data: membershipCard } = await supabase
+        .from('membership_cards')
+        .select('user_id')
+        .eq('referral_code', referralCode.trim().toUpperCase())
+        .eq('status', 'active')
+        .maybeSingle()
+      
+      if (membershipCard) {
+        referrerId = membershipCard.user_id
+      }
+    }
+
     const { data, error } = await supabaseAuth.auth.signUp({
       email,
       password,
       options: {
-        data: { full_name: name, role: role || 'customer' },
+        data: { 
+          full_name: name, 
+          role: role || 'customer',
+          referral_code: referralCode || null,
+        },
+        emailRedirectTo: `${request.headers.get('origin') || ''}/auth/callback`,
       },
     })
 
@@ -53,9 +75,27 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Create referral record if referral code was provided and valid
+    if (referrerId && data.user.id) {
+      try {
+        await supabase
+          .from('referrals')
+          .insert({
+            referrer_id: referrerId,
+            referee_id: data.user.id,
+            status: 'pending',
+            tenant_id: tenantId,
+          })
+      } catch (err) {
+        // Log but don't fail signup if referral creation fails
+        console.error('[v0] Failed to create referral record:', err)
+      }
+    }
+
     return NextResponse.json({
       user: data.user,
       message: 'User created successfully',
+      requiresEmailVerification: !data.session, // Supabase returns session only if email confirmation is disabled
     })
   } catch (error) {
     console.error('[v0] Signup error:', error)

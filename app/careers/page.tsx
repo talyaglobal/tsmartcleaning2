@@ -1,12 +1,54 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Sparkles, Heart, TrendingUp, Users, Coffee, Zap } from 'lucide-react'
+import { JobListings } from '@/components/careers/JobListings'
+import { createServerSupabase } from '@/lib/supabase'
+import { JsonLd } from '@/components/seo/JsonLd'
+import { generateSEOMetadata, generateBreadcrumbSchema } from '@/lib/seo'
 
-export default function CareersPage() {
+export const metadata: Metadata = generateSEOMetadata({
+  title: 'Careers - Join Our Mission to Transform Cleaning Services',
+  description: 'Be part of a fast-growing team that\'s making professional cleaning accessible to everyone across the USA. View open positions and join tSmartCleaning.',
+  path: '/careers',
+  keywords: ['careers', 'jobs', 'hiring', 'cleaning industry jobs', 'join tSmartCleaning', 'work with us'],
+})
+
+async function getJobs() {
+  try {
+    const supabase = createServerSupabase()
+    const { data, error } = await supabase
+      .from('job_listings')
+      .select('*')
+      .eq('is_active', true)
+      .order('posted_at', { ascending: false })
+      .limit(50)
+
+    if (error) {
+      console.error('Error fetching jobs:', error)
+      return []
+    }
+
+    return data || []
+  } catch (error) {
+    console.error('Error fetching jobs:', error)
+    return []
+  }
+}
+
+export default async function CareersPage() {
+  const initialJobs = await getJobs()
+
   return (
     <div className="min-h-screen">
+      <JsonLd
+        data={generateBreadcrumbSchema([
+          { name: 'Home', url: '/' },
+          { name: 'Careers', url: '/careers' },
+        ])}
+      />
 
       {/* Hero Section */}
       <section className="py-20 md:py-32 bg-gradient-to-b from-primary/5 to-background">
@@ -128,74 +170,8 @@ export default function CareersPage() {
               Find your next opportunity
             </p>
           </div>
-          <div className="max-w-3xl mx-auto space-y-4">
-            <Card className="p-6 hover:shadow-lg transition-shadow">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-xl font-semibold mb-2">Senior Full-Stack Engineer</h3>
-                  <p className="text-muted-foreground text-sm mb-3">
-                    Engineering • Remote • Full-time
-                  </p>
-                  <p className="text-sm mb-4">
-                    Build and scale our platform using Next.js, React, and Node.js. Work on features that impact thousands of users daily.
-                  </p>
-                </div>
-                <Button variant="outline" asChild>
-                  <Link href="/contact">Apply</Link>
-                </Button>
-              </div>
-            </Card>
-
-            <Card className="p-6 hover:shadow-lg transition-shadow">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-xl font-semibold mb-2">Product Designer</h3>
-                  <p className="text-muted-foreground text-sm mb-3">
-                    Design • Remote • Full-time
-                  </p>
-                  <p className="text-sm mb-4">
-                    Design intuitive user experiences for our customer and provider platforms. Shape the visual identity of TSmartCleaning.
-                  </p>
-                </div>
-                <Button variant="outline" asChild>
-                  <Link href="/contact">Apply</Link>
-                </Button>
-              </div>
-            </Card>
-
-            <Card className="p-6 hover:shadow-lg transition-shadow">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-xl font-semibold mb-2">Customer Success Manager</h3>
-                  <p className="text-muted-foreground text-sm mb-3">
-                    Customer Success • Remote • Full-time
-                  </p>
-                  <p className="text-sm mb-4">
-                    Be the voice of our customers and providers. Help them succeed on our platform and gather feedback for product improvements.
-                  </p>
-                </div>
-                <Button variant="outline" asChild>
-                  <Link href="/contact">Apply</Link>
-                </Button>
-              </div>
-            </Card>
-
-            <Card className="p-6 hover:shadow-lg transition-shadow">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-xl font-semibold mb-2">Growth Marketing Lead</h3>
-                  <p className="text-muted-foreground text-sm mb-3">
-                    Marketing • Remote • Full-time
-                  </p>
-                  <p className="text-sm mb-4">
-                    Drive customer and provider acquisition through data-driven marketing campaigns. Experiment, measure, and scale what works.
-                  </p>
-                </div>
-                <Button variant="outline" asChild>
-                  <Link href="/contact">Apply</Link>
-                </Button>
-              </div>
-            </Card>
+          <div className="max-w-5xl mx-auto">
+            <JobListings initialJobs={initialJobs} />
           </div>
         </div>
       </section>
@@ -207,9 +183,14 @@ export default function CareersPage() {
           <p className="text-lg mb-8 opacity-90 max-w-2xl mx-auto">
             We're always looking for talented people. Send us your resume and let's talk!
           </p>
-          <Button size="lg" variant="secondary" asChild>
-            <Link href="/contact">Get in Touch</Link>
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Button size="lg" variant="secondary" asChild>
+              <Link href="/contact">Get in Touch</Link>
+            </Button>
+            <Button size="lg" variant="outline" className="bg-transparent border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10" asChild>
+              <Link href="/careers/application-tracker">Track Your Application</Link>
+            </Button>
+          </div>
         </div>
       </section>
 

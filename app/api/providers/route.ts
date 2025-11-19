@@ -1,16 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerSupabase } from '@/lib/supabase'
-import { requireTenantId } from '@/lib/tenant'
+import { createServerSupabase, resolveTenantFromRequest } from '@/lib/supabase'
+import { withRateLimit, RateLimitPresets } from '@/lib/rate-limit'
+import { ApiErrors, logError } from '@/lib/api/errors'
+import { validateQueryParams } from '@/lib/api/validation'
+import { z } from 'zod'
+
+const getProvidersQuerySchema = z.object({
+  serviceId: z.string().uuid().optional(),
+  zipCode: z.string().optional(),
+})
 
 // Get all providers
-export async function GET(request: NextRequest) {
+export const GET = withRateLimit(async (request: NextRequest) => {
   try {
-    const tenantId = requireTenantId(request)
-    const { searchParams } = new URL(request.url)
-    const serviceId = searchParams.get('serviceId')
-    const zipCode = searchParams.get('zipCode')
+    const tenantId = resolveTenantFromRequest(request)
+    if (!tenantId) {
+      return ApiErrors.badRequest('Tenant context is required')
+    }
 
-    const supabase = createServerSupabase()
+    const queryValidation = validateQueryParams(request, getProvidersQuerySchema)
+    if (!queryValidation.success) {
+      return queryValidation.response
+    }
+
+    const { serviceId, zipCode } = queryValidation.data
+
+    const supabase = createServerSupabase(tenantId)
     let query = supabase
       .from('provider_profiles')
       .select('*')
@@ -26,8 +41,8 @@ export async function GET(request: NextRequest) {
         .eq('tenant_id', tenantId)
         .eq('service_id', serviceId)
       if (psError) {
-        console.error('[v0] providers: provider_services error', psError)
-        return NextResponse.json({ error: 'Failed to load providers' }, { status: 500 })
+        logError('providers', psError, { operation: 'fetch_provider_services' })
+        return ApiErrors.internalError('Failed to load providers')
       }
       const allowedIds = (providerServices ?? []).map((r) => r.provider_id)
       if (allowedIds.length > 0) {
@@ -43,16 +58,13 @@ export async function GET(request: NextRequest) {
 
     const { data, error } = await query
     if (error) {
-      console.error('[v0] Get providers supabase error:', error)
-      return NextResponse.json({ error: 'Failed to load providers' }, { status: 500 })
+      logError('providers', error, { operation: 'fetch_providers' })
+      return ApiErrors.internalError('Failed to load providers')
     }
 
     return NextResponse.json({ providers: data ?? [] })
   } catch (error) {
-    console.error('[v0] Get providers error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    logError('providers', error)
+    return ApiErrors.internalError('An unexpected error occurred')
   }
-}
+}, RateLimitPresets.moderate)

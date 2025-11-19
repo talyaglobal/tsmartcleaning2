@@ -18,6 +18,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/privacy', changeFrequency: 'yearly', priority: 0.3 },
     { path: '/terms', changeFrequency: 'yearly', priority: 0.3 },
     { path: '/careers', changeFrequency: 'monthly', priority: 0.3 },
+    { path: '/blog', changeFrequency: 'weekly', priority: 0.6 },
     { path: '/insurance', changeFrequency: 'monthly', priority: 0.5 },
     { path: '/insurance/file-claim', changeFrequency: 'monthly', priority: 0.4 },
     { path: '/insurance/claims', changeFrequency: 'monthly', priority: 0.4 },

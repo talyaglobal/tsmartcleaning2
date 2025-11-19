@@ -1,12 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { MapPin, Clock, User, Phone, Navigation, AlertCircle, CheckCircle } from 'lucide-react'
+import { MapPin, Clock, User, Phone, Navigation, AlertCircle, CheckCircle, Bell } from 'lucide-react'
+import { createAnonSupabase } from '@/lib/supabase'
+import { TeamManagement } from './TeamManagement'
+import { ScheduleManagement } from './ScheduleManagement'
 
 interface LiveJob {
 	id: string
@@ -53,13 +56,77 @@ export function LiveDashboard() {
 	const [liveJobs, setLiveJobs] = useState<LiveJob[]>([])
 	const [providers, setProviders] = useState<ProviderLite[]>([])
 	const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
+	const [notifications, setNotifications] = useState<Array<{ id: string; title: string; message: string; type: string }>>([])
+	const supabaseRef = useRef(createAnonSupabase())
 
 	useEffect(() => {
 		fetchLiveJobs()
-		// parallel fetch
 		fetchAvailableProviders()
-		const interval = setInterval(fetchLiveJobs, 30000)
-		return () => clearInterval(interval)
+		
+		// Set up real-time subscriptions
+		const supabase = supabaseRef.current
+		const today = new Date().toISOString().split('T')[0]
+
+		// Subscribe to bookings changes
+		const bookingsChannel = supabase
+			.channel('bookings-changes')
+			.on(
+				'postgres_changes',
+				{
+					event: '*',
+					schema: 'public',
+					table: 'bookings',
+					filter: `booking_date=eq.${today}`,
+				},
+				(payload) => {
+					console.log('Booking change:', payload)
+					// Refresh jobs when bookings change
+					fetchLiveJobs()
+					fetchAvailableProviders()
+					
+					// Show notification for important changes
+					if (payload.eventType === 'INSERT') {
+						setNotifications((prev) => [
+							...prev,
+							{ id: Date.now().toString(), title: 'New Booking', message: 'A new booking has been created', type: 'info' },
+						])
+					} else if (payload.eventType === 'UPDATE') {
+						setNotifications((prev) => [
+							...prev,
+							{ id: Date.now().toString(), title: 'Booking Updated', message: 'A booking status has been updated', type: 'info' },
+						])
+					}
+				}
+			)
+			.subscribe()
+
+		// Subscribe to provider profile changes
+		const providersChannel = supabase
+			.channel('providers-changes')
+			.on(
+				'postgres_changes',
+				{
+					event: 'UPDATE',
+					schema: 'public',
+					table: 'provider_profiles',
+				},
+				() => {
+					fetchAvailableProviders()
+				}
+			)
+			.subscribe()
+
+		// Polling fallback (every 30 seconds)
+		const interval = setInterval(() => {
+			fetchLiveJobs()
+			fetchAvailableProviders()
+		}, 30000)
+
+		return () => {
+			bookingsChannel.unsubscribe()
+			providersChannel.unsubscribe()
+			clearInterval(interval)
+		}
 	}, [selectedDate])
 
 	const fetchLiveJobs = async () => {
@@ -94,11 +161,25 @@ export function LiveDashboard() {
 				body: JSON.stringify({ providerId })
 			})
 			if (res.ok) {
+				setNotifications((prev) => [
+					...prev,
+					{ id: Date.now().toString(), title: 'Success', message: 'Provider assigned successfully!', type: 'success' },
+				])
 				fetchLiveJobs()
-				alert('Provider assigned successfully!')
+				fetchAvailableProviders()
+			} else {
+				const error = await res.json()
+				setNotifications((prev) => [
+					...prev,
+					{ id: Date.now().toString(), title: 'Error', message: error.error || 'Failed to assign provider', type: 'error' },
+				])
 			}
 		} catch (e) {
 			console.error('Error assigning provider:', e)
+			setNotifications((prev) => [
+				...prev,
+				{ id: Date.now().toString(), title: 'Error', message: 'Failed to assign provider', type: 'error' },
+			])
 		}
 	}
 
@@ -111,9 +192,20 @@ export function LiveDashboard() {
 			})
 			if (res.ok) {
 				fetchLiveJobs()
+				fetchAvailableProviders()
+			} else {
+				const error = await res.json()
+				setNotifications((prev) => [
+					...prev,
+					{ id: Date.now().toString(), title: 'Error', message: error.error || 'Failed to update status', type: 'error' },
+				])
 			}
 		} catch (e) {
 			console.error('Error updating job status:', e)
+			setNotifications((prev) => [
+				...prev,
+				{ id: Date.now().toString(), title: 'Error', message: 'Failed to update status', type: 'error' },
+			])
 		}
 	}
 
@@ -152,6 +244,34 @@ export function LiveDashboard() {
 
 	return (
 		<div className="max-w-7xl mx-auto p-6">
+			{/* Notifications */}
+			{notifications.length > 0 && (
+				<div className="mb-4 space-y-2">
+					{notifications.slice(-3).map((notif) => (
+						<div
+							key={notif.id}
+							className={`p-3 rounded-md border ${
+								notif.type === 'error' ? 'bg-red-50 border-red-200' : notif.type === 'success' ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200'
+							}`}
+						>
+							<div className="flex justify-between items-center">
+								<div>
+									<p className="font-medium text-sm">{notif.title}</p>
+									<p className="text-xs text-gray-600">{notif.message}</p>
+								</div>
+								<Button
+									variant="ghost"
+									size="sm"
+									onClick={() => setNotifications((prev) => prev.filter((n) => n.id !== notif.id))}
+								>
+									×
+								</Button>
+							</div>
+						</div>
+					))}
+				</div>
+			)}
+
 			<div className="mb-6">
 				<div className="flex justify-between items-center">
 					<div>
@@ -212,6 +332,8 @@ export function LiveDashboard() {
 					<TabsTrigger value="list">List View</TabsTrigger>
 					<TabsTrigger value="providers">Providers</TabsTrigger>
 					<TabsTrigger value="unassigned">Unassigned ({unassignedJobs.length})</TabsTrigger>
+					<TabsTrigger value="teams">Teams</TabsTrigger>
+					<TabsTrigger value="schedule">Schedule</TabsTrigger>
 				</TabsList>
 
 				<TabsContent value="map" className="space-y-4">
@@ -529,6 +651,14 @@ export function LiveDashboard() {
 							)}
 						</CardContent>
 					</Card>
+				</TabsContent>
+
+				<TabsContent value="teams" className="space-y-4">
+					<TeamManagement />
+				</TabsContent>
+
+				<TabsContent value="schedule" className="space-y-4">
+					<ScheduleManagement />
 				</TabsContent>
 			</Tabs>
 		</div>

@@ -1,142 +1,258 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerSupabase } from '@/lib/supabase'
+import { createServerSupabase, resolveTenantFromRequest } from '@/lib/supabase'
 import { computePrice } from '@/lib/pricing'
-import { requireTenantId } from '@/lib/tenant'
 import { recordUsageEvent } from '@/lib/usage'
+import { sendBookingEmail } from '@/lib/emails/booking/send'
+import { withAuth } from '@/lib/auth/rbac'
+import { UserRole } from '@/lib/auth/roles'
+import { handleApiError, ApiErrors } from '@/lib/api/errors'
+import { validateQueryParams, validateRequestBody, RequestSchemas, ValidationSchemas } from '@/lib/api/validation'
+import { z } from 'zod'
 
-// Get all bookings for a user
-export async function GET(request: NextRequest) {
-  try {
-    const tenantId = requireTenantId(request)
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get('userId')
-    const role = searchParams.get('role')
+// Get all bookings for the authenticated user
+export const GET = withAuth(
+  async (request: NextRequest, { user, supabase }) => {
+    try {
+      const tenantId = resolveTenantFromRequest(request) || null
+      // Validate query parameters
+      const querySchema = z.object({
+        role: z.string().optional(),
+      })
+      
+      const validation = validateQueryParams(request, querySchema)
+      if (!validation.success) {
+        return validation.response
+      }
+      
+      const role = validation.data.role || 'customer'
 
-    if (!userId || !role) {
-      return NextResponse.json(
-        { error: 'userId and role are required' },
-        { status: 400 }
-      )
+      // Determine which column to filter by based on user role
+      let query = supabase
+        .from('bookings')
+        .select('*')
+      
+      if (tenantId) {
+        query = query.eq('tenant_id', tenantId)
+      }
+
+      // Filter by user's role - customers see their bookings, providers see their assigned bookings
+      if (user.role === UserRole.CLEANING_LADY || user.role === UserRole.AMBASSADOR || role === 'provider') {
+        query = query.eq('provider_id', user.id)
+      } else {
+        query = query.eq('customer_id', user.id)
+      }
+
+      const { data, error } = await query
+        .order('booking_date', { ascending: false })
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        return handleApiError('bookings', error, { userId: user.id, tenantId })
+      }
+
+      return NextResponse.json({ bookings: data ?? [] })
+    } catch (error) {
+      return handleApiError('bookings', error)
     }
-
-    const supabase = createServerSupabase()
-    const { data, error } = await supabase
-      .from('bookings')
-      .select('*')
-      .eq('tenant_id', tenantId)
-      .eq(role === 'provider' ? 'provider_id' : 'customer_id', userId)
-      .order('booking_date', { ascending: false })
-      .order('created_at', { ascending: false })
-
-    if (error) {
-      console.error('[v0] Get bookings supabase error:', error)
-      return NextResponse.json({ error: 'Failed to load bookings' }, { status: 500 })
-    }
-
-    return NextResponse.json({ bookings: data ?? [] })
-  } catch (error) {
-    console.error('[v0] Get bookings error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
   }
-}
+)
 
 // Create a new booking
-export async function POST(request: NextRequest) {
-  try {
-    const tenantId = requireTenantId(request)
-    const body = await request.json()
-    const { customerId, serviceId, date, time, addressId, notes } = body
-
-    if (!customerId || !serviceId || !date || !time || !addressId) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      )
-    }
-    // Validate date/time and avoid past times for same day
-    const isValidDate = /^\d{4}-\d{2}-\d{2}$/.test(String(date))
-    const isValidTime = /^\d{2}:\d{2}$/.test(String(time))
-    if (!isValidDate || !isValidTime) {
-      return NextResponse.json({ error: 'Invalid date or time format' }, { status: 400 })
-    }
-    const todayIso = new Date().toISOString().slice(0, 10)
-    if (date === todayIso) {
-      const [hh, mm] = String(time).split(':').map((s) => parseInt(s, 10))
-      const requestedMinutes = hh * 60 + (isNaN(mm) ? 0 : mm)
-      const now = new Date()
-      const currentMinutes = now.getHours() * 60 + now.getMinutes()
-      if (requestedMinutes < currentMinutes) {
-        return NextResponse.json({ error: 'Requested time is in the past' }, { status: 409 })
+export const POST = withAuth(
+  async (request: NextRequest, { user, supabase }) => {
+    try {
+      const tenantId = resolveTenantFromRequest(request)
+      if (!tenantId) {
+        return ApiErrors.badRequest('Tenant context is required')
       }
-    }
-
-    const supabase = createServerSupabase()
-
-    // Fetch base price for the service
-    const { data: serviceRow } = await supabase
-      .from('services')
-      .select('base_price')
-      .eq('id', serviceId)
-      .eq('tenant_id', tenantId)
-      .single()
-
-    const basePrice = Number(serviceRow?.base_price || 0)
-
-    // Compute server-side pricing (minimal inputs; extend as needed)
-    const pricing = computePrice({
-      basePrice,
-      addonsTotal: 0,
-      demandIndex: 0,
-      utilization: 1,
-      distanceKm: 0,
-      month: new Date(date).getMonth() + 1,
-      leadHours: 999,
-      jobsInCart: 1,
-      recurring: null,
-      serviceFeePct: 0.1
-    })
-
-    const { data, error } = await supabase
-      .from('bookings')
-      .insert({
-        tenant_id: tenantId,
-        customer_id: customerId,
-        service_id: serviceId,
-        address_id: addressId,
-        booking_date: date,
-        booking_time: time,
-        special_instructions: notes ?? null,
-        duration_hours: 1,
-        subtotal: pricing.subtotalBeforeFees,
-        service_fee: pricing.serviceFee,
-        tax: pricing.tax,
-        total_amount: pricing.total,
+      
+      // Validate request body
+      const bookingSchema = RequestSchemas.createBooking.extend({
+        customerId: ValidationSchemas.uuid.optional(),
       })
-      .select()
-      .single()
+      
+      const validation = await validateRequestBody(request, bookingSchema)
+      if (!validation.success) {
+        return validation.response
+      }
+      
+      const { customerId, serviceId, date, time, addressId, notes } = validation.data
 
-    if (error) {
-      console.error('[v0] Create booking supabase error:', error)
-      return NextResponse.json({ error: 'Failed to create booking' }, { status: 500 })
+      // Verify customerId matches authenticated user (unless user is admin)
+      const isAdmin = [UserRole.ROOT_ADMIN, UserRole.PARTNER_ADMIN, UserRole.TSMART_TEAM, UserRole.CLEANING_COMPANY].includes(user.role)
+      const finalCustomerId = customerId || user.id
+
+      if (!isAdmin && finalCustomerId !== user.id) {
+        return ApiErrors.forbidden('You can only create bookings for yourself')
+      }
+      
+      // Validate date/time and avoid past times for same day
+      const todayIso = new Date().toISOString().slice(0, 10)
+      if (date === todayIso) {
+        const [hh, mm] = String(time).split(':').map((s) => parseInt(s, 10))
+        const requestedMinutes = hh * 60 + (isNaN(mm) ? 0 : mm)
+        const now = new Date()
+        const currentMinutes = now.getHours() * 60 + now.getMinutes()
+        if (requestedMinutes < currentMinutes) {
+          return ApiErrors.conflict('Requested time is in the past')
+        }
+      }
+
+      // Fetch base price for the service
+      const { data: serviceRow } = await supabase
+        .from('services')
+        .select('base_price')
+        .eq('id', serviceId)
+        .eq('tenant_id', tenantId)
+        .single()
+
+      const basePrice = Number(serviceRow?.base_price || 0)
+
+      // Check for active membership card to apply discount
+      let membershipDiscount = 0
+      let membershipCardId: string | null = null
+      let membershipDiscountPercentage = 0
+
+      const { data: membershipCard } = await supabase
+        .from('membership_cards')
+        .select('id, discount_percentage')
+        .eq('user_id', finalCustomerId)
+        .eq('status', 'active')
+        .eq('is_activated', true)
+        .gt('expiration_date', new Date().toISOString())
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single()
+
+      if (membershipCard) {
+        membershipCardId = membershipCard.id
+        membershipDiscountPercentage = Number(membershipCard.discount_percentage || 0)
+      }
+
+      // Compute server-side pricing (minimal inputs; extend as needed)
+      const pricing = computePrice({
+        basePrice,
+        addonsTotal: 0,
+        demandIndex: 0,
+        utilization: 1,
+        distanceKm: 0,
+        month: new Date(date).getMonth() + 1,
+        leadHours: 999,
+        jobsInCart: 1,
+        recurring: null,
+        serviceFeePct: 0.1
+      })
+
+      // Apply membership discount to subtotal before fees
+      if (membershipDiscountPercentage > 0) {
+        membershipDiscount = (pricing.subtotalBeforeFees * membershipDiscountPercentage) / 100
+        pricing.subtotalBeforeFees = Math.max(0, pricing.subtotalBeforeFees - membershipDiscount)
+        
+        // Recalculate service fee and tax based on discounted subtotal
+        pricing.serviceFee = Math.round(pricing.subtotalBeforeFees * 0.1 * 100) / 100
+        const taxBase = pricing.subtotalBeforeFees + pricing.serviceFee
+        pricing.tax = Math.round(taxBase * 0.13 * 100) / 100 // Assuming 13% tax rate
+        pricing.total = Math.round((pricing.subtotalBeforeFees + pricing.serviceFee + pricing.tax) * 100) / 100
+      }
+
+      const { data, error } = await supabase
+        .from('bookings')
+        .insert({
+          tenant_id: tenantId,
+          customer_id: finalCustomerId,
+          service_id: serviceId,
+          address_id: addressId,
+          booking_date: date,
+          booking_time: time,
+          special_instructions: notes ?? null,
+          duration_hours: 1,
+          subtotal: pricing.subtotalBeforeFees,
+          service_fee: pricing.serviceFee,
+          tax: pricing.tax,
+          total_amount: pricing.total,
+        })
+        .select()
+        .single()
+
+      if (error) {
+        logError('bookings', error, { operation: 'create_booking', userId: user.id, tenantId })
+        return ApiErrors.databaseError('Failed to create booking')
+      }
+
+      // Record membership usage if discount was applied
+      if (membershipCardId && membershipDiscount > 0) {
+        // Get service name for usage tracking
+        const { data: service } = await supabase
+          .from('services')
+          .select('name')
+          .eq('id', serviceId)
+          .single()
+
+        const originalAmount = pricing.subtotalBeforeFees + membershipDiscount + pricing.serviceFee + pricing.tax
+        const finalAmount = pricing.total
+
+        await supabase
+          .from('membership_usage')
+          .insert({
+            membership_card_id: membershipCardId,
+            booking_id: data.id,
+            user_id: finalCustomerId,
+            order_date: new Date(date + 'T' + time).toISOString(),
+            service_name: service?.name || 'Cleaning Service',
+            original_amount: originalAmount,
+            discount_amount: membershipDiscount,
+            final_amount: finalAmount,
+            benefit_type: 'discount',
+            metadata: {
+              discount_percentage: membershipDiscountPercentage,
+              booking_id: data.id,
+            },
+          }).catch((error) => {
+            logError('membership', error, { operation: 'record_usage', bookingId: data.id })
+          })
+
+        // Update membership card statistics
+        // First fetch current values, then update
+        const { data: currentCard } = await supabase
+          .from('membership_cards')
+          .select('total_savings, order_count')
+          .eq('id', membershipCardId)
+          .single()
+
+        if (currentCard) {
+          const newTotalSavings = Number(currentCard.total_savings || 0) + membershipDiscount
+          const newOrderCount = (currentCard.order_count || 0) + 1
+
+          await supabase
+            .from('membership_cards')
+            .update({
+              total_savings: newTotalSavings,
+              order_count: newOrderCount,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', membershipCardId)
+            .catch((error) => {
+              logError('membership', error, { operation: 'update_card_stats', membershipCardId })
+            })
+        }
+      }
+
+      // Best-effort usage metering
+      recordUsageEvent({
+        tenantId,
+        resource: 'booking',
+        quantity: 1,
+        metadata: { booking_id: data.id, source: 'standard' },
+      }).catch(() => {})
+
+      // Send confirmation email (best-effort, don't fail the request if email fails)
+      sendBookingEmail(request, data.id, 'confirmation').catch((error) => {
+        logError('bookings', error, { operation: 'send_confirmation_email', bookingId: data.id })
+      })
+
+      return NextResponse.json({ booking: data, message: 'Booking created successfully' })
+    } catch (error) {
+      return handleApiError('bookings', error, { operation: 'create_booking', userId: user.id })
     }
-
-    // Best-effort usage metering
-    recordUsageEvent({
-      tenantId,
-      resource: 'booking',
-      quantity: 1,
-      metadata: { booking_id: data.id, source: 'standard' },
-    }).catch(() => {})
-
-    return NextResponse.json({ booking: data, message: 'Booking created successfully' })
-  } catch (error) {
-    console.error('[v0] Create booking error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
   }
-}
+)

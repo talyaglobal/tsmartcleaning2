@@ -1,37 +1,70 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerSupabase } from '@/lib/supabase'
-import { requireTenantId } from '@/lib/tenant'
+import { createServerSupabase, resolveTenantFromRequest } from '@/lib/supabase'
+import { handleApiError, ApiErrors } from '@/lib/api/errors'
+import { validateQueryParams, validateRequestBody, RequestSchemas } from '@/lib/api/validation'
 
 // Returns time slots with at least one available provider for the given date.
 // Optional: durationHours (defaults to 2), serviceId (unused in v1), providerId (to get per-provider slots)
 export async function GET(request: NextRequest) {
   try {
-    const tenantId = requireTenantId(request)
-    const { searchParams } = new URL(request.url)
-    const date = searchParams.get('date')
-    const providerId = searchParams.get('providerId')
-    const durationParam = searchParams.get('durationHours')
-    const durationHours = Math.max(1, Math.min(8, Number(durationParam || 2)))
+    const tenantId = resolveTenantFromRequest(request)
+    
+    // Validate query parameters
+    const validation = validateQueryParams(request, RequestSchemas.availabilityQuery)
+    if (!validation.success) {
+      return validation.response
+    }
+    
+    const { date, dates, providerId, durationHours: durationParam } = validation.data
+    const durationHours = Math.max(1, Math.min(8, durationParam || 2))
+
+    const supabase = createServerSupabase(tenantId || undefined)
+
+    // Support fetching availability for a specific provider (for provider dashboard)
+    if (providerId && dates) {
+      // Fetch existing availability for provider
+      const dateArray = dates.split(',').filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d))
+      if (dateArray.length > 0) {
+        let availabilityQuery = supabase
+          .from('availability')
+          .select('date, time_slots')
+          .eq('provider_id', providerId)
+          .in('date', dateArray)
+        
+        if (tenantId) {
+          availabilityQuery = availabilityQuery.eq('tenant_id', tenantId)
+        }
+        
+        const { data: availabilityData, error: availError } = await availabilityQuery
+        
+        if (availError) {
+          return handleApiError('availability', availError, { providerId, tenantId })
+        }
+        
+        return NextResponse.json({
+          availability: availabilityData || []
+        })
+      }
+    }
 
     if (!date) {
-      return NextResponse.json({ error: 'date is required' }, { status: 400 })
+      return ApiErrors.badRequest('date is required')
     }
-    // Validate date format
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date))) {
-      return NextResponse.json({ error: 'Invalid date format' }, { status: 400 })
-    }
-
-    const supabase = createServerSupabase()
 
     // 1) Determine candidate providers (online/available)
-    const { data: providersData, error: providersError } = await supabase
+    let providersQuery = supabase
       .from('provider_profiles')
       .select('id, availability_status')
-      .eq('tenant_id', tenantId)
-    if (providersError) {
-      console.error('[availability] providers error:', providersError)
-      return NextResponse.json({ error: 'Failed to get providers' }, { status: 500 })
+    
+    if (tenantId) {
+      providersQuery = providersQuery.eq('tenant_id', tenantId)
     }
+    
+    const { data: providersData, error: providersError } = await providersQuery
+    if (providersError) {
+      return handleApiError('availability', providersError, { date, tenantId })
+    }
+    
     const candidateProviderIds = (providersData || [])
       .filter((p: any) => p.availability_status === 'available')
       .map((p: any) => p.id)
@@ -46,16 +79,20 @@ export async function GET(request: NextRequest) {
     }
 
     // 2) Fetch bookings on that date for these providers
-    const { data: bookingsData, error: bookingsError } = await supabase
+    let bookingsQuery = supabase
       .from('bookings')
       .select('provider_id, booking_time, duration_hours, status')
-      .eq('tenant_id', tenantId)
       .eq('booking_date', date)
       .in('provider_id', scopedProviderIds)
       .not('status', 'eq', 'cancelled')
+    
+    if (tenantId) {
+      bookingsQuery = bookingsQuery.eq('tenant_id', tenantId)
+    }
+    
+    const { data: bookingsData, error: bookingsError } = await bookingsQuery
     if (bookingsError) {
-      console.error('[availability] bookings error:', bookingsError)
-      return NextResponse.json({ error: 'Failed to get bookings' }, { status: 500 })
+      return handleApiError('availability', bookingsError, { date, tenantId })
     }
 
     // 3) Build day slots (09:00-17:00 start times, hourly granularity)
@@ -110,26 +147,81 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ date, durationHours, slots: availableSlots })
   } catch (error) {
-    console.error('[v0] Get availability error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return handleApiError('availability', error)
   }
 }
 
-// Placeholder: provider self-managed availability (not used for instant booking v1)
+// Provider self-managed availability
 export async function POST(request: NextRequest) {
   try {
-    const _ = await request.json().catch(() => ({}))
+    const tenantId = resolveTenantFromRequest(request)
+    
+    // Validate request body
+    const validation = await validateRequestBody(request, RequestSchemas.updateAvailability)
+    if (!validation.success) {
+      return validation.response
+    }
+    
+    const { providerId, availability } = validation.data
+
+    const supabase = createServerSupabase(tenantId || undefined)
+
+    // Verify provider exists
+    let providerQuery = supabase
+      .from('provider_profiles')
+      .select('id')
+      .eq('id', providerId)
+      .single()
+    
+    if (tenantId) {
+      providerQuery = providerQuery.eq('tenant_id', tenantId)
+    }
+    
+    const { data: provider, error: providerError } = await providerQuery
+
+    if (providerError || !provider) {
+      return ApiErrors.notFound('Provider not found')
+    }
+
+    // Upsert availability records
+    const availabilityRecords = availability.map((avail: { date: string; time_slots: string[] }) => ({
+      provider_id: providerId,
+      date: avail.date,
+      time_slots: avail.time_slots || [],
+      tenant_id: tenantId,
+    }))
+
+    // Delete existing availability for these dates
+    const dates = availabilityRecords.map((a: any) => a.date)
+    if (dates.length > 0) {
+      let deleteQuery = supabase
+        .from('availability')
+        .delete()
+        .eq('provider_id', providerId)
+        .in('date', dates)
+      
+      if (tenantId) {
+        deleteQuery = deleteQuery.eq('tenant_id', tenantId)
+      }
+      
+      await deleteQuery
+    }
+
+    // Insert new availability
+    if (availabilityRecords.length > 0) {
+      const { error: insertError } = await supabase
+        .from('availability')
+        .insert(availabilityRecords)
+
+      if (insertError) {
+        return handleApiError('availability', insertError, { providerId, tenantId })
+      }
+    }
+
     return NextResponse.json({
       message: 'Availability updated successfully',
     })
   } catch (error) {
-    console.error('[v0] Update availability error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return handleApiError('availability', error)
   }
 }

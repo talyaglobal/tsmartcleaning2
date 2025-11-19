@@ -41,6 +41,8 @@ import {
 		IdCard,
 		Bell,
 		FileBarChart,
+	Building,
+	CreditCard,
 } from "lucide-react";
 import React from "react";
 
@@ -67,6 +69,7 @@ const ROOT_ADMIN_MENU: NavItem[] = [
 	{ name: "Policies", icon: IdCard, path: "/root-admin/policies" },
 	{ name: "Notifications", icon: Bell, path: "/root-admin/notifications" },
 	{ name: "Payouts", icon: Wallet, path: "/root-admin/payouts" },
+	{ name: "Revenue Share Rules", icon: DollarSign, path: "/root-admin/revenue-share-rules" },
 	{ name: "Reports", icon: FileBarChart, path: "/root-admin/reports" },
 	{ name: "All Users", icon: Users, path: "/root-admin/users" },
 	{ name: "Tenants", icon: Building2, path: "/root-admin/tenants" },
@@ -81,27 +84,30 @@ const ROOT_ADMIN_MENU: NavItem[] = [
 
 const COMPANY_MENU: NavItem[] = [
 	{ name: "Dashboard", icon: LayoutDashboard, path: "/company/dashboard" },
+	{ name: "Properties", icon: Building, path: "/company/properties" },
+	{ name: "User Management", icon: UsersRound, path: "/company/users" },
 	{ name: "My Teams", icon: Users, path: "/company/teams" },
-	{ name: "Dayıbaşı Management", icon: UserCog, path: "/company/dayibasi" },
+	{ name: "Ambassador Management", icon: UserCog, path: "/company/ambassadors" },
 	{ name: "Cleaners", icon: UserCheck, path: "/company/cleaners" },
 	{ name: "Job Assignments", icon: ClipboardList, path: "/company/jobs" },
 	{ name: "Schedule", icon: Calendar, path: "/company/schedule" },
 	{ name: "Performance", icon: TrendingUp, path: "/company/performance" },
 	{ name: "Invoices & Payments", icon: Receipt, path: "/company/invoices" },
+	{ name: "Billing", icon: CreditCard, path: "/company/billing" },
 	{ name: "Recruitment", icon: UserPlus, path: "/company/recruitment" },
 	{ name: "Settings", icon: Settings, path: "/company/settings" },
 ];
 
-const DAYIBASI_MENU: NavItem[] = [
-	{ name: "Dashboard", icon: LayoutDashboard, path: "/dayibasi/dashboard" },
-	{ name: "My Team", icon: Users, path: "/dayibasi/team" },
-	{ name: "Today's Jobs", icon: ClipboardCheck, path: "/dayibasi/jobs/today" },
-	{ name: "Job History", icon: History, path: "/dayibasi/jobs/history" },
-	{ name: "Schedule", icon: Calendar, path: "/dayibasi/schedule" },
-	{ name: "Team Performance", icon: Award, path: "/dayibasi/performance" },
-	{ name: "Attendance", icon: ClipboardCheck, path: "/dayibasi/attendance" },
-	{ name: "Messages", icon: MessageSquare, path: "/dayibasi/messages" },
-	{ name: "Profile", icon: UsersRound, path: "/dayibasi/profile" },
+const AMBASSADOR_MENU: NavItem[] = [
+	{ name: "Dashboard", icon: LayoutDashboard, path: "/ambassador/dashboard" },
+	{ name: "My Team", icon: Users, path: "/ambassador/team" },
+	{ name: "Today's Jobs", icon: ClipboardCheck, path: "/ambassador/jobs/today" },
+	{ name: "Job History", icon: History, path: "/ambassador/jobs/history" },
+	{ name: "Schedule", icon: Calendar, path: "/ambassador/schedule" },
+	{ name: "Team Performance", icon: Award, path: "/ambassador/performance" },
+	{ name: "Attendance", icon: ClipboardCheck, path: "/ambassador/attendance" },
+	{ name: "Messages", icon: MessageSquare, path: "/ambassador/messages" },
+	{ name: "Profile", icon: UsersRound, path: "/ambassador/profile" },
 ];
 
 const CLEANER_MENU: NavItem[] = [
@@ -151,8 +157,8 @@ export const roleToMenu = (role: UserRole): NavItem[] => {
 			return ROOT_ADMIN_MENU;
 		case UserRole.CLEANING_COMPANY:
 			return COMPANY_MENU;
-		case UserRole.DAYIBASI:
-			return DAYIBASI_MENU;
+		case UserRole.AMBASSADOR:
+			return AMBASSADOR_MENU;
 		case UserRole.CLEANING_LADY:
 			return CLEANER_MENU;
 		case UserRole.NGO_AGENCY:
