@@ -1,14 +1,14 @@
 import { NextRequest } from 'next/server'
 import { createServerSupabase } from '@/lib/supabase'
 import { createBookingEmailClient, BookingEmailPayload } from './index'
-import { resolveTenantFromRequest } from '@/lib/tenant'
+import { getTenantIdFromRequest } from '@/lib/tenant'
 
 async function sendEmailViaApi(
   request: NextRequest | null,
   tenantId: string | null,
   payload: { to: string; subject: string; html: string }
 ) {
-  const resolvedTenantId = request ? resolveTenantFromRequest(request) : tenantId || ''
+  const resolvedTenantId = request ? getTenantIdFromRequest(request) : tenantId || ''
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || ''
   try {
     await fetch(`${baseUrl}/api/send-email`, {
@@ -27,11 +27,11 @@ async function sendEmailViaApi(
 export async function sendBookingEmail(
   request: NextRequest | null,
   bookingId: string,
-  emailType: 'confirmation' | 'confirmed' | 'reminder' | 'inProgress' | 'completed' | 'cancelled' | 'refunded'
+  emailType: 'confirmation' | 'confirmed' | 'reminder' | 'inProgress' | 'completed' | 'cancelled' | 'refunded' | 'paymentConfirmation'
 ) {
   try {
     // Try to get tenant_id from request first, fallback to getting it from booking
-    let tenantId = request ? resolveTenantFromRequest(request) : null
+    let tenantId = request ? getTenantIdFromRequest(request) : null
     const supabase = createServerSupabase(tenantId || undefined)
 
     // Fetch booking with all related data
@@ -118,6 +118,9 @@ export async function sendBookingEmail(
         break
       case 'refunded':
         await client.sendRefunded(payload)
+        break
+      case 'paymentConfirmation':
+        await client.sendPaymentConfirmation(payload)
         break
     }
   } catch (error) {

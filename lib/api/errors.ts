@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { logger } from '@/lib/logging'
 
 /**
  * Standard API error response structure
@@ -82,6 +83,7 @@ export const ApiErrors = {
 
 /**
  * Logs an error with context information
+ * @deprecated Use logger.error() or logger.critical() from '@/lib/logging' instead
  */
 export function logError(
   context: string,
@@ -89,13 +91,16 @@ export function logError(
   metadata?: Record<string, unknown>
 ): void {
   const errorMessage = error instanceof Error ? error.message : String(error)
-  const errorStack = error instanceof Error ? error.stack : undefined
+  const errorObj = error instanceof Error ? error : new Error(errorMessage)
   
-  console.error(`[${context}] Error:`, {
-    message: errorMessage,
-    stack: errorStack,
-    ...metadata,
-  })
+  logger.error(
+    errorMessage,
+    {
+      context,
+      ...metadata,
+    },
+    errorObj
+  )
 }
 
 /**

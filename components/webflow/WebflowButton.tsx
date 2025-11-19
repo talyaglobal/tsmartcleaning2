@@ -26,7 +26,7 @@ export function WebflowButton({
   as,
   ...props
 }: WebflowButtonProps) {
-  const baseClasses = 'button'
+  const baseClasses = 'button animate-hover-lift'
   const variantClasses = variant === 'secondary' ? 'is-secondary' : ''
   
   const classes = cn(baseClasses, variantClasses, className)

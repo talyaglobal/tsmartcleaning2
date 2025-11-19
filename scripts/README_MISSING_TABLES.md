@@ -1,4 +1,4 @@
-# Missing Tables Script
+# Create Missing Tables Migration Script
 
 ## Overview
 This document describes the `14_create_missing_tables.sql` script which creates tables that are referenced in the codebase but were missing from the database schema.

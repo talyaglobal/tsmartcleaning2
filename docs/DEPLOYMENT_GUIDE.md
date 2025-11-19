@@ -2,7 +2,9 @@
 
 **Last Updated:** 2025-01-27  
 **Framework:** Next.js 16.0.3  
-**Platform:** Vercel (recommended) or self-hosted
+**Platform:** Vercel (recommended) or self-hosted  
+**Database:** Supabase (PostgreSQL)  
+**Error Tracking:** Sentry
 
 ---
 
@@ -71,8 +73,16 @@ WHATSAPP_PHONE_NUMBER=+1234567890
 # Analytics
 NEXT_PUBLIC_ANALYTICS_ID=your-analytics-id
 
+# Sentry (Error Tracking)
+SENTRY_DSN=https://your-sentry-dsn@sentry.io/project-id
+SENTRY_ORG=talyaglobal
+SENTRY_PROJECT=javascript-nextjs
+
 # Multi-tenant
 ENABLE_MULTI_TENANT=true
+
+# WhatsApp Webhook
+WHATSAPP_WEBHOOK_SECRET=your-webhook-secret
 ```
 
 ### Getting Supabase Credentials
@@ -343,7 +353,7 @@ For scheduled tasks, set up cron jobs or use Vercel Cron:
 
 **Vercel Cron (recommended):**
 
-Create `vercel.json`:
+The `vercel.json` file already includes cron job configuration:
 
 ```json
 {
@@ -358,11 +368,13 @@ Create `vercel.json`:
     },
     {
       "path": "/api/reports/process-scheduled",
-      "schedule": "0 0 * * *"
+      "schedule": "0 2 * * *"
     }
   ]
 }
 ```
+
+**Note:** Vercel automatically enables these cron jobs when deployed. No additional configuration needed.
 
 **Self-Hosted Cron:**
 
@@ -386,9 +398,22 @@ For better performance:
 
 #### Error Tracking
 
-1. Set up [Sentry](https://sentry.io)
-2. Add `SENTRY_DSN` to environment variables
-3. Configure error alerts
+Sentry is already configured in the project:
+
+1. **Sentry Configuration:**
+   - DSN: Set `SENTRY_DSN` environment variable
+   - Organization: `talyaglobal`
+   - Project: `javascript-nextjs`
+   - Source maps are automatically uploaded during build
+
+2. **Configure Error Alerts:**
+   - Go to Sentry Dashboard → Alerts
+   - Set up alerts for critical errors
+   - Configure notification channels (Slack, email, PagerDuty)
+
+3. **Verify Sentry Integration:**
+   - Check Sentry dashboard after deployment
+   - Test error reporting (see `app/sentry-example-page/` for test page)
 
 #### Analytics
 
@@ -565,6 +590,117 @@ npm run build
 
 ---
 
+## Monitoring & Observability
+
+### Post-Deployment Monitoring
+
+After deployment, monitor the following:
+
+1. **Error Rates:**
+   - Check Sentry dashboard for errors
+   - Monitor error rate trends
+   - Set up alerts for error spikes
+
+2. **Performance Metrics:**
+   - Monitor Core Web Vitals
+   - Check API response times
+   - Review database query performance
+
+3. **Uptime:**
+   - Verify uptime monitoring is working
+   - Check for any downtime alerts
+   - Monitor CDN cache hit rates
+
+4. **User Experience:**
+   - Monitor user-reported issues
+   - Check support tickets
+   - Review analytics for anomalies
+
+### Monitoring Dashboards
+
+- **Sentry:** https://talyaglobal.sentry.io/issues/
+- **Vercel Analytics:** Vercel Dashboard → Analytics
+- **Supabase Dashboard:** Supabase Dashboard → Monitoring
+
+### Alert Configuration
+
+Configure alerts for:
+- Error rate > 5% for 5 minutes
+- Response time p95 > 2 seconds
+- Health check failures (3 consecutive)
+- Payment processing failures
+- Database connection failures
+
+See `LOGGING_AND_MONITORING.md` for detailed monitoring setup.
+
+---
+
+## Troubleshooting
+
+### Common Deployment Issues
+
+**Issue: Build fails with TypeScript errors**
+```bash
+# Fix TypeScript errors locally first
+npx tsc --noEmit
+
+# Then commit and push
+git add .
+git commit -m "Fix TypeScript errors"
+git push
+```
+
+**Issue: Environment variables not working**
+- Verify variables are set in Vercel Dashboard
+- Check variable names match exactly (case-sensitive)
+- Restart deployment after adding variables
+- Use `NEXT_PUBLIC_*` prefix for client-side variables
+
+**Issue: Database migrations fail**
+- Run migrations manually in Supabase SQL Editor
+- Check migration scripts for syntax errors
+- Verify database connection
+- Review migration logs
+
+**Issue: Static assets not loading**
+- Check CDN cache (may need to purge)
+- Verify file paths are correct
+- Check `public/` directory structure
+- Verify build output includes static files
+
+### Debugging Production Issues
+
+1. **Check Logs:**
+   - Vercel Dashboard → Deployments → [Deployment] → Runtime Logs
+   - Sentry Dashboard → Issues
+
+2. **Verify Environment:**
+   ```bash
+   # Test API endpoint
+   curl https://your-domain.com/api/health
+   ```
+
+3. **Check Database:**
+   - Supabase Dashboard → Database → Connection Pooling
+   - Verify RLS policies are active
+   - Check for connection errors
+
+4. **Review Recent Changes:**
+   - Check deployment history
+   - Review recent commits
+   - Check for breaking changes
+
+### Rollback Procedure
+
+If deployment causes issues, see `DEPLOYMENT_ROLLBACK.md` for detailed rollback procedures.
+
+**Quick Rollback (Vercel):**
+1. Go to Vercel Dashboard → Deployments
+2. Find previous working deployment
+3. Click "..." → "Promote to Production"
+
+---
+
 ## Support
 
 For deployment issues:
@@ -573,7 +709,8 @@ For deployment issues:
 2. Review error tracking (Sentry)
 3. Check deployment platform status
 4. Review this documentation
-5. Contact support team
+5. Check `RUNBOOK.md` for common issues
+6. Contact support team (see `ON_CALL_CONTACTS.md`)
 
 ---
 
@@ -583,4 +720,8 @@ For deployment issues:
 - [Vercel Documentation](https://vercel.com/docs)
 - [Supabase Documentation](https://supabase.com/docs)
 - [Stripe Documentation](https://stripe.com/docs)
+- `RUNBOOK.md` - Common issues and resolutions
+- `DEPLOYMENT_ROLLBACK.md` - Rollback procedures
+- `INCIDENT_RESPONSE.md` - Incident response procedures
+- `ARCHITECTURE.md` - System architecture
 

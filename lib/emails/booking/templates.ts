@@ -270,5 +270,36 @@ export const BookingEmailTemplates = {
       ),
     }
   },
+
+  // Sent when payment is successfully processed
+  paymentConfirmation: async (p: BookingEmailPayload) => {
+    const b = await loadBranding(p.tenantId ?? null)
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || ''
+    return {
+      subject: `Payment Confirmed - ${p.serviceName} Booking`,
+      html: wrapBrandingHtml(
+        `
+          <h1 style="margin: 0 0 8px 0;">Payment Confirmed, ${p.userName}!</h1>
+          <p>Thank you! Your payment has been successfully processed.</p>
+          
+          <div style="background: #f0fdf4; padding: 16px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #22c55e;">
+            <h2 style="margin: 0 0 12px 0; font-size: 18px;">Payment Details</h2>
+            <p style="margin: 8px 0;"><strong>Amount Paid:</strong> ${formatCurrency(p.totalAmount)}</p>
+            <p style="margin: 8px 0;"><strong>Service:</strong> ${p.serviceName}</p>
+            <p style="margin: 8px 0;"><strong>Booking Date:</strong> ${formatDate(p.bookingDate)}</p>
+            <p style="margin: 8px 0;"><strong>Booking Time:</strong> ${formatTime(p.bookingTime)}</p>
+            <p style="margin: 8px 0;"><strong>Address:</strong> ${p.address}</p>
+            ${p.providerName ? `<p style="margin: 8px 0;"><strong>Provider:</strong> ${p.providerName}</p>` : ''}
+          </div>
+          
+          <p>Your booking is confirmed and payment has been received. You'll receive a confirmation email once a provider is assigned to your booking.</p>
+          <p style="margin-top: 20px;">
+            <a href="${baseUrl}/customer/bookings/${p.bookingId}" style="background: ${b.primaryColor}; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">View Booking</a>
+          </p>
+        `.trim(),
+        { logoUrl: b.logoUrl, primaryColor: b.primaryColor }
+      ),
+    }
+  },
 }
 

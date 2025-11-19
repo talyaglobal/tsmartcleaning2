@@ -4,6 +4,7 @@ import { getStripe, isStripeConfigured } from '@/lib/stripe'
 import { computeRevenueShare } from '@/lib/revenue-share'
 import { withAuth } from '@/lib/auth/rbac'
 import { UserRole, isAdminRole } from '@/lib/auth/roles'
+import { sendBookingEmail } from '@/lib/emails/booking/send'
 import Stripe from 'stripe'
 
 // Get transactions
@@ -262,6 +263,14 @@ export async function POST(request: NextRequest) {
     if (updateError) {
       console.error('[transactions] Error updating booking payment status:', updateError)
       // Transaction recorded but booking update failed - log but don't fail
+    }
+
+    // Send payment confirmation email
+    try {
+      await sendBookingEmail(request, bookingId, 'paymentConfirmation')
+    } catch (emailError) {
+      console.error('[transactions] Error sending payment confirmation email:', emailError)
+      // Don't fail the request if email fails
     }
 
     return NextResponse.json({

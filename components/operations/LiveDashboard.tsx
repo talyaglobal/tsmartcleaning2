@@ -193,6 +193,10 @@ export function LiveDashboard() {
 			if (res.ok) {
 				fetchLiveJobs()
 				fetchAvailableProviders()
+				setNotifications((prev) => [
+					...prev,
+					{ id: Date.now().toString(), title: 'Success', message: 'Job status updated successfully', type: 'success' },
+				])
 			} else {
 				const error = await res.json()
 				setNotifications((prev) => [
@@ -205,6 +209,43 @@ export function LiveDashboard() {
 			setNotifications((prev) => [
 				...prev,
 				{ id: Date.now().toString(), title: 'Error', message: 'Failed to update status', type: 'error' },
+			])
+		}
+	}
+
+	const handleAutoAssignAll = async () => {
+		try {
+			const res = await fetch('/api/operations/auto-assign', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ strategy: 'balanced' }),
+			})
+
+			if (res.ok) {
+				const data = await res.json()
+				setNotifications((prev) => [
+					...prev,
+					{ 
+						id: Date.now().toString(), 
+						title: 'Auto-Assignment Complete', 
+						message: `Successfully assigned ${data.assigned} out of ${data.total} jobs`, 
+						type: 'success' 
+					},
+				])
+				fetchLiveJobs()
+				fetchAvailableProviders()
+			} else {
+				const error = await res.json()
+				setNotifications((prev) => [
+					...prev,
+					{ id: Date.now().toString(), title: 'Error', message: error.error || 'Auto-assignment failed', type: 'error' },
+				])
+			}
+		} catch (e) {
+			console.error('Error auto-assigning:', e)
+			setNotifications((prev) => [
+				...prev,
+				{ id: Date.now().toString(), title: 'Error', message: 'Auto-assignment failed', type: 'error' },
 			])
 		}
 	}
@@ -597,7 +638,7 @@ export function LiveDashboard() {
 						<CardHeader>
 							<div className="flex items-center justify-between">
 								<CardTitle>Unassigned Jobs ({unassignedJobs.length})</CardTitle>
-								<Button onClick={() => {}}>
+												<Button onClick={handleAutoAssignAll}>
 									<AlertCircle className="w-4 h-4 mr-2" />
 									Auto-Assign All
 								</Button>

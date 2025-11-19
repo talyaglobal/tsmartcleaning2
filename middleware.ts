@@ -1,8 +1,18 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { addSecurityHeaders, addCorsHeaders, createPreflightResponse, isOriginAllowed } from '@/lib/security/headers'
 
 export async function middleware(request: NextRequest) {
 	const { pathname } = request.nextUrl
+
+	// Enforce HTTPS in production (redirect HTTP to HTTPS)
+	const isProduction = process.env.NODE_ENV === 'production'
+	const protocol = request.headers.get('x-forwarded-proto') || request.nextUrl.protocol
+	if (isProduction && protocol === 'http:' && !isLocalhost(request.nextUrl.hostname)) {
+		const httpsUrl = new URL(request.url)
+		httpsUrl.protocol = 'https:'
+		return NextResponse.redirect(httpsUrl, 301) // Permanent redirect
+	}
 
 	// Resolve tenant from cookie/header or by host mapping
 	const hostHeader = request.headers.get('x-forwarded-host') || request.headers.get('host') || ''
@@ -66,11 +76,35 @@ export async function middleware(request: NextRequest) {
 		}
 	}
 
+	// Add request start time header for API metrics tracking
+	if (pathname.startsWith('/api/')) {
+		requestHeaders.set('x-request-start-time', Date.now().toString())
+	}
+
 	const response = NextResponse.next({
 		request: {
 			headers: requestHeaders,
 		},
 	})
+
+	// Add security headers (CSP, X-Frame-Options, etc.)
+	addSecurityHeaders(response)
+	
+	// CORS configuration for API routes (production origins only)
+	if (pathname.startsWith('/api/')) {
+		const origin = request.headers.get('origin')
+		
+		// Handle preflight requests
+		if (request.method === 'OPTIONS') {
+			const preflightResponse = createPreflightResponse(origin)
+			if (preflightResponse) {
+				return preflightResponse
+			}
+		}
+		
+		// Add CORS headers for actual requests
+		addCorsHeaders(response, origin)
+	}
 
 	// Add caching headers for static assets and API responses
 	if (pathname.startsWith('/_next/static') || pathname.startsWith('/images/') || pathname.startsWith('/css/') || pathname.startsWith('/js/')) {

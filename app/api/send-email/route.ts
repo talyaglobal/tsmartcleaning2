@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireTenantId } from '@/lib/tenant'
 import { recordUsageEvent } from '@/lib/usage'
 import { sendEmail } from '@/lib/emails/smtp'
+import { recordEmailUsage, checkEmailQuota } from '@/lib/emails/monitoring'
 
 // Email endpoint used by payout notifications and other flows.
 // Uses GoDaddy Workspace SMTP for sending emails.
@@ -18,6 +19,19 @@ export async function POST(request: NextRequest) {
     }
 
     try {
+      // Check email quota before sending
+      const quotaCheck = await checkEmailQuota(tenantId)
+      if (quotaCheck.exceeded) {
+        return NextResponse.json(
+          { 
+            error: 'Email quota exceeded',
+            limit: quotaCheck.limit,
+            remaining: quotaCheck.remaining,
+          },
+          { status: 429 }
+        )
+      }
+
       // Send email via SMTP
       await sendEmail({
         to,
@@ -41,9 +55,26 @@ export async function POST(request: NextRequest) {
         metadata: { channel: 'email', recipient: to, subject },
       }).catch(() => {})
 
+      // Record email usage for monitoring
+      recordEmailUsage(tenantId, {
+        recipient: to,
+        subject,
+        type: 'general',
+        success: true,
+      }).catch(() => {})
+
       return NextResponse.json(result)
     } catch (emailError: any) {
       console.error('[send-email] SMTP error:', emailError)
+      
+      // Record failed email attempt
+      recordEmailUsage(tenantId, {
+        recipient: to,
+        subject,
+        type: 'general',
+        success: false,
+      }).catch(() => {})
+
       return NextResponse.json(
         { error: 'Failed to send email', details: emailError.message },
         { status: 500 }

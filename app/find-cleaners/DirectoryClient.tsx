@@ -76,7 +76,7 @@ export default function DirectoryClient() {
   // Basic filters
   const [lat, setLat] = useState<number | null>(null)
   const [lng, setLng] = useState<number | null>(null)
-  const [radius, setRadius] = useState<number>(Number(searchParams.get("radiusMi") || 25))
+  const [radius, setRadius] = useState<number>(Number(searchParams.get("radiusMi") || 10))
   const [minRating, setMinRating] = useState<number>(Number(searchParams.get("minRating") || 0))
   const [verifiedOnly, setVerifiedOnly] = useState<boolean>(searchParams.get("verifiedOnly") === "true")
   const [sort, setSort] = useState<string>((searchParams.get("sort") as any) || "distance")
@@ -327,7 +327,7 @@ export default function DirectoryClient() {
     setLocationText("")
     setLat(null)
     setLng(null)
-    setRadius(25)
+    setRadius(10)
     setMinRating(0)
     setVerifiedOnly(false)
     setPriceRanges([])
@@ -392,23 +392,23 @@ export default function DirectoryClient() {
             <div className="flex flex-col md:flex-row md:items-center gap-3 flex-wrap">
               <div className="flex items-center gap-2 flex-wrap">
                 <div className="flex items-center gap-2">
-                  <label className="text-sm text-muted-foreground whitespace-nowrap">Distance</label>
+                  <label className="paragraph_small text-muted-foreground whitespace-nowrap">Distance</label>
                   <Select value={String(radius)} onValueChange={(v) => setRadius(Number(v))}>
                     <SelectTrigger className="w-[140px]">
                       <SelectValue placeholder="Radius" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="1">Within 1 mile</SelectItem>
+                      <SelectItem value="3">Within 3 miles</SelectItem>
                       <SelectItem value="5">Within 5 miles</SelectItem>
                       <SelectItem value="10">Within 10 miles</SelectItem>
-                      <SelectItem value="25">Within 25 miles</SelectItem>
-                      <SelectItem value="50">Within 50 miles</SelectItem>
-                      <SelectItem value="100">Within 100 miles</SelectItem>
+                      <SelectItem value="1000">More than 10 miles</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <label className="text-sm text-muted-foreground whitespace-nowrap">Rating</label>
+                  <label className="paragraph_small text-muted-foreground whitespace-nowrap">Rating</label>
                   <Select value={String(minRating)} onValueChange={(v) => setMinRating(Number(v))}>
                     <SelectTrigger className="w-[160px]">
                       <SelectValue placeholder="Min rating" />
@@ -423,7 +423,7 @@ export default function DirectoryClient() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <label className="text-sm text-muted-foreground whitespace-nowrap">Sort</label>
+                  <label className="paragraph_small text-muted-foreground whitespace-nowrap">Sort</label>
                   <Select value={sort} onValueChange={setSort}>
                     <SelectTrigger className="w-[180px]">
                       <SelectValue placeholder="Sort by" />
@@ -445,7 +445,7 @@ export default function DirectoryClient() {
                 </div>
 
                 <button
-                  className={`text-sm px-3 py-1.5 rounded-full border transition-colors ${
+                  className={`paragraph_small px-3 py-1.5 rounded-full border transition-colors ${
                     verifiedOnly
                       ? "bg-primary text-white border-primary"
                       : "bg-background hover:bg-accent"
@@ -473,7 +473,7 @@ export default function DirectoryClient() {
 
                     <div className="p-2 space-y-4">
                       <div>
-                        <label className="text-sm font-medium mb-2 block">Price Range</label>
+                        <label className="paragraph_small font-medium mb-2 block">Price Range</label>
                         <div className="space-y-2">
                           {PRICE_RANGES.map((range) => (
                             <div key={range} className="flex items-center space-x-2">
@@ -490,7 +490,7 @@ export default function DirectoryClient() {
                               />
                               <label
                                 htmlFor={`price-${range}`}
-                                className="text-sm cursor-pointer flex-1"
+                                className="paragraph_small cursor-pointer flex-1"
                               >
                                 {range.repeat(parseInt(range.replace("$", "")))}
                               </label>
@@ -500,7 +500,7 @@ export default function DirectoryClient() {
                       </div>
 
                       <div>
-                        <label className="text-sm font-medium mb-2 block">
+                        <label className="paragraph_small font-medium mb-2 block">
                           Minimum Reviews: {minReviews}
                         </label>
                         <Slider
@@ -543,7 +543,7 @@ export default function DirectoryClient() {
                     </DialogHeader>
                     <div className="space-y-2 max-h-[400px] overflow-y-auto">
                       {savedSearches.length === 0 ? (
-                        <p className="text-sm text-muted-foreground text-center py-4">
+                        <p className="paragraph_small text-muted-foreground text-center py-4">
                           No saved searches yet
                         </p>
                       ) : (
@@ -601,7 +601,7 @@ export default function DirectoryClient() {
                     </TabsTrigger>
                   </TabsList>
                 </Tabs>
-                <div className="text-sm text-muted-foreground whitespace-nowrap">
+                <div className="paragraph_small text-muted-foreground whitespace-nowrap">
                   {loading ? "Searching…" : `${total} companies found`}
                 </div>
               </div>
@@ -612,7 +612,7 @@ export default function DirectoryClient() {
 
       <main className="container mx-auto px-4 py-6">
         {error && (
-          <div className="mb-4 p-3 bg-destructive/10 text-destructive rounded-lg text-sm">
+          <div className="mb-4 p-3 bg-destructive/10 text-destructive rounded-lg paragraph_small">
             {error}
           </div>
         )}
@@ -621,12 +621,12 @@ export default function DirectoryClient() {
           <Card className="p-8 text-center">
             <div className="text-3xl mb-2">🔍</div>
             <div className="font-medium">No cleaning companies found</div>
-            <div className="text-sm text-muted-foreground mt-1">
+            <div className="paragraph_small text-muted-foreground mt-1">
               Try expanding your radius or adjusting your filters.
             </div>
             <div className="mt-4 flex items-center justify-center gap-2">
-              <Button variant="secondary" onClick={() => setRadius(50)}>
-                Expand to 50 miles
+              <Button variant="secondary" onClick={() => setRadius(1000)}>
+                Show all (&gt;10 miles)
               </Button>
               <Button variant="ghost" onClick={clearFilters}>
                 Clear filters
@@ -670,7 +670,7 @@ export default function DirectoryClient() {
                       ⭐ {c.averageRating?.toFixed(1) ?? "—"} ({c.totalReviews ?? 0})
                     </div>
                   </div>
-                  <div className="text-sm line-clamp-2">
+                  <div className="paragraph_small line-clamp-2">
                     {c.description || "Trusted cleaning service"}
                   </div>
                   <div className="flex items-center gap-2 flex-wrap">
@@ -719,7 +719,7 @@ export default function DirectoryClient() {
                   referrerPolicy="no-referrer-when-downgrade"
                 />
                 <div className="absolute top-4 right-4 bg-background/90 backdrop-blur-sm p-3 rounded-lg shadow-lg">
-                  <div className="text-sm font-medium mb-1">Companies on Map</div>
+                  <div className="paragraph_small font-medium mb-1">Companies on Map</div>
                   <div className="text-xs text-muted-foreground space-y-1 max-h-[200px] overflow-y-auto">
                     {companies
                       .filter(c => c.latitude != null && c.longitude != null)

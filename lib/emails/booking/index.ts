@@ -33,6 +33,10 @@ export function createBookingEmailClient(sendEmail: SendEmailFn) {
       const t = await BookingEmailTemplates.refunded(p)
       await sendEmail({ to: p.to, subject: t.subject, html: t.html })
     },
+    async sendPaymentConfirmation(p: BookingEmailPayload) {
+      const t = await BookingEmailTemplates.paymentConfirmation(p)
+      await sendEmail({ to: p.to, subject: t.subject, html: t.html })
+    },
   }
 }
 

@@ -2,12 +2,11 @@
 
 import { useState, FormEvent } from 'react'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Mail, Phone, MapPin, Clock, Sparkles, Loader2, CheckCircle2, AlertCircle } from 'lucide-react'
+import { WebflowSection, WebflowButton, WebflowCard } from '@/components/webflow'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { generateBreadcrumbSchema, generateLocalBusinessSchema } from '@/lib/seo'
 
@@ -201,40 +200,37 @@ export default function ContactPage() {
       />
 
       {/* Hero Section */}
-      <section className="py-16 bg-gradient-to-b from-primary/5 to-background">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-balance">
-              Get in Touch
-            </h1>
-            <p className="text-lg text-muted-foreground text-pretty">
-              Have questions about our services? We're here to help you find the perfect cleaning solution.
-            </p>
-          </div>
+      <WebflowSection variant="default" className="padding_none">
+        <div className="text-align_center max-w-3xl mx-auto">
+          <h1 className="heading_h1 mb-6">
+            Get in Touch
+          </h1>
+          <p className="paragraph_large text-color_secondary">
+            Have questions about our services? We're here to help you find the perfect cleaning solution.
+          </p>
         </div>
-      </section>
+      </WebflowSection>
 
       {/* Contact Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
-            {/* Contact Form */}
-            <div>
-              <Card id="contact-form" className="p-8">
-                <h2 className="text-2xl font-bold mb-6">Send us a message</h2>
+      <WebflowSection>
+        <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
+          {/* Contact Form */}
+          <div>
+            <WebflowCard id="contact-form">
+              <h2 className="heading_h2 mb-6">Send us a message</h2>
                 
                 {/* Success/Error Messages */}
                 {submitStatus === 'success' && (
                   <div className="mb-6 p-4 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900 flex items-start gap-3">
                     <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-green-800 dark:text-green-200">{submitMessage}</p>
+                    <p className="paragraph_small text-green-800 dark:text-green-200">{submitMessage}</p>
                   </div>
                 )}
 
                 {submitStatus === 'error' && (
                   <div className="mb-6 p-4 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 flex items-start gap-3">
                     <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-red-800 dark:text-red-200">{submitMessage}</p>
+                    <p className="paragraph_small text-red-800 dark:text-red-200">{submitMessage}</p>
                   </div>
                 )}
 
@@ -265,7 +261,7 @@ export default function ContactPage() {
                         disabled={isSubmitting}
                       />
                       {errors.firstName && (
-                        <p id="firstName-error" className="text-sm text-destructive" role="alert">
+                        <p id="firstName-error" className="paragraph_small text-destructive" role="alert">
                           {errors.firstName}
                         </p>
                       )}
@@ -282,7 +278,7 @@ export default function ContactPage() {
                         disabled={isSubmitting}
                       />
                       {errors.lastName && (
-                        <p id="lastName-error" className="text-sm text-destructive" role="alert">
+                        <p id="lastName-error" className="paragraph_small text-destructive" role="alert">
                           {errors.lastName}
                         </p>
                       )}
@@ -301,7 +297,7 @@ export default function ContactPage() {
                       disabled={isSubmitting}
                     />
                     {errors.email && (
-                      <p id="email-error" className="text-sm text-destructive" role="alert">
+                      <p id="email-error" className="paragraph_small text-destructive" role="alert">
                         {errors.email}
                       </p>
                     )}
@@ -319,7 +315,7 @@ export default function ContactPage() {
                       disabled={isSubmitting}
                     />
                     {errors.phone && (
-                      <p id="phone-error" className="text-sm text-destructive" role="alert">
+                      <p id="phone-error" className="paragraph_small text-destructive" role="alert">
                         {errors.phone}
                       </p>
                     )}
@@ -346,7 +342,7 @@ export default function ContactPage() {
                       <option value="other">Other</option>
                     </select>
                     {errors.serviceType && (
-                      <p id="serviceType-error" className="text-sm text-destructive" role="alert">
+                      <p id="serviceType-error" className="paragraph_small text-destructive" role="alert">
                         {errors.serviceType}
                       </p>
                     )}
@@ -378,12 +374,12 @@ export default function ContactPage() {
                       maxLength={MAX_MESSAGE_LENGTH}
                     />
                     {errors.message && (
-                      <p id="message-error" className="text-sm text-destructive" role="alert">
+                      <p id="message-error" className="paragraph_small text-destructive" role="alert">
                         {errors.message}
                       </p>
                     )}
                   </div>
-                  <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
+                  <WebflowButton type="submit" className="w-full" disabled={isSubmitting}>
                     {isSubmitting ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -392,157 +388,152 @@ export default function ContactPage() {
                     ) : (
                       'Send Message'
                     )}
-                  </Button>
+                  </WebflowButton>
                 </form>
-              </Card>
-            </div>
+            </WebflowCard>
+          </div>
 
-            {/* Contact Information */}
-            <div className="space-y-8">
-              <div>
-                <h2 className="text-2xl font-bold mb-6">Contact Information</h2>
-                <div className="space-y-6">
-                  <Card className="p-6">
-                    <div className="flex items-start gap-4">
-                      <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <Mail className="h-6 w-6 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold mb-1">Email</h3>
-                        <p className="text-muted-foreground">support@tsmartcleaning.com</p>
-                        <p className="text-muted-foreground">sales@tsmartcleaning.com</p>
-                      </div>
+          {/* Contact Information */}
+          <div className="space-y-8">
+            <div>
+              <h2 className="heading_h2 mb-6">Contact Information</h2>
+              <div className="space-y-6">
+                <WebflowCard>
+                  <div className="flex items-start gap-4">
+                    <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <Mail className="h-6 w-6 text-primary" />
                     </div>
-                  </Card>
+                    <div>
+                      <h3 className="heading_h5 mb-1">Email</h3>
+                      <p className="paragraph_small text-color_secondary">support@tsmartcleaning.com</p>
+                      <p className="paragraph_small text-color_secondary">sales@tsmartcleaning.com</p>
+                    </div>
+                  </div>
+                </WebflowCard>
 
-                  <Card className="p-6">
-                    <div className="flex items-start gap-4">
-                      <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <Phone className="h-6 w-6 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold mb-1">Phone</h3>
-                        <p className="text-muted-foreground">+1 (800) 555-0123</p>
-                        <p className="text-sm text-muted-foreground">Mon-Fri 8am - 8pm EST</p>
-                      </div>
+                <WebflowCard>
+                  <div className="flex items-start gap-4">
+                    <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <Phone className="h-6 w-6 text-primary" />
                     </div>
-                  </Card>
+                    <div>
+                      <h3 className="heading_h5 mb-1">Phone</h3>
+                      <p className="paragraph_small text-color_secondary">+1 (800) 555-0123</p>
+                      <p className="paragraph_small text-color_secondary">Mon-Fri 8am - 8pm EST</p>
+                    </div>
+                  </div>
+                </WebflowCard>
 
-                  <Card className="p-6">
-                    <div className="flex items-start gap-4">
-                      <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <MapPin className="h-6 w-6 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold mb-1">Office</h3>
-                        <p className="text-muted-foreground">123 Business Ave, Suite 100</p>
-                        <p className="text-muted-foreground">Boston, MA 02101</p>
-                      </div>
+                <WebflowCard>
+                  <div className="flex items-start gap-4">
+                    <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <MapPin className="h-6 w-6 text-primary" />
                     </div>
-                  </Card>
+                    <div>
+                      <h3 className="heading_h5 mb-1">Office</h3>
+                      <p className="paragraph_small text-color_secondary">123 Business Ave, Suite 100</p>
+                      <p className="paragraph_small text-color_secondary">Boston, MA 02101</p>
+                    </div>
+                  </div>
+                </WebflowCard>
 
-                  <Card className="p-6">
-                    <div className="flex items-start gap-4">
-                      <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <Clock className="h-6 w-6 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold mb-1">Business Hours</h3>
-                        <p className="text-muted-foreground">Monday - Friday: 8am - 8pm</p>
-                        <p className="text-muted-foreground">Saturday: 9am - 5pm</p>
-                        <p className="text-muted-foreground">Sunday: Closed</p>
-                      </div>
+                <WebflowCard>
+                  <div className="flex items-start gap-4">
+                    <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <Clock className="h-6 w-6 text-primary" />
                     </div>
-                  </Card>
-                </div>
+                    <div>
+                      <h3 className="heading_h5 mb-1">Business Hours</h3>
+                      <p className="paragraph_small text-color_secondary">Monday - Friday: 8am - 8pm</p>
+                      <p className="paragraph_small text-color_secondary">Saturday: 9am - 5pm</p>
+                      <p className="paragraph_small text-color_secondary">Sunday: Closed</p>
+                    </div>
+                  </div>
+                </WebflowCard>
               </div>
-
-              <Card className="p-6 bg-primary text-primary-foreground">
-                <h3 className="text-xl font-bold mb-2">Enterprise Solutions</h3>
-                <p className="mb-4 opacity-90">
-                  Looking for large-scale commercial cleaning services? Our dedicated team can create a custom solution for your business.
-                </p>
-                <Button variant="secondary" asChild>
-                  <Link href="/signup">Request a Quote</Link>
-                </Button>
-              </Card>
             </div>
+
+            <WebflowCard variant="inverse" className="bg-primary text-primary-foreground">
+              <h3 className="heading_h3 mb-2">Enterprise Solutions</h3>
+              <p className="paragraph_small mb-4 opacity-90">
+                Looking for large-scale commercial cleaning services? Our dedicated team can create a custom solution for your business.
+              </p>
+              <WebflowButton variant="secondary" href="/signup">Request a Quote</WebflowButton>
+            </WebflowCard>
           </div>
         </div>
-      </section>
+      </WebflowSection>
 
       {/* FAQ Section */}
-      <section className="py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl font-bold mb-8 text-center">Frequently Asked Questions</h2>
-            <div className="space-y-4">
-              <Card className="p-6">
-                <h3 className="font-semibold mb-2">How quickly can I book a cleaning service?</h3>
-                <p className="text-muted-foreground">
-                  You can book a service in minutes! Many of our providers offer same-day or next-day availability.
-                </p>
-              </Card>
-              <Card className="p-6">
-                <h3 className="font-semibold mb-2">Are your cleaning professionals insured?</h3>
-                <p className="text-muted-foreground">
-                  Yes, all our cleaning professionals are fully insured and background-checked for your safety and peace of mind.
-                </p>
-              </Card>
-              <Card className="p-6">
-                <h3 className="font-semibold mb-2">What if I'm not satisfied with the service?</h3>
-                <p className="text-muted-foreground">
-                  We offer a 100% satisfaction guarantee. If you're not happy with the service, contact us within 24 hours and we'll make it right.
-                </p>
-              </Card>
-              <Card className="p-6">
-                <h3 className="font-semibold mb-2">Do I need to provide cleaning supplies?</h3>
-                <p className="text-muted-foreground">
-                  No, our professionals bring their own supplies and equipment. However, if you have specific products you'd like us to use, just let us know!
-                </p>
-              </Card>
-            </div>
+      <WebflowSection variant="secondary">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="heading_h2 mb-8 text-align_center">Frequently Asked Questions</h2>
+          <div className="space-y-4">
+            <WebflowCard>
+              <h3 className="heading_h5 mb-2">How quickly can I book a cleaning service?</h3>
+              <p className="paragraph_small text-color_secondary">
+                You can book a service in minutes! Many of our providers offer same-day or next-day availability.
+              </p>
+            </WebflowCard>
+            <WebflowCard>
+              <h3 className="heading_h5 mb-2">Are your cleaning professionals insured?</h3>
+              <p className="paragraph_small text-color_secondary">
+                Yes, all our cleaning professionals are fully insured and background-checked for your safety and peace of mind.
+              </p>
+            </WebflowCard>
+            <WebflowCard>
+              <h3 className="heading_h5 mb-2">What if I'm not satisfied with the service?</h3>
+              <p className="paragraph_small text-color_secondary">
+                We offer a 100% satisfaction guarantee. If you're not happy with the service, contact us within 24 hours and we'll make it right.
+              </p>
+            </WebflowCard>
+            <WebflowCard>
+              <h3 className="heading_h5 mb-2">Do I need to provide cleaning supplies?</h3>
+              <p className="paragraph_small text-color_secondary">
+                No, our professionals bring their own supplies and equipment. However, if you have specific products you'd like us to use, just let us know!
+              </p>
+            </WebflowCard>
           </div>
         </div>
-      </section>
+      </WebflowSection>
 
       {/* Footer */}
       <footer className="border-t py-12">
-        <div className="container mx-auto px-4">
+        <div className="container">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <Sparkles className="h-6 w-6 text-primary" />
-                <span className="font-bold text-lg">TSmartCleaning</span>
+                <span className="heading_h5">TSmartCleaning</span>
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="paragraph_small text-color_secondary">
                 Professional cleaning services made simple.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Services</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="/#services" className="hover:text-foreground transition-colors">Residential Cleaning</Link></li>
-                <li><Link href="/#services" className="hover:text-foreground transition-colors">Commercial Cleaning</Link></li>
-                <li><Link href="/#services" className="hover:text-foreground transition-colors">Specialized Services</Link></li>
+              <h4 className="heading_h6 mb-4">Services</h4>
+              <ul className="space-y-2">
+                <li><Link href="/#services" className="text-link paragraph_small">Residential Cleaning</Link></li>
+                <li><Link href="/#services" className="text-link paragraph_small">Commercial Cleaning</Link></li>
+                <li><Link href="/#services" className="text-link paragraph_small">Specialized Services</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="/contact" className="hover:text-foreground transition-colors">Contact Us</Link></li>
-                <li><Link href="/provider-signup" className="hover:text-foreground transition-colors">Become a Provider</Link></li>
+              <h4 className="heading_h6 mb-4">Company</h4>
+              <ul className="space-y-2">
+                <li><Link href="/contact" className="text-link paragraph_small">Contact Us</Link></li>
+                <li><Link href="/provider-signup" className="text-link paragraph_small">Become a Provider</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="#" className="hover:text-foreground transition-colors">Privacy Policy</Link></li>
-                <li><Link href="#" className="hover:text-foreground transition-colors">Terms of Service</Link></li>
+              <h4 className="heading_h6 mb-4">Legal</h4>
+              <ul className="space-y-2">
+                <li><Link href="/privacy" className="text-link paragraph_small">Privacy Policy</Link></li>
+                <li><Link href="/terms" className="text-link paragraph_small">Terms of Service</Link></li>
               </ul>
             </div>
           </div>
-          <div className="border-t pt-8 text-center text-sm text-muted-foreground">
+          <div className="border-t pt-8 text-align_center paragraph_small text-color_secondary">
             <p>&copy; 2025 TSmartCleaning. All rights reserved.</p>
           </div>
         </div>

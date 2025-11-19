@@ -139,13 +139,27 @@ The component includes these preset breakpoints:
 ## Related Files
 
 - **Component:** `components/marketing/ResponsiveDesignTest.tsx`
+- **Comprehensive Checklist:** `docs/RESPONSIVE_DESIGN_MANUAL_TESTING_CHECKLIST.md` - **Use this for detailed testing**
 - **Automated Tests:** `tests/responsive-design.test.ts`
 - **Test Results:** `tests/RESPONSIVE_DESIGN_TEST_RESULTS.md`
 - **Homepage:** `app/page.tsx` (where the component is used)
 
+## Comprehensive Testing Checklist
+
+For a detailed, item-by-item testing checklist covering all aspects of responsive design testing, see:
+**`docs/RESPONSIVE_DESIGN_MANUAL_TESTING_CHECKLIST.md`**
+
+This checklist includes:
+- Detailed testing items for Mobile, Tablet, and Desktop
+- Navigation, Images, Layout, Typography, Interactive Elements, Forms, Content, and Performance checks
+- Cross-breakpoint testing
+- Browser testing across Chrome, Firefox, Safari, and Edge
+- Issue tracking templates
+- Testing results summary
+
 ## Next Steps
 
-After completing manual testing, update the checklist in `FRONTEND_PAGES_TODO.md`:
+After completing manual testing, update the checklist in `FINAL_MISSING_TODO.md`:
 
 ```markdown
 - [x] Manual visual testing completed

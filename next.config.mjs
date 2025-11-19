@@ -1,9 +1,6 @@
 import {withSentryConfig} from '@sentry/nextjs';
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   images: {
     // Enable Next.js image optimization
     formats: ['image/avif', 'image/webp'],
@@ -20,12 +17,8 @@ const nextConfig = {
   },
   // Enable compression
   compress: true,
-  // Optimize production builds
-  swcMinify: true,
   // Enable static page generation where possible
   output: 'standalone',
-  // Optimize fonts
-  optimizeFonts: true,
   // Experimental features for better performance
   experimental: {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],

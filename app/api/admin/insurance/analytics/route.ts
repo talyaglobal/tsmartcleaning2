@@ -121,10 +121,10 @@ export const GET = withAuth(
 		// Build daily time series
 		const timeSeriesMap = new Map<string, { date: string; policies: number; claims: number; revenue: number }>()
 		
-		const now = new Date()
+		const currentDate = new Date()
 		const daysBack = period === '7d' ? 7 : period === '30d' ? 30 : period === '90d' ? 90 : 365
 		for (let i = daysBack - 1; i >= 0; i--) {
-			const date = new Date(now)
+			const date = new Date(currentDate)
 			date.setDate(date.getDate() - i)
 			const dateStr = date.toISOString().split('T')[0]
 			timeSeriesMap.set(dateStr, { date: dateStr, policies: 0, claims: 0, revenue: 0 })

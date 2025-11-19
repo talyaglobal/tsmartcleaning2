@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabase } from '@/lib/supabase'
 import { withCache, generateCacheKey } from '@/lib/cache'
+import { withRateLimit, RateLimitPresets } from '@/lib/rate-limit'
 
 type CompanyRow = {
   id: string
@@ -40,13 +41,13 @@ function haversineMiles(lat1: number, lon1: number, lat2: number, lon2: number) 
   return R * c
 }
 
-export async function GET(request: NextRequest) {
+export const GET = withRateLimit(async (request: NextRequest) => {
   try {
     const { searchParams } = new URL(request.url)
     const q = (searchParams.get('q') || '').trim()
     const lat = parseFloat(searchParams.get('lat') || '')
     const lng = parseFloat(searchParams.get('lng') || '')
-    const radiusMi = parseInt(searchParams.get('radiusMi') || '25', 10)
+    const radiusMi = parseInt(searchParams.get('radiusMi') || '10', 10)
     const minRating = parseFloat(searchParams.get('minRating') || '0')
     const verifiedOnly = searchParams.get('verifiedOnly') === 'true'
     const limit = Math.min(parseInt(searchParams.get('limit') || '24', 10), 100)
@@ -216,6 +217,6 @@ export async function GET(request: NextRequest) {
     console.error('[directory] search error', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
-}
+}, RateLimitPresets.moderate)
 
 

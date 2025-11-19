@@ -3,10 +3,11 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { WebflowSection, WebflowButton, WebflowCard } from '@/components/webflow'
+import { WebflowSection, WebflowButton, WebflowCard, ScrollAnimation } from '@/components/webflow'
 import { Target, Users, Award, Heart, CheckCircle2, Sparkles, MapPin, Calendar, ExternalLink, Linkedin, Twitter, Mail } from 'lucide-react'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { generateBreadcrumbSchema } from '@/lib/seo'
+import { cn } from '@/lib/utils'
 
 interface Stats {
   happyCustomers: number
@@ -132,7 +133,7 @@ export default function AboutPage() {
 
       {/* Hero Section */}
       <WebflowSection variant="default" className="padding_none">
-        <div className="text-align_center max-w-3xl mx-auto">
+        <div className={cn("text-align_center max-w-3xl mx-auto animate-hero-fade-in")}>
           <h1 className="heading_h1 mb-6">
             Making Professional Cleaning Accessible to Everyone
           </h1>
@@ -145,65 +146,69 @@ export default function AboutPage() {
       {/* Mission & Values */}
       <WebflowSection>
         <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
-          <WebflowCard>
-            <Target className="h-12 w-12 text-primary mb-4" />
-            <h2 className="heading_h2 mb-4">Our Mission</h2>
-            <p className="paragraph_small text-color_secondary">
-              To simplify and elevate the cleaning services experience by creating a trusted marketplace that empowers both customers and service providers. We believe everyone deserves a clean, healthy environment without the hassle.
-            </p>
-          </WebflowCard>
-          <WebflowCard>
-            <Heart className="h-12 w-12 text-primary mb-4" />
-            <h2 className="heading_h2 mb-4">Our Values</h2>
-            <ul className="space-y-3">
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="paragraph_small text-color_secondary">Trust and transparency in every interaction</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="paragraph_small text-color_secondary">Quality service that exceeds expectations</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="paragraph_small text-color_secondary">Supporting and empowering service providers</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="paragraph_small text-color_secondary">Innovation through technology</span>
-              </li>
-            </ul>
-          </WebflowCard>
+          <ScrollAnimation delay={0}>
+            <WebflowCard className="animate-hover-lift">
+              <Target className="h-12 w-12 text-primary mb-4" />
+              <h2 className="heading_h2 mb-4">Our Mission</h2>
+              <p className="paragraph_small text-color_secondary">
+                To simplify and elevate the cleaning services experience by creating a trusted marketplace that empowers both customers and service providers. We believe everyone deserves a clean, healthy environment without the hassle.
+              </p>
+            </WebflowCard>
+          </ScrollAnimation>
+          <ScrollAnimation delay={100}>
+            <WebflowCard className="animate-hover-lift">
+              <Heart className="h-12 w-12 text-primary mb-4" />
+              <h2 className="heading_h2 mb-4">Our Values</h2>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="paragraph_small text-color_secondary">Trust and transparency in every interaction</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="paragraph_small text-color_secondary">Quality service that exceeds expectations</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="paragraph_small text-color_secondary">Supporting and empowering service providers</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="paragraph_small text-color_secondary">Innovation through technology</span>
+                </li>
+              </ul>
+            </WebflowCard>
+          </ScrollAnimation>
         </div>
       </WebflowSection>
 
       {/* Stats */}
       <WebflowSection variant="secondary">
         <div className="grid md:grid-cols-4 gap-8 max-w-5xl mx-auto text-align_center">
-          <div>
+          <ScrollAnimation delay={0} className="text-center">
             <div className="heading_h2 mb-2">
               {loading ? '...' : stats ? formatNumber(stats.happyCustomers) : '10,000+'}
             </div>
             <div className="paragraph_small text-color_secondary">Happy Customers</div>
-          </div>
-          <div>
+          </ScrollAnimation>
+          <ScrollAnimation delay={100} className="text-center">
             <div className="heading_h2 mb-2">
               {loading ? '...' : stats ? formatNumber(stats.verifiedProviders) : '2,500+'}
             </div>
             <div className="paragraph_small text-color_secondary">Verified Providers</div>
-          </div>
-          <div>
+          </ScrollAnimation>
+          <ScrollAnimation delay={200} className="text-center">
             <div className="heading_h2 mb-2">
               {loading ? '...' : stats ? `${stats.citiesCovered}+` : '50+'}
             </div>
             <div className="paragraph_small text-color_secondary">Cities Covered</div>
-          </div>
-          <div>
+          </ScrollAnimation>
+          <ScrollAnimation delay={300} className="text-center">
             <div className="heading_h2 mb-2">
               {loading ? '...' : stats ? `${stats.averageRating}/5` : '4.9/5'}
             </div>
             <div className="paragraph_small text-color_secondary">Average Rating</div>
-          </div>
+          </ScrollAnimation>
         </div>
       </WebflowSection>
 

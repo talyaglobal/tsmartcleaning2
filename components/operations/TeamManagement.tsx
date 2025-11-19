@@ -5,7 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { Users, Plus, UserPlus, Trash2 } from 'lucide-react'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Users, Plus, UserPlus, Trash2, X } from 'lucide-react'
 
 interface TeamMember {
 	id: string
@@ -29,12 +31,23 @@ interface Team {
 	members?: TeamMember[]
 }
 
+interface AvailableUser {
+	id: string
+	full_name: string
+	email: string
+	role: string
+}
+
 export function TeamManagement() {
 	const [teams, setTeams] = useState<Team[]>([])
 	const [loading, setLoading] = useState(true)
 	const [showCreateForm, setShowCreateForm] = useState(false)
 	const [newTeamName, setNewTeamName] = useState('')
 	const [newTeamDescription, setNewTeamDescription] = useState('')
+	const [availableUsers, setAvailableUsers] = useState<AvailableUser[]>([])
+	const [selectedTeamForMember, setSelectedTeamForMember] = useState<string | null>(null)
+	const [selectedUserId, setSelectedUserId] = useState<string>('')
+	const [selectedRole, setSelectedRole] = useState<string>('member')
 
 	useEffect(() => {
 		fetchTeams()
@@ -75,6 +88,66 @@ export function TeamManagement() {
 			}
 		} catch (e) {
 			console.error('Error creating team:', e)
+		}
+	}
+
+	const fetchAvailableUsers = async () => {
+		try {
+			const res = await fetch('/api/users')
+			if (res.ok) {
+				const data = await res.json()
+				setAvailableUsers(data.users || [])
+			}
+		} catch (e) {
+			console.error('Error fetching users:', e)
+		}
+	}
+
+	const handleAddMember = async (teamId: string) => {
+		if (!selectedUserId) return
+
+		try {
+			const res = await fetch(`/api/operations/teams/${teamId}/members`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					userId: selectedUserId,
+					role: selectedRole,
+				}),
+			})
+
+			if (res.ok) {
+				setSelectedTeamForMember(null)
+				setSelectedUserId('')
+				setSelectedRole('member')
+				fetchTeams()
+			} else {
+				const error = await res.json()
+				alert(error.error || 'Failed to add member')
+			}
+		} catch (e) {
+			console.error('Error adding member:', e)
+			alert('Failed to add member')
+		}
+	}
+
+	const handleRemoveMember = async (teamId: string, userId: string) => {
+		if (!confirm('Are you sure you want to remove this member?')) return
+
+		try {
+			const res = await fetch(`/api/operations/teams/${teamId}/members?userId=${userId}`, {
+				method: 'DELETE',
+			})
+
+			if (res.ok) {
+				fetchTeams()
+			} else {
+				const error = await res.json()
+				alert(error.error || 'Failed to remove member')
+			}
+		} catch (e) {
+			console.error('Error removing member:', e)
+			alert('Failed to remove member')
 		}
 	}
 
@@ -135,21 +208,97 @@ export function TeamManagement() {
 								{team.members && team.members.length > 0 ? (
 									team.members.map((member) => (
 										<div key={member.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-											<div>
+											<div className="flex-1">
 												<p className="font-medium text-sm">{member.user.full_name}</p>
 												<p className="text-xs text-gray-600">{member.user.email}</p>
 											</div>
-											<Badge variant="outline">{member.role}</Badge>
+											<div className="flex items-center space-x-2">
+												<Badge variant="outline">{member.role}</Badge>
+												<Button
+													variant="ghost"
+													size="sm"
+													className="h-6 w-6 p-0"
+													onClick={() => handleRemoveMember(team.id, member.user_id)}
+													title="Remove member"
+												>
+													<X className="w-3 h-3" />
+												</Button>
+											</div>
 										</div>
 									))
 								) : (
 									<p className="text-sm text-gray-500">No members yet</p>
 								)}
 							</div>
-							<Button variant="outline" className="w-full mt-4" size="sm">
-								<UserPlus className="w-4 h-4 mr-2" />
-								Add Member
-							</Button>
+							<Dialog open={selectedTeamForMember === team.id} onOpenChange={(open) => {
+								if (!open) {
+									setSelectedTeamForMember(null)
+									setSelectedUserId('')
+									setSelectedRole('member')
+								} else {
+									setSelectedTeamForMember(team.id)
+									fetchAvailableUsers()
+								}
+							}}>
+								<DialogTrigger asChild>
+									<Button variant="outline" className="w-full mt-4" size="sm" onClick={() => {
+										setSelectedTeamForMember(team.id)
+										fetchAvailableUsers()
+									}}>
+										<UserPlus className="w-4 h-4 mr-2" />
+										Add Member
+									</Button>
+								</DialogTrigger>
+								<DialogContent>
+									<DialogHeader>
+										<DialogTitle>Add Member to {team.name}</DialogTitle>
+									</DialogHeader>
+									<div className="space-y-4">
+										<div>
+											<label className="text-sm font-medium mb-1 block">User</label>
+											<Select value={selectedUserId} onValueChange={setSelectedUserId}>
+												<SelectTrigger>
+													<SelectValue placeholder="Select a user" />
+												</SelectTrigger>
+												<SelectContent>
+													{availableUsers
+														.filter((user) => !team.members?.some((m) => m.user_id === user.id))
+														.map((user) => (
+															<SelectItem key={user.id} value={user.id}>
+																{user.full_name} ({user.email}) - {user.role}
+															</SelectItem>
+														))}
+												</SelectContent>
+											</Select>
+										</div>
+										<div>
+											<label className="text-sm font-medium mb-1 block">Role</label>
+											<Select value={selectedRole} onValueChange={setSelectedRole}>
+												<SelectTrigger>
+													<SelectValue />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem value="member">Member</SelectItem>
+													<SelectItem value="leader">Leader</SelectItem>
+													<SelectItem value="supervisor">Supervisor</SelectItem>
+												</SelectContent>
+											</Select>
+										</div>
+										<div className="flex space-x-2">
+											<Button onClick={() => handleAddMember(team.id)} disabled={!selectedUserId}>
+												Add Member
+											</Button>
+											<Button variant="outline" onClick={() => {
+												setSelectedTeamForMember(null)
+												setSelectedUserId('')
+												setSelectedRole('member')
+											}}>
+												Cancel
+											</Button>
+										</div>
+									</div>
+								</DialogContent>
+							</Dialog>
 						</CardContent>
 					</Card>
 				))}

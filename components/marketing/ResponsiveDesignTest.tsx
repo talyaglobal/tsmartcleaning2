@@ -154,6 +154,12 @@ export function ResponsiveDesignTest() {
           </div>
 
           <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #eee', fontSize: '11px', color: '#666' }}>
+            <div style={{ marginBottom: '8px', padding: '6px', backgroundColor: '#e3f2fd', borderRadius: '4px' }}>
+              <strong>📋 Full Testing Checklist:</strong>
+              <div style={{ marginTop: '4px', fontSize: '10px' }}>
+                See <code style={{ backgroundColor: '#fff', padding: '2px 4px', borderRadius: '2px' }}>docs/RESPONSIVE_DESIGN_MANUAL_TESTING_CHECKLIST.md</code> for comprehensive testing guide
+              </div>
+            </div>
             <div style={{ marginBottom: '8px' }}>
               <strong>How to Test:</strong>
             </div>

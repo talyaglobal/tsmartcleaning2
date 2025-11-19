@@ -5,7 +5,11 @@ import { DashboardNav } from '@/components/dashboard/dashboard-nav'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { Sparkles, Award, TrendingUp, Clock, Gift, Star } from 'lucide-react'
+import { Sparkles, Award, TrendingUp, Clock, Gift, Star, Trophy, Users, Copy, CheckCircle2, Share2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Input } from '@/components/ui/input'
+import { toast } from 'sonner'
 import { useSearchParams } from 'next/navigation'
 import EnsureDashboardUser from '@/components/auth/EnsureDashboardUser'
 import { format } from 'date-fns'
@@ -31,12 +35,50 @@ interface LoyaltyTransaction {
   created_at: string
 }
 
+interface Achievement {
+  id: string
+  code: string
+  name: string
+  bonus_points: number
+  once_per_user: boolean
+  earned: boolean
+  awardedAt: string | null
+}
+
+interface ReferralData {
+  referralCode: string
+  referralsAsReferrer: Array<{
+    id: string
+    referrer_id: string
+    referee_id: string
+    status: string
+    rewarded_at: string | null
+    created_at: string
+  }>
+  referralsAsReferee: Array<{
+    id: string
+    referrer_id: string
+    referee_id: string
+    status: string
+    rewarded_at: string | null
+    created_at: string
+  }>
+  stats: {
+    totalReferrals: number
+    completedReferrals: number
+    pendingReferrals: number
+  }
+}
+
 export default function CustomerLoyaltyPage() {
   const searchParams = useSearchParams()
   const userId = searchParams.get('userId')
   const [balance, setBalance] = useState<LoyaltyBalance | null>(null)
   const [transactions, setTransactions] = useState<LoyaltyTransaction[]>([])
+  const [achievements, setAchievements] = useState<Achievement[]>([])
+  const [referralData, setReferralData] = useState<ReferralData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     if (userId) {
@@ -47,20 +89,60 @@ export default function CustomerLoyaltyPage() {
   const loadLoyaltyData = async () => {
     if (!userId) return
     try {
-      const [balanceRes, transactionsRes] = await Promise.all([
+      const [balanceRes, transactionsRes, achievementsRes, referralsRes] = await Promise.all([
         fetch(`/api/loyalty/balance?user_id=${userId}`),
         fetch(`/api/loyalty/transactions?user_id=${userId}&limit=50`),
+        fetch(`/api/loyalty/achievements?user_id=${userId}`),
+        fetch(`/api/loyalty/referrals?user_id=${userId}`),
       ])
       
       const balanceData = await balanceRes.json()
       const transactionsData = await transactionsRes.json()
+      const achievementsData = await achievementsRes.json()
+      const referralsData = await referralsRes.json()
       
       setBalance(balanceData)
       setTransactions(transactionsData.transactions || [])
+      setAchievements(achievementsData.achievements || [])
+      setReferralData(referralsData)
     } catch (error) {
       console.error('Error loading loyalty data:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const copyReferralCode = async () => {
+    if (!referralData?.referralCode) return
+    try {
+      await navigator.clipboard.writeText(referralData.referralCode)
+      setCopied(true)
+      toast.success('Referral code copied to clipboard')
+      setTimeout(() => setCopied(false), 2000)
+    } catch (error) {
+      console.error('Failed to copy:', error)
+    }
+  }
+
+  const shareReferralCode = async () => {
+    if (!referralData?.referralCode) return
+    const shareText = `Join me on TSmart Cleaning! Use my referral code: ${referralData.referralCode}`
+    const shareUrl = `${window.location.origin}/signup?ref=${referralData.referralCode}`
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Join TSmart Cleaning',
+          text: shareText,
+          url: shareUrl,
+        })
+      } catch (error) {
+        // User cancelled or error occurred
+      }
+    } else {
+      // Fallback to copying
+      await navigator.clipboard.writeText(`${shareText} ${shareUrl}`)
+      toast.success('Referral link copied to clipboard')
     }
   }
 
@@ -256,58 +338,228 @@ export default function CustomerLoyaltyPage() {
           </div>
         </Card>
 
-        {/* Transaction History */}
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Transaction History</h2>
-          {transactions.length === 0 ? (
-            <div className="text-center text-muted-foreground py-12">
-              No transactions yet. Start booking to earn points!
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {transactions.map((transaction) => (
-                <div
-                  key={transaction.id}
-                  className="flex items-center justify-between p-4 border rounded-md"
-                >
-                  <div className="flex items-center gap-4">
-                    {transaction.delta_points > 0 ? (
-                      <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                        <Gift className="h-5 w-5 text-green-600" />
+        {/* Tabs for different sections */}
+        <Tabs defaultValue="transactions" className="mb-8">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="transactions">Transactions</TabsTrigger>
+            <TabsTrigger value="achievements">Achievements</TabsTrigger>
+            <TabsTrigger value="referrals">Referrals</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="transactions">
+            <Card className="p-6">
+              <h2 className="text-xl font-semibold mb-4">Transaction History</h2>
+              {transactions.length === 0 ? (
+                <div className="text-center text-muted-foreground py-12">
+                  No transactions yet. Start booking to earn points!
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {transactions.map((transaction) => (
+                    <div
+                      key={transaction.id}
+                      className="flex items-center justify-between p-4 border rounded-md"
+                    >
+                      <div className="flex items-center gap-4">
+                        {transaction.delta_points > 0 ? (
+                          <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                            <Gift className="h-5 w-5 text-green-600" />
+                          </div>
+                        ) : (
+                          <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
+                            <Clock className="h-5 w-5 text-red-600" />
+                          </div>
+                        )}
+                        <div>
+                          <div className="font-medium">
+                            {formatSourceType(transaction.source_type)}
+                          </div>
+                          <div className="text-sm text-muted-foreground flex items-center gap-2">
+                            <Clock className="h-3 w-3" />
+                            {format(new Date(transaction.created_at), 'MMM d, yyyy h:mm a')}
+                          </div>
+                          {transaction.metadata && Object.keys(transaction.metadata).length > 0 && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              {JSON.stringify(transaction.metadata)}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    ) : (
-                      <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
-                        <Clock className="h-5 w-5 text-red-600" />
+                      <div
+                        className={`text-lg font-semibold ${
+                          transaction.delta_points > 0 ? 'text-green-600' : 'text-red-600'
+                        }`}
+                      >
+                        {transaction.delta_points > 0 ? '+' : ''}
+                        {transaction.delta_points.toLocaleString()}
                       </div>
-                    )}
-                    <div>
-                      <div className="font-medium">
-                        {formatSourceType(transaction.source_type)}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="achievements">
+            <Card className="p-6">
+              <h2 className="text-xl font-semibold mb-4">Achievements & Badges</h2>
+              {achievements.length === 0 ? (
+                <div className="text-center text-muted-foreground py-12">
+                  No achievements available yet.
+                </div>
+              ) : (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {achievements.map((achievement) => (
+                    <div
+                      key={achievement.id}
+                      className={`p-4 border-2 rounded-lg ${
+                        achievement.earned
+                          ? 'border-primary bg-primary/5'
+                          : 'border-muted bg-muted/30 opacity-60'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          {achievement.earned ? (
+                            <Trophy className="h-5 w-5 text-yellow-500" />
+                          ) : (
+                            <Award className="h-5 w-5 text-muted-foreground" />
+                          )}
+                          <h3 className="font-semibold">{achievement.name}</h3>
+                        </div>
+                        {achievement.earned && (
+                          <Badge variant="default" className="bg-yellow-500">
+                            Earned
+                          </Badge>
+                        )}
                       </div>
-                      <div className="text-sm text-muted-foreground flex items-center gap-2">
-                        <Clock className="h-3 w-3" />
-                        {format(new Date(transaction.created_at), 'MMM d, yyyy h:mm a')}
-                      </div>
-                      {transaction.metadata && Object.keys(transaction.metadata).length > 0 && (
-                        <div className="text-xs text-muted-foreground mt-1">
-                          {JSON.stringify(transaction.metadata)}
+                      {achievement.bonus_points > 0 && (
+                        <div className="text-sm text-muted-foreground mb-2">
+                          +{achievement.bonus_points} bonus points
+                        </div>
+                      )}
+                      {achievement.earned && achievement.awardedAt && (
+                        <div className="text-xs text-muted-foreground">
+                          Earned {format(new Date(achievement.awardedAt), 'MMM d, yyyy')}
                         </div>
                       )}
                     </div>
-                  </div>
-                  <div
-                    className={`text-lg font-semibold ${
-                      transaction.delta_points > 0 ? 'text-green-600' : 'text-red-600'
-                    }`}
-                  >
-                    {transaction.delta_points > 0 ? '+' : ''}
-                    {transaction.delta_points.toLocaleString()}
-                  </div>
+                  ))}
                 </div>
-              ))}
+              )}
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="referrals">
+            <div className="space-y-6">
+              {/* Referral Code Card */}
+              <Card className="p-6">
+                <h2 className="text-xl font-semibold mb-4">Your Referral Code</h2>
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="flex-1">
+                    <Input
+                      value={referralData?.referralCode || ''}
+                      readOnly
+                      className="font-mono text-lg"
+                    />
+                  </div>
+                  <Button onClick={copyReferralCode} variant="outline" size="icon">
+                    {copied ? (
+                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                    ) : (
+                      <Copy className="h-5 w-5" />
+                    )}
+                  </Button>
+                  <Button onClick={shareReferralCode} variant="default">
+                    <Share2 className="h-4 w-4 mr-2" />
+                    Share
+                  </Button>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Share your referral code with friends! You'll both earn bonus points when they sign up and complete their first booking.
+                </p>
+              </Card>
+
+              {/* Referral Stats */}
+              {referralData && (
+                <div className="grid md:grid-cols-3 gap-6">
+                  <Card className="p-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="text-sm text-muted-foreground">Total Referrals</div>
+                      <Users className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                    <div className="text-3xl font-bold">{referralData.stats.totalReferrals}</div>
+                  </Card>
+
+                  <Card className="p-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="text-sm text-muted-foreground">Completed</div>
+                      <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    </div>
+                    <div className="text-3xl font-bold text-green-600">
+                      {referralData.stats.completedReferrals}
+                    </div>
+                  </Card>
+
+                  <Card className="p-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="text-sm text-muted-foreground">Pending</div>
+                      <Clock className="h-4 w-4 text-yellow-600" />
+                    </div>
+                    <div className="text-3xl font-bold text-yellow-600">
+                      {referralData.stats.pendingReferrals}
+                    </div>
+                  </Card>
+                </div>
+              )}
+
+              {/* Referral History */}
+              <Card className="p-6">
+                <h2 className="text-xl font-semibold mb-4">Referral History</h2>
+                {referralData && referralData.referralsAsReferrer.length === 0 ? (
+                  <div className="text-center text-muted-foreground py-12">
+                    No referrals yet. Share your code to get started!
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {referralData?.referralsAsReferrer.map((referral) => (
+                      <div
+                        key={referral.id}
+                        className="flex items-center justify-between p-4 border rounded-md"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                            <Users className="h-5 w-5 text-blue-600" />
+                          </div>
+                          <div>
+                            <div className="font-medium">
+                              Referred user {referral.referee_id.substring(0, 8)}...
+                            </div>
+                            <div className="text-sm text-muted-foreground flex items-center gap-2">
+                              <Clock className="h-3 w-3" />
+                              {format(new Date(referral.created_at), 'MMM d, yyyy')}
+                            </div>
+                          </div>
+                        </div>
+                        <Badge
+                          variant={
+                            referral.status === 'completed'
+                              ? 'default'
+                              : referral.status === 'pending'
+                              ? 'secondary'
+                              : 'destructive'
+                          }
+                        >
+                          {referral.status}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Card>
             </div>
-          )}
-        </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   )

@@ -21,7 +21,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/blog', changeFrequency: 'weekly', priority: 0.6 },
     { path: '/insurance', changeFrequency: 'monthly', priority: 0.5 },
     { path: '/insurance/file-claim', changeFrequency: 'monthly', priority: 0.4 },
-    { path: '/insurance/claims', changeFrequency: 'monthly', priority: 0.4 },
+    // Note: /insurance/claims is user-specific and should not be in sitemap
     { path: '/support-immigrant-women', changeFrequency: 'yearly', priority: 0.3 },
     { path: '/tsmartcard', changeFrequency: 'monthly', priority: 0.4 },
     { path: '/signup', changeFrequency: 'monthly', priority: 0.6 },

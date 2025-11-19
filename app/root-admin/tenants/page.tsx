@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Pencil, Trash2, Copy, Settings, Palette, DollarSign, MapPin, ExternalLink } from "lucide-react";
+import { Pencil, Trash2, Copy, Settings, Palette, DollarSign, MapPin, ExternalLink, BarChart3 } from "lucide-react";
 import Link from "next/link";
 
 type Tenant = {
@@ -250,6 +250,12 @@ export default function TenantsPage() {
 								<div className="pt-2 border-t border-slate-200">
 									<p className="text-xs font-medium text-slate-500 mb-2">Quick Actions</p>
 									<div className="grid grid-cols-2 gap-2">
+										<Link href={`/root-admin/tenants/${t.id}/analytics`}>
+											<Button variant="outline" size="sm" className="w-full text-xs">
+												<BarChart3 className="h-3 w-3 mr-1" />
+												Analytics
+											</Button>
+										</Link>
 										<Link href={`/root-admin/branding?tenantId=${t.id}`}>
 											<Button variant="outline" size="sm" className="w-full text-xs">
 												<Palette className="h-3 w-3 mr-1" />

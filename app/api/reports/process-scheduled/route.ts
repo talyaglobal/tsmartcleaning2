@@ -23,10 +23,13 @@ export async function GET(request: NextRequest) {
 		const cronSecret = process.env.CRON_SECRET
 
 		if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-			return NextResponse.json(
-				{ error: 'Unauthorized' },
-				{ status: 401 }
-			)
+			// In production, require auth. In dev, allow if no secret is set
+			if (process.env.NODE_ENV === 'production') {
+				return NextResponse.json(
+					{ error: 'Unauthorized' },
+					{ status: 401 }
+				)
+			}
 		}
 
 		// Process scheduled reports

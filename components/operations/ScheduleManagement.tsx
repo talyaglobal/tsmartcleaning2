@@ -86,6 +86,36 @@ export function ScheduleManagement() {
 		}
 	}
 
+	// Detect scheduling conflicts (overlapping bookings for same provider)
+	const detectConflicts = (items: ScheduleItem[]): Array<{ item1: ScheduleItem; item2: ScheduleItem }> => {
+		const conflicts: Array<{ item1: ScheduleItem; item2: ScheduleItem }> = []
+		
+		for (let i = 0; i < items.length; i++) {
+			for (let j = i + 1; j < items.length; j++) {
+				const item1 = items[i]
+				const item2 = items[j]
+				
+				// Only check conflicts for same provider
+				if (!item1.provider || !item2.provider || item1.provider.id !== item2.provider.id) {
+					continue
+				}
+				
+				// Check if bookings overlap
+				const start1 = new Date(`${item1.booking_date}T${item1.booking_time}`)
+				const end1 = new Date(start1.getTime() + item1.duration_hours * 60 * 60 * 1000)
+				const start2 = new Date(`${item2.booking_date}T${item2.booking_time}`)
+				const end2 = new Date(start2.getTime() + item2.duration_hours * 60 * 60 * 1000)
+				
+				// Check for overlap
+				if ((start1 < end2 && end1 > start2)) {
+					conflicts.push({ item1, item2 })
+				}
+			}
+		}
+		
+		return conflicts
+	}
+
 	// Group schedule by date
 	const scheduleByDate = schedule.reduce((acc, item) => {
 		const date = item.booking_date
@@ -96,6 +126,14 @@ export function ScheduleManagement() {
 		return acc
 	}, {} as Record<string, ScheduleItem[]>)
 
+	// Get conflicts for all items
+	const allConflicts = detectConflicts(schedule)
+	const conflictIds = new Set<string>()
+	allConflicts.forEach(({ item1, item2 }) => {
+		conflictIds.add(item1.id)
+		conflictIds.add(item2.id)
+	})
+
 	if (loading) {
 		return <div className="p-6">Loading schedule...</div>
 	}
@@ -104,6 +142,11 @@ export function ScheduleManagement() {
 		<div className="space-y-6">
 			<div className="flex justify-between items-center">
 				<h2 className="text-2xl font-bold">Schedule Management</h2>
+				{allConflicts.length > 0 && (
+					<Badge variant="destructive" className="text-sm">
+						{allConflicts.length} Conflict{allConflicts.length > 1 ? 's' : ''} Detected
+					</Badge>
+				)}
 			</div>
 
 			<Card>
@@ -181,8 +224,15 @@ export function ScheduleManagement() {
 								</CardHeader>
 								<CardContent>
 									<div className="space-y-4">
-										{items.map((item) => (
-											<div key={item.id} className="flex items-start justify-between p-4 border rounded-lg">
+										{items.map((item) => {
+											const hasConflict = conflictIds.has(item.id)
+											return (
+											<div 
+												key={item.id} 
+												className={`flex items-start justify-between p-4 border rounded-lg ${
+													hasConflict ? 'border-red-500 bg-red-50' : ''
+												}`}
+											>
 												<div className="flex-1">
 													<div className="flex items-center space-x-3 mb-2">
 														<div className={`w-3 h-3 rounded-full ${getStatusColor(item.status)}`}></div>
@@ -193,6 +243,11 @@ export function ScheduleManagement() {
 															})}
 														</span>
 														<Badge variant="outline">{item.status}</Badge>
+														{hasConflict && (
+															<Badge variant="destructive" className="text-xs">
+																Conflict
+															</Badge>
+														)}
 													</div>
 													<div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
 														<div>
@@ -221,7 +276,8 @@ export function ScheduleManagement() {
 													</div>
 												</div>
 											</div>
-										))}
+											)
+										})}
 									</div>
 								</CardContent>
 							</Card>

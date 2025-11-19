@@ -33,6 +33,7 @@ export function WebflowCard({
         'card',
         variant === 'inverse' && 'is-inverse',
         variant === 'secondary' && 'on-secondary',
+        'animate-hover-lift',
         className
       )}
     >

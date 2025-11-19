@@ -4,30 +4,27 @@ import type { Metadata } from 'next'
 import dynamic from 'next/dynamic'
 import { WebflowScripts } from '@/components/WebflowScripts'
 import { AnchorLinkHandler } from '@/components/marketing/AnchorLinkHandler'
+import { HomepageAnimations } from '@/components/marketing/HomepageAnimations'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { generateSEOMetadata, generateBreadcrumbSchema, generateServiceSchema } from '@/lib/seo'
 
 // Dynamically import dev-only components to reduce initial bundle size
-const HomepageVerification = dynamic(
-  () => import('@/components/marketing/HomepageVerification').then(mod => ({ default: mod.HomepageVerification })),
-  { ssr: false }
-)
-const WebflowInteractionsTest = dynamic(
-  () => import('@/components/marketing/WebflowInteractionsTest').then(mod => ({ default: mod.WebflowInteractionsTest })),
-  { ssr: false }
-)
-const ResponsiveDesignTest = dynamic(
-  () => import('@/components/marketing/ResponsiveDesignTest').then(mod => ({ default: mod.ResponsiveDesignTest })),
-  { ssr: false }
-)
-const WebflowDesignVerification = dynamic(
-  () => import('@/components/marketing/WebflowDesignVerification').then(mod => ({ default: mod.WebflowDesignVerification })),
-  { ssr: false }
-)
-const AssetPathFixer = dynamic(
-  () => import('@/components/marketing/AssetPathFixer').then(mod => ({ default: mod.AssetPathFixer })),
-  { ssr: false }
-)
+// Note: These are only loaded in development mode
+const HomepageVerification = process.env.NODE_ENV === 'development' 
+  ? dynamic(() => import('@/components/marketing/HomepageVerification').then(mod => ({ default: mod.HomepageVerification })))
+  : () => null
+const WebflowInteractionsTest = process.env.NODE_ENV === 'development'
+  ? dynamic(() => import('@/components/marketing/WebflowInteractionsTest').then(mod => ({ default: mod.WebflowInteractionsTest })))
+  : () => null
+const ResponsiveDesignTest = process.env.NODE_ENV === 'development'
+  ? dynamic(() => import('@/components/marketing/ResponsiveDesignTest').then(mod => ({ default: mod.ResponsiveDesignTest })))
+  : () => null
+const WebflowDesignVerification = process.env.NODE_ENV === 'development'
+  ? dynamic(() => import('@/components/marketing/WebflowDesignVerification').then(mod => ({ default: mod.WebflowDesignVerification })))
+  : () => null
+const AssetPathFixer = process.env.NODE_ENV === 'development'
+  ? dynamic(() => import('@/components/marketing/AssetPathFixer').then(mod => ({ default: mod.AssetPathFixer })))
+  : () => null
 
 export const metadata: Metadata = generateSEOMetadata({
   title: 'Professional Cleaning Services Made Simple',
@@ -116,6 +113,7 @@ export default function HomePage() {
         ]}
       />
       <AnchorLinkHandler />
+      <HomepageAnimations />
       {/* Dev-only components loaded dynamically to reduce initial bundle */}
       {process.env.NODE_ENV === 'development' && (
         <>

@@ -75,6 +75,11 @@ export function createServerSupabase(tenantId?: string | null) {
 		)
 	}
 
+	// Connection pool configuration:
+	// Supabase manages connection pooling server-side automatically.
+	// The client reuses connections efficiently. Monitor pool usage via:
+	// - Supabase dashboard: Project Settings > Database > Connection Pooling
+	// - Monitoring API: GET /api/monitoring/database
 	return createClient(supabaseUrl, serviceRoleKey, {
 		auth: {
 			autoRefreshToken: false,
@@ -106,6 +111,11 @@ export function createAnonSupabase(tenantId?: string | null) {
 		)
 	}
 
+	// Connection pool configuration:
+	// Supabase manages connection pooling server-side automatically.
+	// The client reuses connections efficiently. Monitor pool usage via:
+	// - Supabase dashboard: Project Settings > Database > Connection Pooling
+	// - Monitoring API: GET /api/monitoring/database
 	return createClient(supabaseUrl, anonKey, {
 		auth: {
 			autoRefreshToken: true,

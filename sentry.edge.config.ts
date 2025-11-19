@@ -6,10 +6,21 @@
 import * as Sentry from "@sentry/nextjs";
 
 Sentry.init({
-  dsn: "https://0bd37dff0c7bd1c0c74baf520b0b25db@o4510388984217600.ingest.de.sentry.io/4510388988018768",
+  dsn: process.env.SENTRY_DSN || "https://0bd37dff0c7bd1c0c74baf520b0b25db@o4510388984217600.ingest.de.sentry.io/4510388988018768",
 
-  // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
-  tracesSampleRate: 1,
+  // Performance Monitoring (APM)
+  // Edge runtime has lower sampling rate due to high volume
+  tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.05 : 1.0,
+  
+  // Use tracesSampler for dynamic sampling
+  tracesSampler: (samplingContext) => {
+    if (process.env.NODE_ENV !== 'production') {
+      return 1.0
+    }
+    
+    // Sample middleware and edge routes at lower rate
+    return 0.05 // 5% for edge runtime
+  },
 
   // Enable logs to be sent to Sentry
   enableLogs: true,
@@ -17,4 +28,15 @@ Sentry.init({
   // Enable sending user PII (Personally Identifiable Information)
   // https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/options/#sendDefaultPii
   sendDefaultPii: true,
+  
+  // Performance monitoring options
+  beforeSendTransaction(event) {
+    // Add custom tags for edge runtime
+    event.tags = {
+      ...event.tags,
+      runtime: 'edge',
+      environment: process.env.NODE_ENV || 'development',
+    }
+    return event
+  },
 });

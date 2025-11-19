@@ -152,5 +152,5 @@ export const PATCH = withRootAdmin(async (
       { status: 500 }
     )
   }
-}
+});
 

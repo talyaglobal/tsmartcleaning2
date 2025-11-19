@@ -20,7 +20,7 @@ export interface RevenueShareRuleInput {
 /**
  * Validate revenue share rule input
  */
-function validateRuleInput(input: Partial<RevenueShareRuleInput>): string | null {
+export function validateRuleInput(input: Partial<RevenueShareRuleInput>): string | null {
 	if (input.platform_percent !== undefined) {
 		if (typeof input.platform_percent !== 'number' || input.platform_percent < 0 || input.platform_percent > 100) {
 			return 'platform_percent must be a number between 0 and 100'
