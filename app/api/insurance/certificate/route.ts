@@ -255,7 +255,9 @@ async function generateCertificateHTML(policy: any, plan: any, user: any): Promi
 
 async function generatePDFFromHTML(html: string, filename: string): Promise<Buffer> {
 	try {
-		const puppeteer = await import('puppeteer').catch(() => null)
+		// Check if puppeteer is available before attempting import
+		const moduleName = 'puppeteer'
+		const puppeteer = await import(moduleName).catch(() => null)
 		if (!puppeteer) {
 			throw new Error('Puppeteer not available')
 		}

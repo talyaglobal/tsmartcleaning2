@@ -43,14 +43,25 @@ export default function AuthCallbackPage() {
           return
         }
 
-        // Get referral code from localStorage (stored before OAuth redirect) or URL
+        // Get referral code and remember me preference from localStorage (stored before OAuth redirect) or URL
         const referralCode = typeof window !== 'undefined' 
           ? localStorage.getItem('pending_referral_code') || searchParams?.get('referral_code')
           : searchParams?.get('referral_code')
+        
+        const rememberMe = typeof window !== 'undefined' 
+          ? localStorage.getItem('rememberMe') === 'true'
+          : false
 
         // Clear referral code from localStorage after retrieving
-        if (typeof window !== 'undefined' && localStorage.getItem('pending_referral_code')) {
-          localStorage.removeItem('pending_referral_code')
+        if (typeof window !== 'undefined') {
+          if (localStorage.getItem('pending_referral_code')) {
+            localStorage.removeItem('pending_referral_code')
+          }
+          // Store remember me preference for session persistence
+          if (rememberMe && data.session) {
+            localStorage.setItem('rememberMe', 'true')
+            localStorage.setItem('sessionExpiresAt', new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString())
+          }
         }
 
         // Ensure user profile exists and handle referral code via API

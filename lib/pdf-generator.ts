@@ -416,7 +416,9 @@ function generateExecutiveTemplate(data: ReportData): string {
 async function generatePDFFromHTML(html: string, filename: string): Promise<string> {
 	// Try to use Puppeteer if available
 	try {
-		const puppeteer = await import('puppeteer').catch(() => null)
+		// Check if puppeteer is available before attempting import
+		const moduleName = 'puppeteer'
+		const puppeteer = await import(moduleName).catch(() => null)
 		if (!puppeteer) {
 			throw new Error('Puppeteer not available')
 		}

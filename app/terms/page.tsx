@@ -2,9 +2,12 @@
 
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Printer, Menu, History, ChevronRight } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+import { Progress } from '@/components/ui/progress'
+import { Printer, Menu, History, ChevronRight, ArrowUp, Search } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { generateBreadcrumbSchema } from '@/lib/seo'
 
@@ -61,9 +64,26 @@ const sections = [
 
 export default function TermsPage() {
   const [activeSection, setActiveSection] = useState<string>('')
+  const [readingProgress, setReadingProgress] = useState(0)
+  const [showBackToTop, setShowBackToTop] = useState(false)
+  const [versionSearchQuery, setVersionSearchQuery] = useState('')
+  const mainContentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const handleScroll = () => {
+      // Calculate reading progress
+      if (mainContentRef.current) {
+        const windowHeight = window.innerHeight
+        const documentHeight = document.documentElement.scrollHeight
+        const scrollTop = window.scrollY
+        const progress = (scrollTop / (documentHeight - windowHeight)) * 100
+        setReadingProgress(Math.min(100, Math.max(0, progress)))
+      }
+
+      // Show/hide back to top button
+      setShowBackToTop(window.scrollY > 500)
+
+      // Track active section
       const sections = document.querySelectorAll('section[id]')
       const scrollPosition = window.scrollY + 200
 
@@ -100,6 +120,21 @@ export default function TermsPage() {
       })
     }
   }
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  // Filter version history based on search query
+  const filteredVersions = TERMS_CONFIG.versionHistory.filter((version) => {
+    if (!versionSearchQuery) return true
+    const query = versionSearchQuery.toLowerCase()
+    return (
+      version.version.toLowerCase().includes(query) ||
+      formatDate(version.date).toLowerCase().includes(query) ||
+      version.changes.some((change) => change.toLowerCase().includes(query))
+    )
+  })
 
   return (
     <>
@@ -245,31 +280,40 @@ export default function TermsPage() {
             </div>
           </div>
 
-          {/* Table of Contents - Sticky on desktop */}
+          {/* Reading Progress */}
+        <div className="sticky top-0 z-50 mb-4 no-print bg-background/95 backdrop-blur-sm pb-2 pt-2">
+          <Progress value={readingProgress} className="h-1" />
+        </div>
+
+        {/* Table of Contents - Sticky on desktop */}
           <div className="sticky top-4 z-10 mb-12 no-print">
-            <Card className="p-6 shadow-lg">
-              <div className="flex items-center gap-2 mb-4">
-                <Menu className="h-5 w-5 text-primary" />
-                <h2 className="text-xl font-semibold">Table of Contents</h2>
-              </div>
-              <nav className="space-y-1 max-h-[60vh] overflow-y-auto">
-                {sections.map((section) => (
-                  <button
-                    key={section.id}
-                    onClick={() => scrollToSection(section.id)}
-                    className={`block w-full text-left text-sm transition-colors py-2 px-2 rounded-md ${
-                      activeSection === section.id
-                        ? 'text-foreground font-medium bg-primary/10'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <ChevronRight className={`h-3 w-3 transition-transform ${activeSection === section.id ? 'opacity-100' : 'opacity-0'}`} />
-                      <span>{section.title}</span>
-                    </div>
-                  </button>
-                ))}
-              </nav>
+            <Card className="shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Menu className="h-5 w-5 text-primary" />
+                  Table of Contents
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <nav className="space-y-1 max-h-[60vh] overflow-y-auto">
+                  {sections.map((section) => (
+                    <button
+                      key={section.id}
+                      onClick={() => scrollToSection(section.id)}
+                      className={`block w-full text-left text-sm transition-colors py-2 px-2 rounded-md ${
+                        activeSection === section.id
+                          ? 'text-foreground font-medium bg-primary/10'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <ChevronRight className={`h-3 w-3 transition-transform ${activeSection === section.id ? 'opacity-100' : 'opacity-0'}`} />
+                        <span>{section.title}</span>
+                      </div>
+                    </button>
+                  ))}
+                </nav>
+              </CardContent>
             </Card>
           </div>
 
@@ -285,7 +329,7 @@ export default function TermsPage() {
             </ul>
           </div>
 
-        <div className="prose prose-gray max-w-none space-y-8">
+        <div ref={mainContentRef} className="prose prose-gray max-w-none space-y-8">
           <section id="agreement">
             <h2 className="text-2xl font-bold mb-4">Agreement to Terms</h2>
             <p className="text-muted-foreground leading-relaxed">
@@ -432,35 +476,90 @@ export default function TermsPage() {
           <section id="version-history">
             <h2 className="text-2xl font-bold mb-4">Version History</h2>
             <p className="text-muted-foreground leading-relaxed mb-6">
-              This section documents all changes made to these Terms of Service. We recommend reviewing this history to stay informed about updates.
+              This section documents all changes made to these Terms of Service. Use the search below to find specific versions or changes.
             </p>
-            <div className="space-y-6">
-              {TERMS_CONFIG.versionHistory.map((version, idx) => (
-                <Card key={idx} className="p-6">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <h3 className="text-lg font-semibold flex items-center gap-2">
-                        <History className="h-5 w-5 text-primary" />
-                        Version {version.version}
-                      </h3>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {formatDate(version.date)}
-                      </p>
-                    </div>
-                    {idx === 0 && (
-                      <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary font-medium">
-                        Current
-                      </span>
-                    )}
-                  </div>
-                  <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-                    {version.changes.map((change, changeIdx) => (
-                      <li key={changeIdx}>{change}</li>
-                    ))}
-                  </ul>
-                </Card>
-              ))}
+
+            {/* Version Search */}
+            <div className="mb-6 no-print">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search versions by number, date, or change description..."
+                  value={versionSearchQuery}
+                  onChange={(e) => setVersionSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+              {versionSearchQuery && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  Found {filteredVersions.length} version{filteredVersions.length !== 1 ? 's' : ''}
+                </p>
+              )}
             </div>
+
+            {/* Version History Accordion */}
+            <div className="space-y-4 mt-6">
+              <Accordion 
+                type="single" 
+                collapsible 
+                defaultValue={TERMS_CONFIG.versionHistory[TERMS_CONFIG.versionHistory.length - 1]?.version} 
+                className="w-full"
+              >
+                {filteredVersions
+                  .slice()
+                  .reverse()
+                  .map((version, idx) => (
+                    <AccordionItem 
+                      key={version.version} 
+                      value={version.version} 
+                      className="border rounded-lg px-4"
+                      style={{ pageBreakInside: 'avoid' }}
+                    >
+                      <AccordionTrigger className="hover:no-underline py-4">
+                        <div className="flex items-center gap-3 flex-1 text-left">
+                          <History className="h-5 w-5 text-primary flex-shrink-0" />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-1">
+                              <h3 className="text-lg font-semibold">Version {version.version}</h3>
+                              {idx === 0 && (
+                                <Badge variant="default" className="text-xs">
+                                  Current
+                                </Badge>
+                              )}
+                              <Badge variant="outline" className="text-xs">
+                                {formatDate(version.date)}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              {version.changes.length} change{version.changes.length !== 1 ? 's' : ''}
+                            </p>
+                          </div>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <Card className="border-0 shadow-none bg-muted/30">
+                          <CardContent className="pt-4">
+                            <h4 className="font-semibold mb-3 text-sm">Changes in this version:</h4>
+                            <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground">
+                              {version.changes.map((change, changeIdx) => (
+                                <li key={changeIdx} className="leading-relaxed">{change}</li>
+                              ))}
+                            </ul>
+                          </CardContent>
+                        </Card>
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+              </Accordion>
+
+              {filteredVersions.length === 0 && versionSearchQuery && (
+                <Card className="p-6 text-center">
+                  <p className="text-muted-foreground">No versions found matching "{versionSearchQuery}"</p>
+                </Card>
+              )}
+            </div>
+
             <div className="mt-6 p-4 rounded-lg border bg-muted/50 text-sm text-muted-foreground">
               <strong>Note:</strong> For significant changes, we will notify users via email or platform notification at least 30 days before the changes take effect.
             </div>
@@ -485,6 +584,18 @@ export default function TermsPage() {
           </section>
         </div>
       </div>
+
+      {/* Back to Top Button */}
+      {showBackToTop && (
+        <Button
+          onClick={scrollToTop}
+          className="fixed bottom-8 right-8 z-50 rounded-full shadow-lg no-print"
+          size="icon"
+          aria-label="Back to top"
+        >
+          <ArrowUp className="h-5 w-5" />
+        </Button>
+      )}
 
       {/* Footer */}
       <footer className="border-t py-8 bg-muted/30 no-print">

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { MetricCard } from '@/components/admin/MetricCard'
-import { Users, UserCheck, Building2, DollarSign, Plus, Download, Calendar, Search, Mail, Briefcase, CheckCircle, Send, Filter, Edit, Trash2, AlertCircle } from 'lucide-react'
+import { Users, UserCheck, Building2, DollarSign, Plus, Download, Calendar, Search, Mail, Briefcase, CheckCircle, Send, Filter, Edit, Trash2, AlertCircle, RefreshCw } from 'lucide-react'
 import { PageHeader } from '@/components/admin/PageHeader'
 import { QuickActionCard } from '@/components/admin/QuickActionCard'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -14,6 +14,8 @@ import { DataTable, Column } from '@/components/admin/DataTable'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { createAnonSupabase } from '@/lib/supabase'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { CheckCircle2 } from 'lucide-react'
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell, Legend } from 'recharts'
 
 type Candidate = {
 	id: string
@@ -77,12 +79,34 @@ export default function AgencyDashboard() {
 	const [newMessage, setNewMessage] = useState({ to: '', subject: '', message: '' })
 	const [agencyId, setAgencyId] = useState<string | null>(null)
 	const [error, setError] = useState<string | null>(null)
+	const [success, setSuccess] = useState<string | null>(null)
 	const [sendingMessage, setSendingMessage] = useState(false)
 	const [generatingReport, setGeneratingReport] = useState<string | null>(null)
+	const [autoRefresh, setAutoRefresh] = useState(false)
+	const [refreshInterval, setRefreshInterval] = useState<NodeJS.Timeout | null>(null)
+	const [analyticsData, setAnalyticsData] = useState<any>(null)
+	const [loadingAnalytics, setLoadingAnalytics] = useState(false)
 
 	useEffect(() => {
 		initializeDashboard()
 	}, [])
+
+	// Auto-refresh functionality
+	useEffect(() => {
+		if (autoRefresh && agencyId) {
+			const interval = setInterval(() => {
+				fetchDashboardData(agencyId)
+			}, 30000) // Refresh every 30 seconds
+			setRefreshInterval(interval)
+			return () => {
+				if (interval) clearInterval(interval)
+			}
+		} else if (refreshInterval) {
+			clearInterval(refreshInterval)
+			setRefreshInterval(null)
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [autoRefresh, agencyId])
 
 	const initializeDashboard = async () => {
 		try {
@@ -144,11 +168,41 @@ export default function AgencyDashboard() {
 				console.error('Failed to fetch messages')
 			}
 
+			// Fetch analytics data
+			await fetchAnalytics(userId)
+
 		} catch (error) {
 			console.error('Error fetching dashboard data:', error)
 			setError('Failed to load dashboard data. Please refresh the page.')
 		} finally {
 			setLoading(false)
+		}
+	}
+
+	const fetchAnalytics = async (userId: string) => {
+		if (!userId) return
+		
+		setLoadingAnalytics(true)
+		try {
+			const [placementsRes, candidatesRes, revenueRes] = await Promise.all([
+				fetch(`/api/agency/reports?agencyId=${encodeURIComponent(userId)}&type=placements`),
+				fetch(`/api/agency/reports?agencyId=${encodeURIComponent(userId)}&type=candidates`),
+				fetch(`/api/agency/reports?agencyId=${encodeURIComponent(userId)}&type=revenue`),
+			])
+
+			const placementsData = placementsRes.ok ? await placementsRes.json() : null
+			const candidatesData = candidatesRes.ok ? await candidatesRes.json() : null
+			const revenueData = revenueRes.ok ? await revenueRes.json() : null
+
+			setAnalyticsData({
+				placements: placementsData?.report || {},
+				candidates: candidatesData?.report || {},
+				revenue: revenueData?.report || {},
+			})
+		} catch (error) {
+			console.error('Error fetching analytics:', error)
+		} finally {
+			setLoadingAnalytics(false)
 		}
 	}
 
@@ -222,9 +276,12 @@ export default function AgencyDashboard() {
 				}
 				setMessages([newMsg, ...messages])
 				setNewMessage({ to: '', subject: '', message: '' })
+				setSuccess('Message sent successfully')
+				setTimeout(() => setSuccess(null), 3000)
 			} else {
 				const errorData = await response.json()
 				setError(errorData.error || 'Failed to send message')
+				setTimeout(() => setError(null), 5000)
 			}
 		} catch (err: any) {
 			console.error('Error sending message:', err)
@@ -267,9 +324,12 @@ export default function AgencyDashboard() {
 				a.click()
 				document.body.removeChild(a)
 				URL.revokeObjectURL(url)
+				setSuccess(`${type.charAt(0).toUpperCase() + type.slice(1)} report generated and downloaded`)
+				setTimeout(() => setSuccess(null), 3000)
 			} else {
 				const errorData = await response.json()
 				setError(errorData.error || 'Failed to generate report')
+				setTimeout(() => setError(null), 5000)
 			}
 		} catch (err: any) {
 			console.error('Error generating report:', err)
@@ -296,15 +356,19 @@ export default function AgencyDashboard() {
 				setPlacements(placements.map(p => 
 					p.id === placementId ? data.placement : p
 				))
+				setSuccess('Placement status updated successfully')
+				setTimeout(() => setSuccess(null), 3000)
 			} else {
 				const errorData = await response.json()
 				setError(errorData.error || 'Failed to update placement status')
+				setTimeout(() => setError(null), 5000)
 				// Revert the change on error
 				refreshData()
 			}
 		} catch (err) {
 			console.error('Error updating placement status:', err)
 			setError('Failed to update placement status. Please try again.')
+			setTimeout(() => setError(null), 5000)
 			// Revert the change on error
 			refreshData()
 		}
@@ -408,6 +472,12 @@ export default function AgencyDashboard() {
 					<AlertDescription>{error}</AlertDescription>
 				</Alert>
 			)}
+			{success && (
+				<Alert className="bg-green-50 border-green-200">
+					<CheckCircle2 className="h-4 w-4 text-green-600" />
+					<AlertDescription className="text-green-800">{success}</AlertDescription>
+				</Alert>
+			)}
 			
 			{/* Metrics Cards */}
 			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
@@ -439,31 +509,53 @@ export default function AgencyDashboard() {
 			</div>
 
 			{/* Quick Actions */}
-			<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-				<QuickActionCard 
-					title="Add candidate" 
-					description="Register new candidate" 
-					href="/agency/candidates" 
-					icon={<Plus className="w-5 h-5" />}
-				/>
-				<QuickActionCard 
-					title="Match to job" 
-					description="Create new placement" 
-					href="/agency/placements" 
-					icon={<Briefcase className="w-5 h-5" />}
-				/>
-				<QuickActionCard 
-					title="Schedule training" 
-					description="Organize training session" 
-					href="/agency/training" 
-					icon={<Calendar className="w-5 h-5" />}
-				/>
-				<QuickActionCard 
-					title="Contact company" 
-					description="Reach out to partners" 
-					href="/agency/companies" 
-					icon={<Building2 className="w-5 h-5" />}
-				/>
+			<div className="flex items-center justify-between flex-wrap gap-4">
+				<div className="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1">
+					<QuickActionCard 
+						title="Add candidate" 
+						description="Register new candidate" 
+						href="/agency/candidates" 
+						icon={<Plus className="w-5 h-5" />}
+					/>
+					<QuickActionCard 
+						title="Match to job" 
+						description="Create new placement" 
+						href="/agency/placements" 
+						icon={<Briefcase className="w-5 h-5" />}
+					/>
+					<QuickActionCard 
+						title="Schedule training" 
+						description="Organize training session" 
+						href="/agency/training" 
+						icon={<Calendar className="w-5 h-5" />}
+					/>
+					<QuickActionCard 
+						title="Contact company" 
+						description="Reach out to partners" 
+						href="/agency/companies" 
+						icon={<Building2 className="w-5 h-5" />}
+					/>
+				</div>
+				<div className="flex gap-2">
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => setAutoRefresh(!autoRefresh)}
+						className={autoRefresh ? "bg-blue-50" : ""}
+					>
+						<RefreshCw className={`w-4 h-4 mr-2 ${autoRefresh ? "animate-spin" : ""}`} />
+						{autoRefresh ? "Auto-refresh ON" : "Auto-refresh OFF"}
+					</Button>
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => agencyId && fetchDashboardData(agencyId)}
+						disabled={loading}
+					>
+						<RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
+						Refresh
+					</Button>
+				</div>
 			</div>
 
 			{/* Main Content Tabs */}
@@ -478,6 +570,47 @@ export default function AgencyDashboard() {
 
 				{/* Overview Tab */}
 				<TabsContent value="overview" className="space-y-4">
+					{/* Analytics Charts */}
+					{analyticsData && (
+						<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+							{analyticsData.placements.byMonth && Object.keys(analyticsData.placements.byMonth).length > 0 && (
+								<Card>
+									<CardHeader>
+										<CardTitle>Placements Trend</CardTitle>
+									</CardHeader>
+									<CardContent>
+										<ResponsiveContainer width="100%" height={250}>
+											<AreaChart data={Object.entries(analyticsData.placements.byMonth).map(([month, count]) => ({ month, count }))}>
+												<CartesianGrid strokeDasharray="3 3" />
+												<XAxis dataKey="month" />
+												<YAxis />
+												<Tooltip />
+												<Area type="monotone" dataKey="count" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.6} />
+											</AreaChart>
+										</ResponsiveContainer>
+									</CardContent>
+								</Card>
+							)}
+							{analyticsData.revenue.byMonth && Object.keys(analyticsData.revenue.byMonth).length > 0 && (
+								<Card>
+									<CardHeader>
+										<CardTitle>Revenue Trend</CardTitle>
+									</CardHeader>
+									<CardContent>
+										<ResponsiveContainer width="100%" height={250}>
+											<LineChart data={Object.entries(analyticsData.revenue.byMonth).map(([month, amount]) => ({ month, amount: Number(amount) }))}>
+												<CartesianGrid strokeDasharray="3 3" />
+												<XAxis dataKey="month" />
+												<YAxis />
+												<Tooltip formatter={(value: any) => `$${Number(value).toLocaleString()}`} />
+												<Line type="monotone" dataKey="amount" stroke="#10b981" strokeWidth={2} />
+											</LineChart>
+										</ResponsiveContainer>
+									</CardContent>
+								</Card>
+							)}
+						</div>
+					)}
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 						<Card>
 							<CardHeader>
@@ -689,6 +822,15 @@ export default function AgencyDashboard() {
 				<TabsContent value="reports" className="space-y-4">
 					<div className="flex justify-between items-center flex-wrap gap-4">
 						<h3 className="text-lg font-semibold">Reports & Analytics</h3>
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => agencyId && fetchAnalytics(agencyId)}
+							disabled={loadingAnalytics}
+						>
+							<RefreshCw className={`w-4 h-4 mr-2 ${loadingAnalytics ? "animate-spin" : ""}`} />
+							Refresh Analytics
+						</Button>
 						<div className="flex gap-2 flex-wrap">
 							<Button 
 								variant="outline" 

@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { 
 	Users, 
@@ -30,9 +31,13 @@ import {
 	Mail,
 	X,
 	Trash2,
-	RefreshCw
+	RefreshCw,
+	Download,
+	FileText,
+	AlertCircle,
+	CheckCircle2
 } from "lucide-react";
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, AreaChart, Area } from "recharts";
 
 type TeamMember = {
 	id: string;
@@ -92,6 +97,11 @@ export default function AmbassadorDashboard() {
 	const [newMemberName, setNewMemberName] = useState("");
 	const [newMemberPhone, setNewMemberPhone] = useState("");
 	const [performancePeriod, setPerformancePeriod] = useState("30");
+	const [error, setError] = useState<string | null>(null);
+	const [success, setSuccess] = useState<string | null>(null);
+	const [autoRefresh, setAutoRefresh] = useState(false);
+	const [refreshInterval, setRefreshInterval] = useState<NodeJS.Timeout | null>(null);
+	const [exporting, setExporting] = useState(false);
 
 	// Fetch all dashboard data
 	useEffect(() => {
@@ -101,10 +111,28 @@ export default function AmbassadorDashboard() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [user?.id, selectedDate, performancePeriod]);
 
+	// Auto-refresh functionality
+	useEffect(() => {
+		if (autoRefresh && user?.id) {
+			const interval = setInterval(() => {
+				fetchDashboardData();
+			}, 30000); // Refresh every 30 seconds
+			setRefreshInterval(interval);
+			return () => {
+				if (interval) clearInterval(interval);
+			};
+		} else if (refreshInterval) {
+			clearInterval(refreshInterval);
+			setRefreshInterval(null);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [autoRefresh, user?.id]);
+
 	const fetchDashboardData = async () => {
 		if (!user?.id) return;
 		
 		setLoading(true);
+		setError(null);
 		try {
 			await Promise.all([
 				fetchTeamMembers(),
@@ -113,6 +141,7 @@ export default function AmbassadorDashboard() {
 			]);
 		} catch (error) {
 			console.error("Error fetching dashboard data:", error);
+			setError("Failed to load dashboard data. Please try again.");
 		} finally {
 			setLoading(false);
 		}
@@ -234,15 +263,17 @@ export default function AmbassadorDashboard() {
 			if (response.ok) {
 				// Refresh jobs
 				await fetchJobs();
-				// Optionally show success message
-				// You could replace this with a toast notification
+				setSuccess("Job assigned successfully");
+				setTimeout(() => setSuccess(null), 3000);
 			} else {
 				console.error("Failed to assign job:", data.error);
-				alert(data.error || "Failed to assign job");
+				setError(data.error || "Failed to assign job");
+				setTimeout(() => setError(null), 5000);
 			}
 		} catch (error) {
 			console.error("Error assigning job:", error);
-			alert("An error occurred while assigning the job");
+			setError("An error occurred while assigning the job");
+			setTimeout(() => setError(null), 5000);
 		}
 	};
 
@@ -258,20 +289,24 @@ export default function AmbassadorDashboard() {
 
 			if (response.ok) {
 				await fetchJobs();
-				// Optionally show success message
+				setSuccess("Job status updated successfully");
+				setTimeout(() => setSuccess(null), 3000);
 			} else {
 				console.error("Failed to update job status:", data.error);
-				alert(data.error || "Failed to update job status");
+				setError(data.error || "Failed to update job status");
+				setTimeout(() => setError(null), 5000);
 			}
 		} catch (error) {
 			console.error("Error updating job status:", error);
-			alert("An error occurred while updating job status");
+			setError("An error occurred while updating job status");
+			setTimeout(() => setError(null), 5000);
 		}
 	};
 
 	const handleAddTeamMember = async () => {
 		if (!user?.id || !newMemberName || !newMemberEmail) {
-			alert("Please fill in all required fields");
+			setError("Please fill in all required fields");
+			setTimeout(() => setError(null), 3000);
 			return;
 		}
 
@@ -296,13 +331,16 @@ export default function AmbassadorDashboard() {
 				setNewMemberEmail("");
 				setNewMemberName("");
 				setNewMemberPhone("");
-				alert("Team member added successfully!");
+				setSuccess("Team member added successfully!");
+				setTimeout(() => setSuccess(null), 3000);
 			} else {
-				alert(data.error || "Failed to add team member");
+				setError(data.error || "Failed to add team member");
+				setTimeout(() => setError(null), 5000);
 			}
 		} catch (error) {
 			console.error("Error adding team member:", error);
-			alert("An error occurred while adding the team member");
+			setError("An error occurred while adding the team member");
+			setTimeout(() => setError(null), 5000);
 		}
 	};
 
@@ -321,13 +359,137 @@ export default function AmbassadorDashboard() {
 			if (response.ok) {
 				// Refresh team members list
 				await fetchTeamMembers();
-				alert("Team member removed successfully");
+				setSuccess("Team member removed successfully");
+				setTimeout(() => setSuccess(null), 3000);
 			} else {
-				alert(data.error || "Failed to remove team member");
+				setError(data.error || "Failed to remove team member");
+				setTimeout(() => setError(null), 5000);
 			}
 		} catch (error) {
 			console.error("Error removing team member:", error);
-			alert("An error occurred while removing the team member");
+			setError("An error occurred while removing the team member");
+			setTimeout(() => setError(null), 5000);
+		}
+	};
+
+	const handleExportData = async (format: 'csv' | 'json') => {
+		if (!user?.id) return;
+		
+		setExporting(true);
+		try {
+			// Prepare data for export
+			const exportData = {
+				teamMembers: teamMembers.map(m => ({
+					name: m.name,
+					email: m.email,
+					phone: m.phone,
+					status: m.status,
+					rating: m.rating,
+					jobsCompleted: m.jobsCompleted,
+					lastActive: m.lastActive,
+				})),
+				jobs: [...todayJobs, ...upcomingJobs].map(j => ({
+					customerName: j.customerName,
+					address: j.address,
+					service: j.service,
+					date: j.date,
+					time: j.time,
+					status: j.status,
+					assignedTo: j.assignedTo,
+					duration: j.duration,
+					amount: j.amount,
+				})),
+				performance: performance.map(p => ({
+					memberName: p.memberName,
+					jobsCompleted: p.jobsCompleted,
+					completionRate: p.completionRate,
+					averageRating: p.averageRating,
+					hoursWorked: p.hoursWorked,
+					onTimeRate: p.onTimeRate,
+				})),
+				exportedAt: new Date().toISOString(),
+			};
+
+			if (format === 'json') {
+				const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+				const url = URL.createObjectURL(blob);
+				const a = document.createElement('a');
+				a.href = url;
+				a.download = `ambassador-dashboard-${new Date().toISOString().split('T')[0]}.json`;
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+				URL.revokeObjectURL(url);
+			} else {
+				// CSV export
+				const csvRows: string[] = [];
+				
+				// Team Members CSV
+				csvRows.push('Team Members');
+				csvRows.push('Name,Email,Phone,Status,Rating,Jobs Completed,Last Active');
+				teamMembers.forEach(m => {
+					csvRows.push([
+						m.name,
+						m.email,
+						m.phone || '',
+						m.status,
+						m.rating.toString(),
+						m.jobsCompleted.toString(),
+						m.lastActive,
+					].join(','));
+				});
+				
+				csvRows.push('');
+				csvRows.push('Jobs');
+				csvRows.push('Customer,Address,Service,Date,Time,Status,Assigned To,Duration,Amount');
+				[...todayJobs, ...upcomingJobs].forEach(j => {
+					csvRows.push([
+						j.customerName,
+						j.address,
+						j.service,
+						j.date,
+						j.time,
+						j.status,
+						j.assignedTo || 'Unassigned',
+						j.duration.toString(),
+						j.amount.toString(),
+					].join(','));
+				});
+				
+				csvRows.push('');
+				csvRows.push('Performance Metrics');
+				csvRows.push('Member Name,Jobs Completed,Completion Rate,Average Rating,Hours Worked,On-Time Rate');
+				performance.forEach(p => {
+					csvRows.push([
+						p.memberName,
+						p.jobsCompleted.toString(),
+						p.completionRate.toString(),
+						p.averageRating.toString(),
+						p.hoursWorked.toString(),
+						p.onTimeRate.toString(),
+					].join(','));
+				});
+				
+				const csvContent = csvRows.join('\n');
+				const blob = new Blob([csvContent], { type: 'text/csv' });
+				const url = URL.createObjectURL(blob);
+				const a = document.createElement('a');
+				a.href = url;
+				a.download = `ambassador-dashboard-${new Date().toISOString().split('T')[0]}.csv`;
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+				URL.revokeObjectURL(url);
+			}
+			
+			setSuccess(`Data exported successfully as ${format.toUpperCase()}`);
+			setTimeout(() => setSuccess(null), 3000);
+		} catch (error) {
+			console.error("Error exporting data:", error);
+			setError("Failed to export data");
+			setTimeout(() => setError(null), 5000);
+		} finally {
+			setExporting(false);
 		}
 	};
 
@@ -565,6 +727,20 @@ export default function AmbassadorDashboard() {
 				subtitle="Manage your team, assign jobs, and track performance" 
 			/>
 			
+			{/* Error and Success Messages */}
+			{error && (
+				<Alert variant="destructive">
+					<AlertCircle className="h-4 w-4" />
+					<AlertDescription>{error}</AlertDescription>
+				</Alert>
+			)}
+			{success && (
+				<Alert className="bg-green-50 border-green-200">
+					<CheckCircle2 className="h-4 w-4 text-green-600" />
+					<AlertDescription className="text-green-800">{success}</AlertDescription>
+				</Alert>
+			)}
+			
 			{/* Metrics */}
 			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
 				<MetricCard 
@@ -593,11 +769,51 @@ export default function AmbassadorDashboard() {
 			</div>
 
 			{/* Quick Actions */}
-			<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-				<QuickActionCard title="Assign Job" href="/ambassador/jobs/today" icon={<ClipboardCheck className="w-5 h-5" />} />
-				<QuickActionCard title="View Schedule" href="/ambassador/schedule" icon={<Calendar className="w-5 h-5" />} />
-				<QuickActionCard title="Team Performance" href="/ambassador/performance" icon={<Award className="w-5 h-5" />} />
-				<QuickActionCard title="Message Team" href="/ambassador/messages" icon={<Mail className="w-5 h-5" />} />
+			<div className="flex items-center justify-between flex-wrap gap-4">
+				<div className="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1">
+					<QuickActionCard title="Assign Job" href="/ambassador/jobs/today" icon={<ClipboardCheck className="w-5 h-5" />} />
+					<QuickActionCard title="View Schedule" href="/ambassador/schedule" icon={<Calendar className="w-5 h-5" />} />
+					<QuickActionCard title="Team Performance" href="/ambassador/performance" icon={<Award className="w-5 h-5" />} />
+					<QuickActionCard title="Message Team" href="/ambassador/messages" icon={<Mail className="w-5 h-5" />} />
+				</div>
+				<div className="flex gap-2">
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => setAutoRefresh(!autoRefresh)}
+						className={autoRefresh ? "bg-blue-50" : ""}
+					>
+						<RefreshCw className={`w-4 h-4 mr-2 ${autoRefresh ? "animate-spin" : ""}`} />
+						{autoRefresh ? "Auto-refresh ON" : "Auto-refresh OFF"}
+					</Button>
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => fetchDashboardData()}
+						disabled={loading}
+					>
+						<RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
+						Refresh
+					</Button>
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => handleExportData('csv')}
+						disabled={exporting}
+					>
+						<Download className="w-4 h-4 mr-2" />
+						Export CSV
+					</Button>
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => handleExportData('json')}
+						disabled={exporting}
+					>
+						<FileText className="w-4 h-4 mr-2" />
+						Export JSON
+					</Button>
+				</div>
 			</div>
 
 			{/* Main Content Grid */}
@@ -840,15 +1056,21 @@ export default function AmbassadorDashboard() {
 										<CardTitle className="text-lg">Jobs Completed</CardTitle>
 									</CardHeader>
 									<CardContent>
-										<ResponsiveContainer width="100%" height={300}>
-											<BarChart data={performance}>
-												<CartesianGrid strokeDasharray="3 3" />
-												<XAxis dataKey="memberName" angle={-45} textAnchor="end" height={100} />
-												<YAxis />
-												<Tooltip />
-												<Bar dataKey="jobsCompleted" fill="#3b82f6" />
-											</BarChart>
-										</ResponsiveContainer>
+										{performance.length > 0 ? (
+											<ResponsiveContainer width="100%" height={300}>
+												<BarChart data={performance}>
+													<CartesianGrid strokeDasharray="3 3" />
+													<XAxis dataKey="memberName" angle={-45} textAnchor="end" height={100} />
+													<YAxis />
+													<Tooltip />
+													<Bar dataKey="jobsCompleted" fill="#3b82f6" />
+												</BarChart>
+											</ResponsiveContainer>
+										) : (
+											<div className="flex items-center justify-center h-[300px] text-slate-500">
+												No performance data available
+											</div>
+										)}
 									</CardContent>
 								</Card>
 								
@@ -858,15 +1080,21 @@ export default function AmbassadorDashboard() {
 										<CardTitle className="text-lg">Completion Rate</CardTitle>
 									</CardHeader>
 									<CardContent>
-										<ResponsiveContainer width="100%" height={300}>
-											<BarChart data={performance}>
-												<CartesianGrid strokeDasharray="3 3" />
-												<XAxis dataKey="memberName" angle={-45} textAnchor="end" height={100} />
-												<YAxis domain={[0, 100]} />
-												<Tooltip />
-												<Bar dataKey="completionRate" fill="#10b981" />
-											</BarChart>
-										</ResponsiveContainer>
+										{performance.length > 0 ? (
+											<ResponsiveContainer width="100%" height={300}>
+												<BarChart data={performance}>
+													<CartesianGrid strokeDasharray="3 3" />
+													<XAxis dataKey="memberName" angle={-45} textAnchor="end" height={100} />
+													<YAxis domain={[0, 100]} />
+													<Tooltip />
+													<Bar dataKey="completionRate" fill="#10b981" />
+												</BarChart>
+											</ResponsiveContainer>
+										) : (
+											<div className="flex items-center justify-center h-[300px] text-slate-500">
+												No performance data available
+											</div>
+										)}
 									</CardContent>
 								</Card>
 
@@ -876,15 +1104,21 @@ export default function AmbassadorDashboard() {
 										<CardTitle className="text-lg">Average Rating</CardTitle>
 									</CardHeader>
 									<CardContent>
-										<ResponsiveContainer width="100%" height={300}>
-											<BarChart data={performance}>
-												<CartesianGrid strokeDasharray="3 3" />
-												<XAxis dataKey="memberName" angle={-45} textAnchor="end" height={100} />
-												<YAxis domain={[0, 5]} />
-												<Tooltip />
-												<Bar dataKey="averageRating" fill="#f59e0b" />
-											</BarChart>
-										</ResponsiveContainer>
+										{performance.length > 0 ? (
+											<ResponsiveContainer width="100%" height={300}>
+												<BarChart data={performance}>
+													<CartesianGrid strokeDasharray="3 3" />
+													<XAxis dataKey="memberName" angle={-45} textAnchor="end" height={100} />
+													<YAxis domain={[0, 5]} />
+													<Tooltip />
+													<Bar dataKey="averageRating" fill="#f59e0b" />
+												</BarChart>
+											</ResponsiveContainer>
+										) : (
+											<div className="flex items-center justify-center h-[300px] text-slate-500">
+												No performance data available
+											</div>
+										)}
 									</CardContent>
 								</Card>
 
@@ -894,15 +1128,21 @@ export default function AmbassadorDashboard() {
 										<CardTitle className="text-lg">Hours Worked</CardTitle>
 									</CardHeader>
 									<CardContent>
-										<ResponsiveContainer width="100%" height={300}>
-											<BarChart data={performance}>
-												<CartesianGrid strokeDasharray="3 3" />
-												<XAxis dataKey="memberName" angle={-45} textAnchor="end" height={100} />
-												<YAxis />
-												<Tooltip />
-												<Bar dataKey="hoursWorked" fill="#8b5cf6" />
-											</BarChart>
-										</ResponsiveContainer>
+										{performance.length > 0 ? (
+											<ResponsiveContainer width="100%" height={300}>
+												<BarChart data={performance}>
+													<CartesianGrid strokeDasharray="3 3" />
+													<XAxis dataKey="memberName" angle={-45} textAnchor="end" height={100} />
+													<YAxis />
+													<Tooltip />
+													<Bar dataKey="hoursWorked" fill="#8b5cf6" />
+												</BarChart>
+											</ResponsiveContainer>
+										) : (
+											<div className="flex items-center justify-center h-[300px] text-slate-500">
+												No performance data available
+											</div>
+										)}
 									</CardContent>
 								</Card>
 							</div>
