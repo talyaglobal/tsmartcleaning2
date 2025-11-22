@@ -179,6 +179,24 @@ export const POST = withAuth(
         return ApiErrors.databaseError('Failed to create booking')
       }
 
+      // Award gamification points for job posting (async, don't block)
+      try {
+        const { processGamificationUpdates } = await import('@/lib/gamification/integration')
+        await processGamificationUpdates(
+          {
+            supabase,
+            userId: finalCustomerId,
+            userType: 'company', // Companies post jobs
+            tenantId,
+          },
+          'job_posted',
+          { jobId: data.id }
+        )
+      } catch (gamificationError) {
+        // Don't fail the booking if gamification fails
+        console.error('[bookings] Gamification error:', gamificationError)
+      }
+
       // Record membership usage if discount was applied
       if (membershipCardId && membershipDiscount > 0) {
         // Get service name for usage tracking

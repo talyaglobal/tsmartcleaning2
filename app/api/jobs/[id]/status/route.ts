@@ -121,6 +121,44 @@ export const PATCH = withAuthAndParams(async (request: NextRequest, { supabase: 
 			metadata: { status: dbStatus, previousStatus: booking.status },
 		})
 
+		// Award gamification points for job completion (async, don't block)
+		if (dbStatus === 'completed' && booking.status !== 'completed') {
+			try {
+				const { processGamificationUpdates } = await import('@/lib/gamification/integration')
+				
+				// Award points to company (customer)
+				if (booking.customer_id) {
+					await processGamificationUpdates(
+						{
+							supabase,
+							userId: booking.customer_id,
+							userType: 'company',
+							tenantId: booking.tenant_id,
+						},
+						'job_completed',
+						{ jobId, isCompany: true }
+					)
+				}
+
+				// Award points to cleaner (provider)
+				if (booking.provider_id) {
+					await processGamificationUpdates(
+						{
+							supabase,
+							userId: booking.provider_id,
+							userType: 'cleaner',
+							tenantId: booking.tenant_id,
+						},
+						'job_completed',
+						{ jobId, isCompany: false }
+					)
+				}
+			} catch (gamificationError) {
+				// Don't fail the status update if gamification fails
+				console.error('[jobs/status] Gamification error:', gamificationError)
+			}
+		}
+
 		return NextResponse.json({ success: true, jobId, status: dbStatus })
 	} catch (e: any) {
 		console.error('[status] Error:', e)

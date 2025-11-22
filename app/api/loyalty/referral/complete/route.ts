@@ -62,6 +62,37 @@ export async function POST(req: NextRequest) {
 				.eq('user_id', a.user_id)
 		}
 
+		// Award gamification points for referral completion (async, don't block)
+		try {
+			const { processGamificationUpdates } = await import('@/lib/gamification/integration')
+			
+			// Determine user type (would need to check user role or company/provider profile)
+			// For now, we'll try to determine from user data
+			const { data: user } = await supabase
+				.from('users')
+				.select('role')
+				.eq('id', referrerId)
+				.single()
+			
+			// Check if user is a company or cleaner
+			const isCompany = user?.role === 'customer' || user?.role === 'cleaning_company'
+			const userType = isCompany ? 'company' : 'cleaner'
+			
+			await processGamificationUpdates(
+				{
+					supabase,
+					userId: referrerId,
+					userType,
+					tenantId: null,
+				},
+				'referral_completed',
+				{ referralId: existing?.id || 'new', refereeId }
+			)
+		} catch (gamificationError) {
+			// Don't fail the referral if gamification fails
+			console.error('[loyalty/referral] Gamification error:', gamificationError)
+		}
+
 		return NextResponse.json({ ok: true })
 	} catch (e) {
 		console.error('[loyalty] referral complete error', e)

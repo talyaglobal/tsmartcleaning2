@@ -126,6 +126,24 @@ export const POST = withAuth(
       return ApiErrors.internalError('Failed to create review')
     }
 
+    // Award gamification points for rating submission (async, don't block)
+    try {
+      const { processGamificationUpdates } = await import('@/lib/gamification/integration')
+      await processGamificationUpdates(
+        {
+          supabase: auth.supabase,
+          userId: auth.user.id,
+          userType: 'company', // Companies rate cleaners
+          tenantId,
+        },
+        'rating_submitted',
+        { reviewId: data.id, rating, providerId }
+      )
+    } catch (gamificationError) {
+      // Don't fail the review if gamification fails
+      console.error('[reviews] Gamification error:', gamificationError)
+    }
+
     return NextResponse.json({ review: data, message: 'Review created successfully' })
   } catch (error) {
     logError('reviews', error)

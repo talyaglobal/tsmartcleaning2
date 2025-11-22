@@ -43,6 +43,12 @@ import {
 		FileBarChart,
 	Building,
 	CreditCard,
+	Trophy,
+	Coins,
+	Medal,
+	Target,
+	CheckSquare,
+	BarChart,
 } from "lucide-react";
 import React from "react";
 
@@ -57,7 +63,18 @@ type NavItem = {
 	icon: React.ComponentType<{ className?: string }>;
 };
 
-const ROOT_ADMIN_MENU: NavItem[] = [
+type NavSection = {
+	title: string;
+	items: NavItem[];
+};
+
+type MenuItem = NavItem | NavSection;
+
+const isNavSection = (item: MenuItem): item is NavSection => {
+	return "title" in item && "items" in item;
+};
+
+const ROOT_ADMIN_MENU: MenuItem[] = [
 	{ name: "Dashboard", icon: LayoutDashboard, path: "/root-admin" },
 	{ name: "System Analytics", icon: BarChart3, path: "/root-admin/analytics" },
 	{ name: "Directory", icon: MapPinned, path: "/root-admin/directory" },
@@ -80,6 +97,25 @@ const ROOT_ADMIN_MENU: NavItem[] = [
 	{ name: "Financial Overview", icon: DollarSign, path: "/root-admin/finances" },
 	{ name: "System Settings", icon: Settings, path: "/root-admin/settings" },
 	{ name: "Audit Logs", icon: ScrollText, path: "/root-admin/logs" },
+	{
+		title: "Gamification",
+		items: [
+			{ name: "Gamification Dashboard", icon: Trophy, path: "/root-admin/gamification" },
+			{ name: "Points System", icon: Coins, path: "/root-admin/gamification/points" },
+			{ name: "Badges & Achievements", icon: Award, path: "/root-admin/gamification/badges" },
+			{ name: "Levels & Progression", icon: TrendingUp, path: "/root-admin/gamification/levels" },
+			{ name: "Leaderboards", icon: Medal, path: "/root-admin/gamification/leaderboards" },
+			{ name: "Challenges & Quests", icon: Target, path: "/root-admin/gamification/challenges" },
+		],
+	},
+	{
+		title: "Progress Tracking",
+		items: [
+			{ name: "GTM Strategy Progress", icon: Map, path: "/root-admin/progress/gtm-strategy" },
+			{ name: "Team TODO Progress", icon: CheckSquare, path: "/root-admin/progress/team-todo" },
+			{ name: "KPI Dashboard", icon: BarChart, path: "/root-admin/progress/kpi" },
+		],
+	},
 ];
 
 const COMPANY_MENU: NavItem[] = [
@@ -151,7 +187,7 @@ const PARTNER_MENU: NavItem[] = [
 	{ name: "Settings", icon: Settings, path: "/partner/settings" },
 ];
 
-export const roleToMenu = (role: UserRole): NavItem[] => {
+export const roleToMenu = (role: UserRole): MenuItem[] => {
 	switch (role) {
 		case UserRole.ROOT_ADMIN:
 			return ROOT_ADMIN_MENU;
@@ -197,7 +233,41 @@ export function Sidebar({ role, collapsed }: SidebarProps) {
 			</div>
 			<nav className="py-3">
 				<ul className="space-y-1">
-					{items.map((item) => {
+					{items.map((item, index) => {
+						if (isNavSection(item)) {
+							return (
+								<li key={`section-${index}`} className={collapsed ? "" : "mt-4 first:mt-0"}>
+									{!collapsed && (
+										<div className="px-4 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+											{item.title}
+										</div>
+									)}
+									<ul className={collapsed ? "" : "space-y-1"}>
+										{item.items.map((navItem) => {
+											const Icon = navItem.icon;
+											const active = pathname?.startsWith(navItem.path);
+											return (
+												<li key={navItem.path}>
+													<Link
+														href={navItem.path}
+														className={cn(
+															"flex items-center gap-3 px-4 py-2 transition-colors",
+															active
+																? "bg-slate-700 text-white"
+																: "text-slate-300 hover:text-white hover:bg-slate-700"
+														)}
+														aria-current={active ? "page" : undefined}
+													>
+														<Icon className="w-5 h-5" />
+														{!collapsed && <span>{navItem.name}</span>}
+													</Link>
+												</li>
+											);
+										})}
+									</ul>
+								</li>
+							);
+						} else {
 						const Icon = item.icon;
 						const active = pathname?.startsWith(item.path);
 						return (
@@ -217,6 +287,7 @@ export function Sidebar({ role, collapsed }: SidebarProps) {
 								</Link>
 							</li>
 						);
+						}
 					})}
 				</ul>
 			</nav>
