@@ -285,6 +285,3 @@ export default function CleaningCompaniesPage() {
     </>
   )
 }
-    </div>
-  )
-}

@@ -258,14 +258,32 @@ export default function InsurancePage() {
       <WebflowSection id="faq" variant="secondary">
         <div className="max-w-3xl mx-auto">
           <h2 className="heading_h2 text-align_center mb-8">Frequently Asked Questions</h2>
-          <div className="divide-y rounded-lg border bg-background">
-            {FAQ.map((f) => (
+          <div className="divide-y rounded-lg border bg-background" role="group" aria-labelledby="faq-heading">
+            <div className="sr-only" id="faq-heading">Frequently Asked Questions about CleanGuard Protection</div>
+            {FAQ.map((f, index) => (
               <details key={f.q} className="group p-4">
-                <summary className="cursor-pointer list-none flex items-center justify-between">
-                  <span className="font-medium">{f.q}</span>
-                  <span className="text-muted-foreground transition-transform group-open:rotate-180">⌄</span>
+                <summary 
+                  className="cursor-pointer list-none flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded p-2 -m-2"
+                  aria-expanded="false"
+                  aria-controls={`faq-answer-${index}`}
+                  role="button"
+                >
+                  <span className="font-medium" id={`faq-question-${index}`}>{f.q}</span>
+                  <span 
+                    className="text-muted-foreground transition-transform group-open:rotate-180"
+                    aria-hidden="true"
+                  >
+                    ⌄
+                  </span>
                 </summary>
-                <div className="pt-3 paragraph_small text-muted-foreground">{f.a}</div>
+                <div 
+                  id={`faq-answer-${index}`}
+                  className="pt-3 paragraph_small text-muted-foreground"
+                  role="region"
+                  aria-labelledby={`faq-question-${index}`}
+                >
+                  {f.a}
+                </div>
               </details>
             ))}
           </div>
@@ -490,13 +508,13 @@ function PricingCalculator() {
 function PlanComparisonTable() {
   const comparisonData = [
     { feature: 'Property Damage Coverage', basic: '$5,000', premium: '$25,000', ultimate: '$100,000' },
-    { feature: 'Theft & Loss Protection', basic: '✗', premium: '$10,000/yr', ultimate: '$50,000/yr' },
+    { feature: 'Theft & Loss Protection', basic: 'Not included', premium: '$10,000/yr', ultimate: '$50,000/yr' },
     { feature: 'Liability Coverage', basic: '$50,000', premium: '$500,000', ultimate: '$2,000,000' },
     { feature: 'Key Replacement', basic: '$200/incident', premium: '$500 + 1 re-key/yr', ultimate: '$1,000 + 2 re-keys/yr' },
-    { feature: 'Cancellation Protection', basic: '✗', premium: '48h replacement', ultimate: 'Same-day replacement' },
+    { feature: 'Cancellation Protection', basic: 'Not included', premium: '48h replacement', ultimate: 'Same-day replacement' },
     { feature: 'Service Guarantee', basic: '24h', premium: '48h', ultimate: '72h + manager' },
-    { feature: 'Emergency Cleaning', basic: '✗', premium: '1 per year', ultimate: '4 per year' },
-    { feature: 'High-Value Item Registry', basic: '✗', premium: '✗', ultimate: 'Up to 20 items' },
+    { feature: 'Emergency Cleaning', basic: 'Not included', premium: '1 per year', ultimate: '4 per year' },
+    { feature: 'High-Value Item Registry', basic: 'Not included', premium: 'Not included', ultimate: 'Up to 20 items' },
     { feature: 'Deductible', basic: '$100', premium: '$50', ultimate: '$0' },
     { feature: 'Monthly Price', basic: '$9.99', premium: '$19.99', ultimate: '$34.99' },
     { feature: 'Annual Price', basic: '$95.90', premium: '$191.90', ultimate: '$335.90' },
@@ -504,22 +522,81 @@ function PlanComparisonTable() {
   
   return (
     <WebflowCard className="overflow-x-auto">
-      <table className="w-full paragraph_small">
+      <div className="sr-only">
+        <h3>Insurance Plans Comparison</h3>
+        <p>A table comparing features across Basic, Premium, and Ultimate insurance plans with pricing and coverage details.</p>
+      </div>
+      <table 
+        className="w-full paragraph_small" 
+        role="table"
+        aria-label="Insurance plans comparison showing features and pricing for Basic, Premium, and Ultimate plans"
+      >
+        <caption className="sr-only">
+          Comparison of CleanGuard Protection insurance plans showing features, coverage amounts, and pricing for Basic, Premium, and Ultimate tiers.
+        </caption>
         <thead>
           <tr className="border-b">
-            <th className="text-left py-3 px-4 font-semibold">Feature</th>
-            <th className="text-center py-3 px-4 font-semibold">Basic 🛡️</th>
-            <th className="text-center py-3 px-4 font-semibold">Premium 🏆</th>
-            <th className="text-center py-3 px-4 font-semibold">Ultimate 💎</th>
+            <th 
+              className="text-left py-3 px-4 font-semibold" 
+              scope="col"
+              id="feature-column"
+            >
+              Feature
+            </th>
+            <th 
+              className="text-center py-3 px-4 font-semibold" 
+              scope="col"
+              id="basic-column"
+            >
+              <span aria-label="Basic Plan">Basic</span> <span role="img" aria-label="shield">🛡️</span>
+            </th>
+            <th 
+              className="text-center py-3 px-4 font-semibold" 
+              scope="col"
+              id="premium-column"
+            >
+              <span aria-label="Premium Plan">Premium</span> <span role="img" aria-label="trophy">🏆</span>
+            </th>
+            <th 
+              className="text-center py-3 px-4 font-semibold" 
+              scope="col"
+              id="ultimate-column"
+            >
+              <span aria-label="Ultimate Plan">Ultimate</span> <span role="img" aria-label="diamond">💎</span>
+            </th>
           </tr>
         </thead>
         <tbody>
           {comparisonData.map((row, idx) => (
             <tr key={idx} className="border-b last:border-b-0">
-              <td className="py-3 px-4 text-muted-foreground">{row.feature}</td>
-              <td className="py-3 px-4 text-center">{row.basic}</td>
-              <td className="py-3 px-4 text-center font-medium">{row.premium}</td>
-              <td className="py-3 px-4 text-center font-medium">{row.ultimate}</td>
+              <th 
+                className="py-3 px-4 text-muted-foreground text-left font-normal" 
+                scope="row"
+                headers="feature-column"
+              >
+                {row.feature}
+              </th>
+              <td 
+                className="py-3 px-4 text-center" 
+                headers="basic-column"
+                aria-describedby="feature-column"
+              >
+                {row.basic}
+              </td>
+              <td 
+                className="py-3 px-4 text-center font-medium" 
+                headers="premium-column"
+                aria-describedby="feature-column"
+              >
+                {row.premium}
+              </td>
+              <td 
+                className="py-3 px-4 text-center font-medium" 
+                headers="ultimate-column"
+                aria-describedby="feature-column"
+              >
+                {row.ultimate}
+              </td>
             </tr>
           ))}
         </tbody>

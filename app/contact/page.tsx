@@ -270,9 +270,10 @@ export default function ContactPage() {
                     />
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <fieldset className="grid md:grid-cols-2 gap-4">
+                    <legend className="sr-only">Personal Information</legend>
                     <div className="space-y-2">
-                      <Label htmlFor="firstName">First Name *</Label>
+                      <Label htmlFor="firstName">First Name <span aria-label="required field" className="text-destructive">*</span></Label>
                       <Input
                         id="firstName"
                         placeholder="John"
@@ -280,16 +281,19 @@ export default function ContactPage() {
                         onChange={(e) => handleChange('firstName', e.target.value)}
                         aria-invalid={errors.firstName ? 'true' : 'false'}
                         aria-describedby={errors.firstName ? 'firstName-error' : undefined}
+                        aria-required="true"
                         disabled={isSubmitting}
+                        autoComplete="given-name"
                       />
                       {errors.firstName && (
-                        <p id="firstName-error" className="paragraph_small text-destructive" role="alert">
+                        <p id="firstName-error" className="paragraph_small text-destructive flex items-center gap-1" role="alert">
+                          <span aria-hidden="true">⚠</span>
                           {errors.firstName}
                         </p>
                       )}
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="lastName">Last Name *</Label>
+                      <Label htmlFor="lastName">Last Name <span aria-label="required field" className="text-destructive">*</span></Label>
                       <Input
                         id="lastName"
                         placeholder="Doe"
@@ -297,15 +301,18 @@ export default function ContactPage() {
                         onChange={(e) => handleChange('lastName', e.target.value)}
                         aria-invalid={errors.lastName ? 'true' : 'false'}
                         aria-describedby={errors.lastName ? 'lastName-error' : undefined}
+                        aria-required="true"
                         disabled={isSubmitting}
+                        autoComplete="family-name"
                       />
                       {errors.lastName && (
-                        <p id="lastName-error" className="paragraph_small text-destructive" role="alert">
+                        <p id="lastName-error" className="paragraph_small text-destructive flex items-center gap-1" role="alert">
+                          <span aria-hidden="true">⚠</span>
                           {errors.lastName}
                         </p>
                       )}
                     </div>
-                  </div>
+                  </fieldset>
                   <div className="space-y-2">
                     <Label htmlFor="email">Email *</Label>
                     <Input

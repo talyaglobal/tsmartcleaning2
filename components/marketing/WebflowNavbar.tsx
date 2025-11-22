@@ -35,21 +35,34 @@ export function WebflowNavbar() {
                   data-hover="false"
                   className="nav_dropdown-menu w-dropdown"
                 >
-                  <div 
+                  <button 
                     className="nav_link w-dropdown-toggle"
-                    role="button"
+                    type="button"
                     aria-haspopup="true"
                     aria-expanded="false"
+                    aria-controls="services-menu"
                     aria-label="Services menu"
-                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        // Toggle dropdown logic would go here
+                      } else if (e.key === 'Escape') {
+                        // Close dropdown logic would go here
+                      } else if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        // Focus first menu item
+                      }
+                    }}
                   >
-                    <div>Services</div>
+                    <span>Services</span>
                     <div className="nav-caret w-icon-dropdown-toggle" aria-hidden="true"></div>
-                  </div>
+                  </button>
                   <nav 
+                    id="services-menu"
                     className="mega-nav_dropdown-list w-dropdown-list"
                     role="menu"
                     aria-label="Services submenu"
+                    aria-hidden="true"
                   >
                     <div className="mega-nav_dropdown-list-wrapper">
                       <ul
@@ -508,21 +521,34 @@ export function WebflowNavbar() {
                   data-hover="false"
                   className="nav_dropdown-menu w-dropdown"
                 >
-                  <div 
+                  <button 
                     className="nav_link w-dropdown-toggle"
-                    role="button"
+                    type="button"
                     aria-haspopup="true"
                     aria-expanded="false"
+                    aria-controls="support-menu"
                     aria-label="Support menu"
-                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        // Toggle dropdown logic would go here
+                      } else if (e.key === 'Escape') {
+                        // Close dropdown logic would go here
+                      } else if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        // Focus first menu item
+                      }
+                    }}
                   >
-                    <div>Support</div>
+                    <span>Support</span>
                     <div className="nav-caret w-icon-dropdown-toggle" aria-hidden="true"></div>
-                  </div>
+                  </button>
                   <div 
+                    id="support-menu"
                     className="nav_dropdown-list w-dropdown-list"
                     role="menu"
                     aria-label="Support submenu"
+                    aria-hidden="true"
                   >
                     <div className="nav-menu_dropdown-list-wrapper">
                       <ul

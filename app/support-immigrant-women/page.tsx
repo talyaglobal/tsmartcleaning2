@@ -730,7 +730,7 @@ export default function SupportImmigrantWomenPage() {
               </div>
             </div>
           </div>
-        </section>
+        </WebflowSection>
         </main>
       </div>
     </>

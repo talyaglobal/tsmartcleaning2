@@ -298,32 +298,37 @@ export function SignupForm() {
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-      <div className="grid grid-cols-2 gap-4">
+      <fieldset className="grid grid-cols-2 gap-4">
+        <legend className="sr-only">Personal Information</legend>
         <div className="space-y-2">
-          <Label htmlFor="firstName">First Name</Label>
+          <Label htmlFor="firstName">First Name <span aria-label="required field" className="text-destructive">*</span></Label>
           <Input
             id="firstName"
             placeholder="John"
             value={formData.firstName}
             onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
             required
+            aria-required="true"
             autoComplete="given-name"
+            disabled={isLoading}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="lastName">Last Name</Label>
+          <Label htmlFor="lastName">Last Name <span aria-label="required field" className="text-destructive">*</span></Label>
           <Input
             id="lastName"
             placeholder="Doe"
             value={formData.lastName}
             onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
             required
+            aria-required="true"
             autoComplete="family-name"
+            disabled={isLoading}
           />
         </div>
-      </div>
+      </fieldset>
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">Email <span aria-label="required field" className="text-destructive">*</span></Label>
         <Input
           id="email"
           type="email"
@@ -334,12 +339,14 @@ export function SignupForm() {
             if (error) setError(null)
           }}
           required
+          aria-required="true"
           autoComplete="email"
           aria-describedby={error ? "email-error" : undefined}
+          disabled={isLoading}
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password">Password <span aria-label="required field" className="text-destructive">*</span></Label>
         <div className="relative">
           <Input
             id="password"
@@ -348,14 +355,17 @@ export function SignupForm() {
             value={formData.password}
             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             required
+            aria-required="true"
             disabled={isLoading}
             autoComplete="new-password"
             className="pr-10"
+            aria-describedby={passwordStrength ? 'password-strength password-requirements' : undefined}
+            aria-invalid={passwordError ? 'true' : 'false'}
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded"
             aria-label={showPassword ? 'Hide password' : 'Show password'}
             disabled={isLoading}
           >
@@ -368,7 +378,12 @@ export function SignupForm() {
         </div>
         {formData.password && passwordStrength && (
           <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs">
+            <div 
+              id="password-strength"
+              className="flex items-center justify-between text-xs"
+              role="status"
+              aria-live="polite"
+            >
               <span className="text-muted-foreground">Password strength:</span>
               <span className={`font-medium ${
                 passwordStrength.strength === 'strong' ? 'text-green-600' :
@@ -382,30 +397,40 @@ export function SignupForm() {
             <Progress 
               value={(passwordStrength.score / 6) * 100} 
               className="h-1"
+              aria-label={`Password strength: ${getStrengthLabel(passwordStrength.strength)}, ${passwordStrength.score} out of 6 requirements met`}
             />
             {passwordStrength.feedback.length > 0 && (
-              <div className="space-y-1 text-xs text-muted-foreground">
+              <div 
+                id="password-requirements"
+                className="space-y-1 text-xs text-muted-foreground"
+                role="region"
+                aria-label="Password requirements"
+              >
                 <p className="font-medium">Requirements:</p>
-                <ul className="space-y-1">
+                <ul className="space-y-1" role="list">
                   {passwordStrength.feedback.map((req, index) => (
-                    <li key={index} className="flex items-center gap-1">
-                      <XCircle className="h-3 w-3 text-red-500" />
-                      {req}
+                    <li key={index} className="flex items-center gap-1" role="listitem">
+                      <XCircle className="h-3 w-3 text-red-500" aria-hidden="true" />
+                      <span aria-label={`Missing requirement: ${req}`}>{req}</span>
                     </li>
                   ))}
                   {passwordStrength.score >= 1 && passwordStrength.score < 6 && (
-                    <li className="flex items-center gap-1">
-                      <CheckCircle2 className="h-3 w-3 text-green-500" />
-                      {6 - passwordStrength.score} more requirement{6 - passwordStrength.score !== 1 ? 's' : ''} needed
+                    <li className="flex items-center gap-1 text-blue-600" role="listitem">
+                      <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
+                      <span>{6 - passwordStrength.score} more requirement{6 - passwordStrength.score !== 1 ? 's' : ''} needed</span>
                     </li>
                   )}
                 </ul>
               </div>
             )}
             {passwordStrength.score >= 5 && (
-              <div className="flex items-center gap-1 text-xs text-green-600">
-                <CheckCircle2 className="h-3 w-3" />
-                Strong password!
+              <div 
+                className="flex items-center gap-1 text-xs text-green-600"
+                role="status"
+                aria-live="polite"
+              >
+                <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
+                <span>Strong password!</span>
               </div>
             )}
           </div>
