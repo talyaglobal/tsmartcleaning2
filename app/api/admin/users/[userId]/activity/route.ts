@@ -44,7 +44,8 @@ export const GET = withAuth(
       { error: 'Internal server error' },
       { status: 500 }
     )
-  },
+  }
+},
   {
     requireAdmin: true,
   }

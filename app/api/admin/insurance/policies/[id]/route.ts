@@ -43,7 +43,8 @@ export const PATCH = withAuth(
 	} catch (error: any) {
 		console.error('[admin/insurance/policies/[id]] PATCH error', error)
 		return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
-	},
+	}
+},
 	{
 		requireAdmin: true,
 	}
@@ -78,7 +79,8 @@ export const DELETE = withAuth(
 	} catch (error: any) {
 		console.error('[admin/insurance/policies/[id]] DELETE error', error)
 		return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
-	},
+	}
+},
 	{
 		requireAdmin: true,
 	}

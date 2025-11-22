@@ -260,12 +260,12 @@ function mapMailgunEvent(event: string): string {
  */
 function mapResendEvent(event: string): string {
   const mapping: Record<string, string> = {
-    email.sent: 'sent',
-    email.delivered: 'delivered',
-    email.bounced: 'bounced',
-    email.opened: 'opened',
-    email.clicked: 'clicked',
-    email.complained: 'spam_reported',
+    'email.sent': 'sent',
+    'email.delivered': 'delivered',
+    'email.bounced': 'bounced',
+    'email.opened': 'opened',
+    'email.clicked': 'clicked',
+    'email.complained': 'spam_reported',
   }
   return mapping[event] || event.replace('email.', '')
 }

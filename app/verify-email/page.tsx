@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { BrandLogo } from '@/components/BrandLogo'
+import { BrandLogoClient } from '@/components/BrandLogoClient'
 import Link from 'next/link'
 import { Loader2, Mail, CheckCircle2, ArrowLeft, AlertCircle, RefreshCw } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
@@ -164,7 +164,7 @@ function VerifyEmailContent() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-2">
           <div className="flex items-center gap-2 mb-4">
-            <BrandLogo className="h-8" />
+            <BrandLogoClient className="h-8" />
           </div>
           <CardTitle>Verify your email</CardTitle>
           <CardDescription>

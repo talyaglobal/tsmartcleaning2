@@ -1,7 +1,6 @@
 import { Metadata } from 'next'
 import { createServerSupabase } from '@/lib/supabase'
-import { getServerAuth } from '@/lib/auth/server-auth'
-import { isAdminRole } from '@/lib/auth/roles'
+import { isAdminRole, UserRole } from '@/lib/auth/roles'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { PerformanceDashboard } from '@/components/admin/PerformanceDashboard'
@@ -12,13 +11,27 @@ export const metadata: Metadata = {
 }
 
 export default async function PerformancePage() {
-  const { user } = await getServerAuth()
+  const supabase = createServerSupabase()
+
+  // Get current user session
+  const { data: { session }, error } = await supabase.auth.getSession()
   
-  if (!user || !isAdminRole(user.role)) {
-    redirect('/admin/login')
+  if (error || !session?.user) {
+    redirect('/login')
   }
 
-  const supabase = createServerSupabase()
+  // Get user profile to check role
+  const { data: userProfile } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', session.user.id)
+    .single()
+
+  const role = (userProfile?.role as UserRole) || UserRole.CLEANING_COMPANY
+  
+  if (!isAdminRole(role)) {
+    redirect('/admin/login')
+  }
   
   // Get recent performance metrics
   const { data: recentMetrics } = await supabase

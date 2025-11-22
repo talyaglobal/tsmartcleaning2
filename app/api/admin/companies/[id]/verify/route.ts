@@ -50,9 +50,10 @@ export const PATCH = withAuth(
 			{ error: 'Internal server error' },
 			{ status: 500 }
 		)
-	},
-	{
-		requireAdmin: true,
 	}
+},
+{
+	requireAdmin: true,
+}
 )
 

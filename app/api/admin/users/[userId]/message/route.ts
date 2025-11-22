@@ -99,7 +99,8 @@ export const POST = withAuth(
       { error: 'Internal server error' },
       { status: 500 }
     )
-  },
+  }
+},
   {
     requireAdmin: true,
   }

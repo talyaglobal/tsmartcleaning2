@@ -125,7 +125,7 @@ export function WebflowNavbar() {
                                 </li>
                                 <li className="margin-bottom_none">
                                   <Link
-                                    href="#pricing"
+                                    href="/#pricing"
                                     className="mega-nav_link-item w-inline-block"
                                     role="menuitem"
                                   >
@@ -149,7 +149,42 @@ export function WebflowNavbar() {
                                         <strong>Pricing</strong>
                                       </div>
                                       <div className="paragraph_small text-color_secondary">
-                                        View plans
+                                        View service pricing
+                                      </div>
+                                    </div>
+                                  </Link>
+                                </li>
+                                <li className="margin-bottom_none">
+                                  <Link
+                                    href="/customer/recurring"
+                                    className="mega-nav_link-item w-inline-block"
+                                    role="menuitem"
+                                  >
+                                    <div className="icon is-medium on-inverse" aria-hidden="true">
+                                      <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="100%"
+                                        height="100%"
+                                        viewBox="0 0 32 32"
+                                        fill="currentColor"
+                                        aria-hidden="true"
+                                      >
+                                        <path
+                                          d="M16 2C8.27 2 2 8.27 2 16s6.27 14 14 14 14-6.27 14-14S23.73 2 16 2zm0 25.23c-6.21 0-11.23-5.02-11.23-11.23S9.79 4.77 16 4.77 27.23 9.79 27.23 16 22.21 27.23 16 27.23z"
+                                          strokeLinejoin="round"
+                                        ></path>
+                                        <path
+                                          d="M21.65 14.65l-5-5a1 1 0 0 0-1.4 0l-5 5a1 1 0 1 0 1.4 1.4L15 12.71V21a1 1 0 1 0 2 0v-8.29l3.35 3.34a1 1 0 0 0 1.4-1.4z"
+                                          strokeLinejoin="round"
+                                        ></path>
+                                      </svg>
+                                    </div>
+                                    <div className="w-node-_6bf376c4-1e42-910f-80c5-33de7f0d8688-7f0d8653">
+                                      <div>
+                                        <strong>Recurring Services</strong>
+                                      </div>
+                                      <div className="paragraph_small text-color_secondary">
+                                        Regular cleaning plans
                                       </div>
                                     </div>
                                   </Link>
@@ -217,6 +252,37 @@ export function WebflowNavbar() {
                                       </div>
                                       <div className="paragraph_small text-color_secondary">
                                         Manage jobs
+                                      </div>
+                                    </div>
+                                  </Link>
+                                </li>
+                                <li className="margin-bottom_none">
+                                  <Link
+                                    href="/for-providers"
+                                    className="mega-nav_link-item w-inline-block"
+                                    role="menuitem"
+                                  >
+                                    <div className="icon is-medium on-inverse" aria-hidden="true">
+                                      <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="100%"
+                                        height="100%"
+                                        viewBox="0 0 32 32"
+                                        fill="currentColor"
+                                        aria-hidden="true"
+                                      >
+                                        <path
+                                          d="M16 2C8.27 2 2 8.27 2 16s6.27 14 14 14 14-6.27 14-14S23.73 2 16 2zm0 25.23c-6.21 0-11.23-5.02-11.23-11.23S9.79 4.77 16 4.77 27.23 9.79 27.23 16 22.21 27.23 16 27.23z"
+                                          strokeLinejoin="round"
+                                        ></path>
+                                      </svg>
+                                    </div>
+                                    <div className="w-node-_6bf376c4-1e42-910f-80c5-33de7f0d86ad-7f0d8653">
+                                      <div>
+                                        <strong>How It Works</strong>
+                                      </div>
+                                      <div className="paragraph_small text-color_secondary">
+                                        Learn about providing services
                                       </div>
                                     </div>
                                   </Link>
@@ -350,6 +416,37 @@ export function WebflowNavbar() {
                                     </div>
                                   </Link>
                                 </li>
+                                <li className="margin-bottom_none">
+                                  <Link
+                                    href="/careers"
+                                    className="mega-nav_link-item w-inline-block"
+                                    role="menuitem"
+                                  >
+                                    <div className="icon is-medium on-inverse" aria-hidden="true">
+                                      <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="100%"
+                                        height="100%"
+                                        viewBox="0 0 32 32"
+                                        fill="currentColor"
+                                        aria-hidden="true"
+                                      >
+                                        <path
+                                          d="M26 8h-4V6a4 4 0 0 0-4-4h-4a4 4 0 0 0-4 4v2H6a2 2 0 0 0-2 2v18a2 2 0 0 0 2 2h20a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2zM12 6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2H12V6zm14 22H6V10h4v2a1 1 0 0 0 2 0v-2h8v2a1 1 0 0 0 2 0v-2h4v18z"
+                                          strokeLinejoin="round"
+                                        ></path>
+                                      </svg>
+                                    </div>
+                                    <div className="w-node-_6bf376c4-1e42-910f-80c5-33de7f0d86d4-7f0d8653">
+                                      <div>
+                                        <strong>Careers</strong>
+                                      </div>
+                                      <div className="paragraph_small text-color_secondary">
+                                        Join our team
+                                      </div>
+                                    </div>
+                                  </Link>
+                                </li>
                               </ul>
                             </div>
                           </div>
@@ -447,7 +544,25 @@ export function WebflowNavbar() {
                             className="nav_dropdown-link w-inline-block"
                             role="menuitem"
                           >
-                            <div className="button_label">Contact</div>
+                            <div className="button_label">Contact Support</div>
+                          </Link>
+                        </li>
+                        <li className="margin-bottom_none">
+                          <Link
+                            href="/insurance/file-claim"
+                            className="nav_dropdown-link w-inline-block"
+                            role="menuitem"
+                          >
+                            <div className="button_label">File Insurance Claim</div>
+                          </Link>
+                        </li>
+                        <li className="margin-bottom_none">
+                          <Link
+                            href="/blog"
+                            className="nav_dropdown-link w-inline-block"
+                            role="menuitem"
+                          >
+                            <div className="button_label">Resources & Tips</div>
                           </Link>
                         </li>
                       </ul>

@@ -123,9 +123,9 @@ export default function InsurancePage() {
               'Bodily injury; third‑party liability',
               'Legal defense; medical payments',
             ]} limits={[ 'Basic: $50,000', 'Premium: $500,000', 'Ultimate: $2,000,000' ]} />
-            <CoverageCard title="Key Replacement & Re‑keying" emoji="🔑" bullets={[
-              'Lost keys; re‑keying; smart lock reprogramming',
-            ]} limits={[ 'Basic: $200/incident', 'Premium: $500 + 1 re‑key/yr', 'Ultimate: $1,000 + 2 re‑keys/yr' ]} />
+            <CoverageCard title="Key Replacement & Re-keying" emoji="🔑" bullets={[
+              'Lost keys; re-keying; smart lock reprogramming',
+            ]} limits={[ 'Basic: $200/incident', 'Premium: $500 + 1 re-key/yr', 'Ultimate: $1,000 + 2 re-keys/yr' ]} />
             <CoverageCard title="Cancellation Protection" emoji="📅" bullets={[
               'Emergency replacement; no‑show protection',
             ]} limits={[ 'Premium: 48h replacement', 'Ultimate: Same‑day replacement' ]} />
@@ -133,7 +133,7 @@ export default function InsurancePage() {
               'Extended satisfaction guarantee; priority support',
             ]} limits={[ 'Basic: 24h', 'Premium: 48h', 'Ultimate: 72h + manager' ]} />
             <CoverageCard title="Emergency Cleaning Coverage" emoji="🚨" bullets={[
-              'Unexpected emergencies; post‑incident cleaning',
+              'Unexpected emergencies; post-incident cleaning',
             ]} limits={[ 'Premium: 1 per year', 'Ultimate: 4 per year' ]} />
             <CoverageCard title="High‑Value Item Registry" emoji="💎" bullets={[
               'Register up to 20 items; photo documentation',

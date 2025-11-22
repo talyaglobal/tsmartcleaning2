@@ -42,6 +42,7 @@ export function DashboardNav({ userType, userName }: DashboardNavProps) {
     { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/companies', label: 'Companies', icon: Users },
     { href: '/admin/users', label: 'Users', icon: Users },
+    { href: '/admin/ambassadors', label: 'Ambassador Admin', icon: Users },
     { href: '/admin/bookings', label: 'Bookings', icon: Calendar },
     { href: '/admin/insurance', label: 'Insurance', icon: ShieldCheck },
     { href: '/admin/reports', label: 'Reports', icon: FileText },

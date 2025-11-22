@@ -9,23 +9,40 @@ export default function sitemap(): MetadataRoute.Sitemap {
     changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency']
     priority: number
   }> = [
+    // Core pages
     { path: '/', changeFrequency: 'weekly', priority: 1 },
     { path: '/find-cleaners', changeFrequency: 'daily', priority: 0.9 },
+    { path: '/customer/book', changeFrequency: 'weekly', priority: 0.9 },
+    { path: '/provider-signup', changeFrequency: 'weekly', priority: 0.8 },
+    
+    // Information pages
+    { path: '/about', changeFrequency: 'monthly', priority: 0.6 },
+    { path: '/contact', changeFrequency: 'monthly', priority: 0.6 },
     { path: '/marketing', changeFrequency: 'monthly', priority: 0.7 },
     { path: '/for-providers', changeFrequency: 'monthly', priority: 0.7 },
-    { path: '/about', changeFrequency: 'yearly', priority: 0.5 },
-    { path: '/contact', changeFrequency: 'yearly', priority: 0.5 },
+    
+    // Services and features
+    { path: '/insurance', changeFrequency: 'weekly', priority: 0.8 },
+    { path: '/insurance/file-claim', changeFrequency: 'monthly', priority: 0.5 },
+    { path: '/tsmartcard', changeFrequency: 'monthly', priority: 0.6 },
+    
+    // Content and resources
+    { path: '/blog', changeFrequency: 'weekly', priority: 0.6 },
+    { path: '/careers', changeFrequency: 'weekly', priority: 0.5 },
+    { path: '/careers/apply', changeFrequency: 'monthly', priority: 0.4 },
+    
+    // Special programs
+    { path: '/support-immigrant-women', changeFrequency: 'monthly', priority: 0.4 },
+    { path: '/ngo/register', changeFrequency: 'monthly', priority: 0.3 },
+    
+    // Authentication
+    { path: '/signup', changeFrequency: 'monthly', priority: 0.6 },
+    { path: '/login', changeFrequency: 'monthly', priority: 0.5 },
+    { path: '/reset-password', changeFrequency: 'yearly', priority: 0.2 },
+    
+    // Legal
     { path: '/privacy', changeFrequency: 'yearly', priority: 0.3 },
     { path: '/terms', changeFrequency: 'yearly', priority: 0.3 },
-    { path: '/careers', changeFrequency: 'monthly', priority: 0.3 },
-    { path: '/blog', changeFrequency: 'weekly', priority: 0.6 },
-    { path: '/insurance', changeFrequency: 'monthly', priority: 0.5 },
-    { path: '/insurance/file-claim', changeFrequency: 'monthly', priority: 0.4 },
-    // Note: /insurance/claims is user-specific and should not be in sitemap
-    { path: '/support-immigrant-women', changeFrequency: 'yearly', priority: 0.3 },
-    { path: '/tsmartcard', changeFrequency: 'monthly', priority: 0.4 },
-    { path: '/signup', changeFrequency: 'monthly', priority: 0.6 },
-    { path: '/login', changeFrequency: 'monthly', priority: 0.4 },
   ]
 
   return publicPaths.map((item) => ({
