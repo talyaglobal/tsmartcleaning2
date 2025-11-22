@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerSupabase } from '@/lib/supabase'
+import { createServerSupabase, resolveTenantFromRequest } from '@/lib/supabase'
 import { handleApiError, ApiErrors, logError } from '@/lib/api/errors'
 import { validateQueryParams } from '@/lib/api/validation'
 import { z } from 'zod'
@@ -19,7 +19,10 @@ export async function GET(request: NextRequest) {
     
     const { category } = validation.data
     
-    const supabase = createServerSupabase()
+    // Resolve tenant from request (for RLS policies)
+    const tenantId = resolveTenantFromRequest(request)
+    const supabase = createServerSupabase(tenantId ?? undefined)
+    
     let query = supabase
       .from('services')
       .select('*')
@@ -37,12 +40,25 @@ export async function GET(request: NextRequest) {
     const { data, error } = await query.order('name', { ascending: true })
 
     if (error) {
-      logError('services', error, { operation: 'list_services', category })
-      return ApiErrors.databaseError('Failed to load services')
+      logError('services', error, { 
+        operation: 'list_services', 
+        category,
+        tenantId: tenantId || 'none',
+        errorMessage: error.message,
+        errorCode: error.code,
+        errorDetails: error.details
+      })
+      return ApiErrors.databaseError('Failed to load services', { 
+        error: error.message,
+        code: error.code 
+      })
     }
 
     return NextResponse.json({ services: data ?? [] })
   } catch (error) {
-    return handleApiError('services', error, { operation: 'list_services' })
+    return handleApiError('services', error, { 
+      operation: 'list_services',
+      category: request.nextUrl.searchParams.get('category') || 'none'
+    })
   }
 }
