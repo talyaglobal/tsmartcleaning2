@@ -282,7 +282,6 @@ export default function CleaningCompaniesPage() {
           </div>
         </div>
       </div>
-    </main>
     </>
   )
 }
