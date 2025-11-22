@@ -3,6 +3,47 @@ import type { NextRequest } from 'next/server'
 import { addSecurityHeaders, addCorsHeaders, createPreflightResponse, isOriginAllowed } from '@/lib/security/headers'
 import { createServerSupabase } from '@/lib/supabase'
 
+// Routes that don't require authentication (public)
+const PUBLIC_API_ROUTES = [
+  '/api/about/locations',
+  '/api/about/press', 
+  '/api/about/team',
+  '/api/about/timeline',
+  '/api/auth/signup',
+  '/api/auth/signin', 
+  '/api/auth/callback',
+  '/api/auth/verify-email',
+  '/api/blog',
+  '/api/contact',
+  '/api/health',
+  '/api/services',
+  '/api/webhooks',
+  '/api/stripe/webhook',
+  '/api/pricing/quote'
+]
+
+// Routes that require only authentication (no tenant context)
+const AUTH_ONLY_ROUTES = [
+  '/api/auth/me',
+  '/api/auth/complete-social-signup',
+  '/api/verification/badge',
+  '/api/verification/status',
+  '/api/monitoring',
+  '/api/send-email'
+]
+
+function isPublicApiRoute(pathname: string): boolean {
+  return PUBLIC_API_ROUTES.some(route => 
+    pathname === route || pathname.startsWith(route + '/')
+  )
+}
+
+function isAuthOnlyRoute(pathname: string): boolean {
+  return AUTH_ONLY_ROUTES.some(route => 
+    pathname === route || pathname.startsWith(route + '/')
+  )
+}
+
 export async function middleware(request: NextRequest) {
 	const { pathname } = request.nextUrl
 
@@ -13,6 +54,62 @@ export async function middleware(request: NextRequest) {
 		const httpsUrl = new URL(request.url)
 		httpsUrl.protocol = 'https:'
 		return NextResponse.redirect(httpsUrl, 301) // Permanent redirect
+	}
+
+	// CRITICAL SECURITY FIX: Add API route authentication
+	if (pathname.startsWith('/api/') && !isPublicApiRoute(pathname)) {
+		try {
+			const supabase = createServerSupabase()
+			const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+			// Check if user is authenticated
+			if (authError || !user) {
+				console.warn(`[Security] Unauthenticated access attempt to: ${pathname}`)
+				return NextResponse.json(
+					{ error: 'Authentication required' },
+					{ status: 401 }
+				)
+			}
+
+			// For auth-only routes, authentication is sufficient
+			if (isAuthOnlyRoute(pathname)) {
+				// Continue with normal middleware flow
+			} else {
+				// For all other routes, require tenant context
+				const resolvedTenantId = request.headers.get('x-tenant-id') || 
+					request.cookies.get('tenant_id')?.value
+
+				if (!resolvedTenantId) {
+					console.warn(`[Security] Missing tenant context: ${pathname} by user: ${user.id}`)
+					return NextResponse.json(
+						{ error: 'Tenant context missing - please select your organization' },
+						{ status: 403 }
+					)
+				}
+
+				// Verify user belongs to the tenant (for authenticated routes only)
+				const { data: userTenant, error: tenantError } = await supabase
+					.from('user_tenants')
+					.select('tenant_id, role')
+					.eq('user_id', user.id)
+					.eq('tenant_id', resolvedTenantId)
+					.maybeSingle()
+
+				if (tenantError || !userTenant) {
+					console.warn(`[Security] Unauthorized tenant access: ${pathname} by user: ${user.id} for tenant: ${resolvedTenantId}`)
+					return NextResponse.json(
+						{ error: 'Access denied - user not authorized for this tenant' },
+						{ status: 403 }
+					)
+				}
+			}
+		} catch (error) {
+			console.error('[Middleware] Security check failed:', error)
+			return NextResponse.json(
+				{ error: 'Internal server error' },
+				{ status: 500 }
+			)
+		}
 	}
 
 	// Resolve tenant from cookie/header or by host mapping
