@@ -1,6 +1,6 @@
 # Operations Runbook
 
-**Last Updated:** 2025-01-27  
+**Last Updated:** 2025-01-15  
 **Purpose:** Common issues and their resolution procedures
 
 ---
@@ -9,12 +9,13 @@
 
 1. [Application Issues](#application-issues)
 2. [Database Issues](#database-issues)
-3. [Payment Processing Issues](#payment-processing-issues)
-4. [Email Delivery Issues](#email-delivery-issues)
-5. [Authentication Issues](#authentication-issues)
-6. [Performance Issues](#performance-issues)
-7. [Deployment Issues](#deployment-issues)
-8. [Monitoring & Alerts](#monitoring--alerts)
+3. [Security Issues](#security-issues)
+4. [Payment Processing Issues](#payment-processing-issues)
+5. [Email Delivery Issues](#email-delivery-issues)
+6. [Authentication Issues](#authentication-issues)
+7. [Performance Issues](#performance-issues)
+8. [Deployment Issues](#deployment-issues)
+9. [Monitoring & Alerts](#monitoring--alerts)
 
 ---
 
@@ -275,6 +276,265 @@
 - Test RLS policies after migrations
 - Monitor data access patterns
 - Set up alerts for data integrity issues
+
+---
+
+## Security Issues
+
+### Issue: Row Level Security (RLS) Not Enabled
+
+**Symptoms:**
+- Users can access other users' data
+- Security audit shows missing RLS policies
+- Data access not properly scoped by user/tenant
+
+**Diagnosis:**
+1. Run RLS verification script:
+   ```bash
+   npm run verify:rls
+   ```
+
+2. Check specific table RLS status:
+   ```sql
+   SELECT tablename, rowsecurity 
+   FROM pg_tables 
+   WHERE schemaname = 'public' AND tablename = 'your_table';
+   ```
+
+**Resolution:**
+1. **Enable RLS on all sensitive tables:**
+   ```sql
+   -- Enable RLS on all user data tables
+   ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+   ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
+   ALTER TABLE provider_profiles ENABLE ROW LEVEL SECURITY;
+   ALTER TABLE companies ENABLE ROW LEVEL SECURITY;
+   ALTER TABLE payments ENABLE ROW LEVEL SECURITY;
+   ```
+
+2. **Create basic user ownership policies:**
+   ```sql
+   -- Users can only access their own data
+   CREATE POLICY user_own_data ON users 
+   FOR ALL USING (auth.uid() = id);
+
+   -- Bookings accessible by customer or assigned provider
+   CREATE POLICY booking_access ON bookings 
+   FOR ALL USING (
+     auth.uid() = customer_id OR 
+     auth.uid() = provider_id
+   );
+   ```
+
+3. **Create admin access policies:**
+   ```sql
+   -- Admins can access all data
+   CREATE POLICY admin_access ON users
+   FOR ALL USING (
+     EXISTS (
+       SELECT 1 FROM users 
+       WHERE id = auth.uid() 
+       AND role IN ('TSMART_TEAM', 'PARTNER_ADMIN')
+     )
+   );
+   ```
+
+4. **Test policies:**
+   ```bash
+   # Run comprehensive RLS test
+   npm run test:rls
+   ```
+
+**Prevention:**
+- Enable RLS on all new tables by default
+- Add RLS checks to CI/CD pipeline
+- Regular security audits
+
+---
+
+### Issue: API Routes Missing Authentication
+
+**Symptoms:**
+- Unauthenticated users accessing protected data
+- Security audit flagging unprotected routes
+- Data leaks through API endpoints
+
+**Diagnosis:**
+1. Run security audit:
+   ```bash
+   npm run audit:security
+   ```
+
+2. Check specific route authentication:
+   ```bash
+   # Check if route uses withAuth middleware
+   grep -r "withAuth" app/api/your-route/
+   ```
+
+**Resolution:**
+1. **Add authentication middleware:**
+   ```typescript
+   // Before: No authentication
+   export async function GET(request: Request) { ... }
+
+   // After: With authentication
+   import { withAuth } from '@/lib/auth-middleware'
+   export const GET = withAuth(async (request, { user, supabase }) => {
+     // Route now has authenticated user context
+   })
+   ```
+
+2. **Add admin authentication for admin routes:**
+   ```typescript
+   import { withAuthAndParams } from '@/lib/auth-middleware'
+   export const GET = withAuthAndParams(
+     async (request, { user, supabase }, { params }) => {
+       // Admin-only route
+     },
+     { requireAdmin: true }
+   )
+   ```
+
+3. **Fix ownership verification:**
+   ```typescript
+   // Before: Accepting userId from request (vulnerable)
+   const { userId } = await request.json()
+
+   // After: Using authenticated user ID
+   const userId = auth.user.id
+   ```
+
+4. **Verify fixes:**
+   ```bash
+   npm run test:auth
+   npm run audit:security
+   ```
+
+**Prevention:**
+- Use authentication middleware by default
+- Code review checklist includes auth verification
+- Automated security testing
+
+---
+
+### Issue: Ownership Verification Bypassed
+
+**Symptoms:**
+- Users accessing data they don't own
+- userId parameter accepted from client
+- Missing permission checks
+
+**Diagnosis:**
+1. Check for userId parameters in API routes:
+   ```bash
+   grep -r "userId.*request.json" app/api/
+   ```
+
+2. Look for missing ownership checks:
+   ```bash
+   grep -r "\.eq.*userId" app/api/
+   ```
+
+**Resolution:**
+1. **Remove userId from request parameters:**
+   ```typescript
+   // Before: Vulnerable
+   const { userId, data } = await request.json()
+   const result = await supabase
+     .from('bookings')
+     .select('*')
+     .eq('customer_id', userId) // Can be any user ID!
+
+   // After: Secure
+   const { data } = await request.json()
+   const result = await supabase
+     .from('bookings')
+     .select('*')
+     .eq('customer_id', auth.user.id) // Only authenticated user's data
+   ```
+
+2. **Add explicit ownership verification:**
+   ```typescript
+   // For accessing specific resources by ID
+   const booking = await supabase
+     .from('bookings')
+     .select('*')
+     .eq('id', bookingId)
+     .eq('customer_id', auth.user.id) // Verify ownership
+     .single()
+
+   if (!booking.data) {
+     return NextResponse.json({ error: 'Not found' }, { status: 404 })
+   }
+   ```
+
+3. **Use RLS policies as backup:**
+   ```sql
+   -- RLS policy ensures queries are automatically scoped
+   CREATE POLICY user_bookings ON bookings
+   FOR ALL USING (customer_id = auth.uid());
+   ```
+
+**Prevention:**
+- Never accept userId from client requests
+- Always use authenticated user ID
+- Implement defense in depth with RLS + application checks
+
+---
+
+### Issue: Admin Routes Accessible by Regular Users
+
+**Symptoms:**
+- Non-admin users accessing admin endpoints
+- Privilege escalation vulnerabilities
+- Admin data exposed to regular users
+
+**Diagnosis:**
+1. Check admin route protection:
+   ```bash
+   grep -r "requireAdmin" app/api/admin/
+   ```
+
+2. Verify role checking:
+   ```bash
+   grep -r "role.*ADMIN" app/api/
+   ```
+
+**Resolution:**
+1. **Add admin requirement to middleware:**
+   ```typescript
+   import { withAuthAndParams } from '@/lib/auth-middleware'
+
+   export const GET = withAuthAndParams(
+     async (request, { user, supabase }, { params }) => {
+       // This route requires admin role
+     },
+     { requireAdmin: true }
+   )
+   ```
+
+2. **Implement manual role checking:**
+   ```typescript
+   // Check user role manually
+   const user = await getUser(supabase)
+   if (!user || !['TSMART_TEAM', 'PARTNER_ADMIN', 'CLEANING_COMPANY'].includes(user.role)) {
+     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+   }
+   ```
+
+3. **Verify root admin access:**
+   ```typescript
+   import { withRootAdmin } from '@/lib/auth-middleware'
+
+   export const GET = withRootAdmin(async (request, { user, supabase }) => {
+     // Only root admins can access this
+   })
+   ```
+
+**Prevention:**
+- Default to requiring authentication on all routes
+- Separate admin routes in dedicated directories
+- Regular privilege escalation testing
 
 ---
 
@@ -738,4 +998,5 @@ See `ON_CALL_CONTACTS.md` for emergency contact information.
 - `DEPLOYMENT_ROLLBACK.md` - Rollback procedures
 - `INCIDENT_RESPONSE.md` - Incident response procedures
 - `LOGGING_AND_MONITORING.md` - Logging and monitoring setup
+
 

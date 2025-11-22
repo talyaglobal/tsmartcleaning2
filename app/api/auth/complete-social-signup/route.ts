@@ -1,19 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabase, resolveTenantFromRequest } from '@/lib/supabase'
+import { withAuth } from '@/lib/auth/rbac'
 
-export async function POST(request: NextRequest) {
+export const POST = withAuth(async (request: NextRequest, auth) => {
   try {
-    const { userId, email, fullName, role, referralCode } = await request.json()
+    const { email, fullName, role, referralCode } = await request.json()
 
-    if (!userId || !email) {
+    if (!email) {
       return NextResponse.json(
-        { error: 'User ID and email are required' },
+        { error: 'Email is required' },
         { status: 400 }
       )
     }
 
-    const tenantId = resolveTenantFromRequest(request)
-    const supabase = createServerSupabase(tenantId)
+    // Use authenticated user ID instead of accepting userId parameter
+    const userId = auth.user.id
+
+    const tenantId = auth.tenantId || resolveTenantFromRequest(request)
+    const supabase = auth.supabase
 
     // Ensure user profile exists
     const { error: profileError } = await supabase
@@ -70,5 +74,5 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+})
 

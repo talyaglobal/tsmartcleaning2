@@ -71,6 +71,60 @@ export function CompanyDashboard({ companyId }: { companyId: string }) {
 		}
 	}
 
+	const exportReports = async (format = 'csv') => {
+		try {
+			const response = await fetch(`/api/companies/${companyId}/reports/export`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					format,
+					reportType: 'all',
+					includeRawData: false,
+					includeAnalytics: true,
+				}),
+			})
+			if (!response.ok) {
+				throw new Error('Failed to export reports')
+			}
+			const exportData = await response.json()
+			
+			// Create download link
+			const dataStr = format === 'json' ? 
+				JSON.stringify(exportData.data, null, 2) : 
+				convertToCSV(exportData.data)
+			const blob = new Blob([dataStr], { 
+				type: format === 'json' ? 'application/json' : 'text/csv' 
+			})
+			const url = window.URL.createObjectURL(blob)
+			const link = document.createElement('a')
+			link.href = url
+			link.download = `${company?.name || 'company'}-reports-export.${format}`
+			document.body.appendChild(link)
+			link.click()
+			document.body.removeChild(link)
+			window.URL.revokeObjectURL(url)
+		} catch (error) {
+			console.error('Error exporting reports:', error)
+		}
+	}
+
+	const convertToCSV = (data: any[]) => {
+		if (!Array.isArray(data) || data.length === 0) return ''
+		
+		const headers = Object.keys(data[0])
+		const csvContent = [
+			headers.join(','),
+			...data.map(row => 
+				headers.map(header => {
+					const value = row[header]
+					return typeof value === 'string' && value.includes(',') ? `"${value}"` : value
+				}).join(',')
+			)
+		].join('\n')
+		
+		return csvContent
+	}
+
 	if (loading) {
 		return (
 			<div className="space-y-6">
@@ -166,12 +220,19 @@ export function CompanyDashboard({ companyId }: { companyId: string }) {
 					<TabsTrigger value="reports">Reports</TabsTrigger>
 					<TabsTrigger value="properties">Properties</TabsTrigger>
 					<TabsTrigger value="analytics">Analytics</TabsTrigger>
+					<TabsTrigger value="usage">Usage Metrics</TabsTrigger>
+					<TabsTrigger value="performance">Performance</TabsTrigger>
+					<TabsTrigger value="schedules">Schedules</TabsTrigger>
 				</TabsList>
 
 				<TabsContent value="reports" className="space-y-4">
 					<div className="flex justify-between items-center">
 						<h3 className="text-lg font-semibold">Reports & Documentation</h3>
 						<div className="flex space-x-2">
+							<Button variant="outline" onClick={() => exportReports()}>
+								<Download className="w-4 h-4 mr-2" />
+								Export Data
+							</Button>
 							<Button variant="outline" onClick={() => generateReport()}>
 								<Download className="w-4 h-4 mr-2" />
 								Generate Report
@@ -336,6 +397,184 @@ export function CompanyDashboard({ companyId }: { companyId: string }) {
 									<div className="text-gray-500">No forecast available.</div>
 								)}
 							</div>
+						</CardContent>
+					</Card>
+				</TabsContent>
+
+				<TabsContent value="usage" className="space-y-4">
+					<div className="flex justify-between items-center">
+						<h3 className="text-lg font-semibold">Usage Metrics</h3>
+					</div>
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+						<Card>
+							<CardHeader>
+								<CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<div className="text-2xl font-bold">{analytics?.usageMetrics?.totalBookings ?? 0}</div>
+								<p className="text-xs text-muted-foreground">This period</p>
+							</CardContent>
+						</Card>
+						<Card>
+							<CardHeader>
+								<CardTitle className="text-sm font-medium">Active Users</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<div className="text-2xl font-bold">{analytics?.usageMetrics?.uniqueActiveUsers ?? 0}</div>
+								<p className="text-xs text-muted-foreground">Unique customers</p>
+							</CardContent>
+						</Card>
+						<Card>
+							<CardHeader>
+								<CardTitle className="text-sm font-medium">Avg Bookings/User</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<div className="text-2xl font-bold">{analytics?.usageMetrics?.avgBookingsPerUser ?? 0}</div>
+								<p className="text-xs text-muted-foreground">Per customer</p>
+							</CardContent>
+						</Card>
+						<Card>
+							<CardHeader>
+								<CardTitle className="text-sm font-medium">Service Utilization</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<div className="text-2xl font-bold">{analytics?.performance?.utilizationRate ?? 0}%</div>
+								<p className="text-xs text-muted-foreground">Team capacity</p>
+							</CardContent>
+						</Card>
+					</div>
+					<Card>
+						<CardHeader>
+							<CardTitle>Top Services</CardTitle>
+						</CardHeader>
+						<CardContent>
+							<div className="space-y-2">
+								{(analytics?.topServices ?? []).map((service: any, index: number) => (
+									<div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+										<span className="font-medium">{service.service}</span>
+										<span className="text-sm text-gray-600">{service.count} jobs</span>
+									</div>
+								))}
+								{(!analytics?.topServices || analytics?.topServices.length === 0) && (
+									<div className="text-gray-500">No service data available.</div>
+								)}
+							</div>
+						</CardContent>
+					</Card>
+				</TabsContent>
+
+				<TabsContent value="performance" className="space-y-4">
+					<div className="flex justify-between items-center">
+						<h3 className="text-lg font-semibold">Performance Tracking</h3>
+					</div>
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+						<Card>
+							<CardHeader>
+								<CardTitle className="text-sm font-medium">Completion Rate</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<div className="text-2xl font-bold">{analytics?.performance?.completionRate ?? 0}%</div>
+								<p className="text-xs text-muted-foreground">Jobs completed on time</p>
+							</CardContent>
+						</Card>
+						<Card>
+							<CardHeader>
+								<CardTitle className="text-sm font-medium">On-Time Rate</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<div className="text-2xl font-bold">{analytics?.performance?.onTimeRate ?? 0}%</div>
+								<p className="text-xs text-muted-foreground">Delivered on schedule</p>
+							</CardContent>
+						</Card>
+						<Card>
+							<CardHeader>
+								<CardTitle className="text-sm font-medium">Avg Job Value</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<div className="text-2xl font-bold">${analytics?.performance?.avgJobValue ?? 0}</div>
+								<p className="text-xs text-muted-foreground">Per completed job</p>
+							</CardContent>
+						</Card>
+					</div>
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<Card>
+							<CardHeader>
+								<CardTitle>Enterprise Metrics</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<div className="space-y-3">
+									<div className="flex justify-between">
+										<span className="text-gray-600">Total Properties</span>
+										<span className="font-semibold">{analytics?.enterpriseMetrics?.totalProperties ?? 0}</span>
+									</div>
+									<div className="flex justify-between">
+										<span className="text-gray-600">Avg Revenue/Property</span>
+										<span className="font-semibold">${analytics?.enterpriseMetrics?.averageRevenuePerProperty ?? 0}</span>
+									</div>
+									<div className="flex justify-between">
+										<span className="text-gray-600">Most Profitable Service</span>
+										<span className="font-semibold">{analytics?.enterpriseMetrics?.mostProfitableService ?? 'N/A'}</span>
+									</div>
+									<div className="flex justify-between">
+										<span className="text-gray-600">Operational Efficiency</span>
+										<span className="font-semibold">{analytics?.enterpriseMetrics?.operationalEfficiency ?? 0}%</span>
+									</div>
+									<div className="flex justify-between">
+										<span className="text-gray-600">Growth Trend</span>
+										<Badge variant={
+											analytics?.enterpriseMetrics?.growthTrend === 'positive' ? 'default' :
+											analytics?.enterpriseMetrics?.growthTrend === 'negative' ? 'destructive' : 'secondary'
+										}>
+											{analytics?.enterpriseMetrics?.growthTrend ?? 'stable'}
+										</Badge>
+									</div>
+								</div>
+							</CardContent>
+						</Card>
+						<Card>
+							<CardHeader>
+								<CardTitle>Property Performance</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<div className="space-y-2 max-h-64 overflow-y-auto">
+									{(analytics?.propertyPerformance ?? []).map((property: any, index: number) => (
+										<div key={index} className="p-2 bg-gray-50 rounded">
+											<div className="font-medium text-sm">{property.property}</div>
+											<div className="text-xs text-gray-600 flex justify-between">
+												<span>{property.jobs} jobs</span>
+												<span>${property.revenue}</span>
+											</div>
+										</div>
+									))}
+									{(!analytics?.propertyPerformance || analytics?.propertyPerformance.length === 0) && (
+										<div className="text-gray-500">No property data available.</div>
+									)}
+								</div>
+							</CardContent>
+						</Card>
+					</div>
+				</TabsContent>
+
+				<TabsContent value="schedules" className="space-y-4">
+					<div className="flex justify-between items-center">
+						<h3 className="text-lg font-semibold">Report Schedules</h3>
+						<Button variant="outline">
+							<Calendar className="w-4 h-4 mr-2" />
+							New Schedule
+						</Button>
+					</div>
+					<Card>
+						<CardContent className="p-6 text-center text-gray-600">
+							Schedule management interface would be implemented here.
+							<br />
+							Features would include:
+							<ul className="text-left mt-4 space-y-1 max-w-md mx-auto">
+								<li>• Automated report generation</li>
+								<li>• Custom frequency settings (daily, weekly, monthly)</li>
+								<li>• Email distribution lists</li>
+								<li>• Schedule activation/deactivation</li>
+								<li>• Performance tracking of scheduled reports</li>
+							</ul>
 						</CardContent>
 					</Card>
 				</TabsContent>

@@ -1,25 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabase, resolveTenantFromRequest } from '@/lib/supabase'
+import { withAuth } from '@/lib/auth/rbac'
 
-export async function POST(request: NextRequest) {
+export const POST = withAuth(async (request: NextRequest, auth) => {
   try {
-    const tenantId = resolveTenantFromRequest(request)
-    const supabase = createServerSupabase(tenantId)
-    
-    // Get user from session
-    const authHeader = request.headers.get('authorization') || ''
-    const token = authHeader.startsWith('Bearer ')
-      ? authHeader.slice('Bearer '.length)
-      : null
-
-    if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    const tenantId = auth.tenantId || resolveTenantFromRequest(request)
+    const supabase = auth.supabase
+    const user = auth.user
 
     const { activationCode, cardId } = await request.json()
 
@@ -100,5 +87,5 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+})
 

@@ -221,23 +221,155 @@ export const GET = withAuth(
 			method: '12w_moving_average',
 		}
 
+		// Enhanced analytics for enterprise features
+		
+		// Usage metrics
+		const { data: totalBookings } = await auth.supabase
+			.from('bookings')
+			.select('id', { count: 'exact', head: true })
+			.eq('company_id', id)
+			.gte('booking_date', startOfMonth.toISOString().slice(0, 10))
+
+		const { data: activeUsers } = await auth.supabase
+			.from('bookings')
+			.select('user_id')
+			.eq('company_id', id)
+			.gte('booking_date', startOfMonth.toISOString().slice(0, 10))
+
+		const uniqueActiveUsers = [...new Set((activeUsers || []).map(b => b.user_id))].length
+
+		// Performance tracking
+		const { data: onTimeJobs } = await auth.supabase
+			.from('jobs')
+			.select('id')
+			.eq('company_id', id)
+			.gte('start_datetime', start30.toISOString())
+			.eq('status', 'completed')
+			.is('delay_minutes', null)
+
+		const onTimeRate = completed30 && completed30 > 0 ? 
+			Math.round(((onTimeJobs?.length || 0) / completed30) * 100) : 0
+
+		// Service type breakdown
+		const { data: serviceBreakdown } = await auth.supabase
+			.from('jobs')
+			.select('service_type')
+			.eq('company_id', id)
+			.gte('start_datetime', startOfMonth.toISOString())
+			.eq('status', 'completed')
+
+		const topServices = Object.entries(
+			(serviceBreakdown || []).reduce((acc: any, job) => {
+				const service = job.service_type || 'Other'
+				acc[service] = (acc[service] || 0) + 1
+				return acc
+			}, {})
+		)
+		.sort(([,a], [,b]) => (b as number) - (a as number))
+		.slice(0, 5)
+		.map(([service, count]) => ({ service, count }))
+
+		// Cost efficiency metrics
+		const avgJobValue = thisMonthSpend > 0 && thisMonthJobs > 0 ? 
+			thisMonthSpend / thisMonthJobs : 0
+
+		// Customer metrics
+		const { data: repeatCustomers } = await auth.supabase
+			.from('bookings')
+			.select('user_id', { count: 'exact' })
+			.eq('company_id', id)
+			.gte('booking_date', new Date(now.getFullYear(), now.getMonth() - 6, 1).toISOString().slice(0, 10))
+
+		const customerRetentionRate = uniqueActiveUsers > 0 ? 
+			Math.round((repeatCustomers || 0) / uniqueActiveUsers * 100) : 0
+
+		// Territory/Property performance
+		const { data: propertyPerformance } = await auth.supabase
+			.from('jobs')
+			.select(`
+				property_id,
+				total_amount,
+				properties(name)
+			`)
+			.eq('company_id', id)
+			.eq('status', 'completed')
+			.gte('start_datetime', startOfMonth.toISOString())
+
+		const propertyStats = Object.entries(
+			(propertyPerformance || []).reduce((acc: any, job) => {
+				const propertyName = job.properties?.name || 'Unknown Property'
+				if (!acc[propertyName]) {
+					acc[propertyName] = { revenue: 0, jobs: 0 }
+				}
+				acc[propertyName].revenue += job.total_amount || 0
+				acc[propertyName].jobs += 1
+				return acc
+			}, {})
+		)
+		.sort(([,a], [,b]) => (b as any).revenue - (a as any).revenue)
+		.slice(0, 10)
+		.map(([property, stats]) => ({
+			property,
+			...(stats as any)
+		}))
+
 		const analytics = {
+			// Basic metrics
 			thisMonthJobs: thisMonthJobs || 0,
 			jobGrowth,
 			thisMonthSpend,
 			spendGrowth: 0,
 			averageRating,
 			totalReviews: (ratings ?? []).length || 0,
+			propertyGrowth: 0,
+
+			// Charts and trends
 			activityChart,
 			spendingChart,
-			propertyGrowth: 0,
-			topServices: [],
 			revenueAnalytics,
 			bookingTrends: activityChart,
-			performance,
+
+			// Enhanced performance metrics
+			performance: {
+				...performance,
+				onTimeRate,
+				avgJobValue: Math.round(avgJobValue * 100) / 100,
+				customerRetentionRate
+			},
+
+			// Usage metrics
+			usageMetrics: {
+				totalBookings: totalBookings || 0,
+				uniqueActiveUsers,
+				avgBookingsPerUser: uniqueActiveUsers > 0 ? 
+					Math.round(((totalBookings || 0) / uniqueActiveUsers) * 100) / 100 : 0,
+				bookingGrowthRate: 0 // Could calculate vs previous month
+			},
+
+			// Service insights
+			topServices,
+			serviceBreakdown: topServices,
+
+			// Customer insights
 			customerLifetimeValue,
 			churnPrediction: churnRiskCustomers,
+			customerRetentionRate,
+
+			// Territory performance
+			propertyPerformance: propertyStats,
+
+			// Forecasting
 			demandForecasting,
+
+			// Enterprise metrics summary
+			enterpriseMetrics: {
+				totalProperties: propertyStats.length,
+				averageRevenuePerProperty: propertyStats.length > 0 ? 
+					Math.round((propertyStats.reduce((sum, p) => sum + p.revenue, 0) / propertyStats.length) * 100) / 100 : 0,
+				mostProfitableService: topServices.length > 0 ? topServices[0].service : 'N/A',
+				operationalEfficiency: Math.round((onTimeRate + performance.completionRate) / 2),
+				growthTrend: jobGrowth > 0 ? 'positive' : jobGrowth < 0 ? 'negative' : 'stable'
+			}
 		}
 
 		return NextResponse.json(analytics)

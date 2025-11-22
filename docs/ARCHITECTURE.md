@@ -1,6 +1,6 @@
 # System Architecture
 
-**Last Updated:** 2025-01-27  
+**Last Updated:** 2025-01-15  
 **Purpose:** High-level system architecture and technical overview
 
 ---
@@ -322,10 +322,21 @@ payments
 
 ### Row Level Security (RLS)
 
-- All tables have RLS enabled
-- Policies enforce role-based access
+⚠️ **Critical Security Note:** RLS implementation is currently incomplete
+- **CRITICAL:** Many tables do not have RLS enabled (discovered in security audit)
+- **URGENT:** RLS policies need to be implemented for all user data tables
 - Service role key used for admin operations
 - Anon key used for public operations
+
+**Required RLS Implementation:**
+```sql
+-- Enable RLS on all critical tables
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE provider_profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE companies ENABLE ROW LEVEL SECURITY;
+ALTER TABLE payments ENABLE ROW LEVEL SECURITY;
+```
 
 ### Database Features
 
@@ -379,8 +390,9 @@ payments
 
 2. **Authorization:**
    - Role-based access control (RBAC)
-   - Middleware route protection
-   - Database RLS policies
+   - Authentication middleware (`withAuth`, `withAuthAndParams`)
+   - Route protection with role requirements
+   - Database RLS policies (⚠️ needs implementation)
    - API endpoint authorization
 
 3. **Data Protection:**
@@ -388,12 +400,33 @@ payments
    - Environment variable encryption
    - Secure API keys storage
    - SQL injection prevention (parameterized queries)
+   - Ownership verification in API routes
 
 4. **API Security:**
    - Rate limiting
    - CORS configuration
    - Webhook signature verification
    - Input validation (Zod schemas)
+   - Authentication middleware on protected routes
+
+5. **Security Middleware Architecture:**
+   ```typescript
+   // Standard user authentication
+   withAuth(handler)
+   
+   // Admin authentication with role check
+   withAuthAndParams(handler, { requireAdmin: true })
+   
+   // Root admin authentication with OTP
+   withRootAdmin(handler)
+   ```
+
+**Security Audit Status:**
+- ✅ Fixed 41 critical admin route vulnerabilities
+- ✅ Fixed 46 high-priority authentication issues  
+- ✅ Implemented ownership verification patterns
+- ⚠️ **CRITICAL:** RLS policies still need to be enabled
+- ✅ Authentication middleware implemented across API routes
 
 ---
 

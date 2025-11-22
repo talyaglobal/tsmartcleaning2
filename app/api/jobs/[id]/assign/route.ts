@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabase, resolveTenantFromRequest } from '@/lib/supabase'
 import { logAuditEventFromRequest } from '@/lib/audit'
+import { withAuthAndParams } from '@/lib/auth/rbac'
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export const POST = withAuthAndParams(async (request: NextRequest, { supabase: authSupabase, tenantId: authTenantId }, { params }: { params: { id: string } }) => {
 	try {
 		const jobId = params.id
 		const { providerId } = await request.json()
@@ -11,8 +12,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 			return NextResponse.json({ error: 'providerId is required' }, { status: 400 })
 		}
 
-		const tenantId = resolveTenantFromRequest(request)
-		const supabase = createServerSupabase(tenantId ?? undefined)
+		const tenantId = authTenantId || resolveTenantFromRequest(request)
+		const supabase = authSupabase || createServerSupabase(tenantId ?? undefined)
 
 		// Verify the booking exists
 		const { data: booking, error: bookingError } = await supabase
@@ -91,6 +92,9 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 		console.error('[assign] Error:', e)
 		return NextResponse.json({ error: e.message || 'Assignment failed' }, { status: 500 })
 	}
-}
+},
+{
+	requireAdmin: true,
+})
 
 

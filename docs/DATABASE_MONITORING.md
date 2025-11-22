@@ -300,3 +300,4 @@ const metrics = getAllMetrics()
 4. Integrate query monitoring into your API routes
 5. Regularly review slow queries and optimize
 
+

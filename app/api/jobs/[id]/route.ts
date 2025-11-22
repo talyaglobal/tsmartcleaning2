@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabase, resolveTenantFromRequest } from '@/lib/supabase'
+import { withAuthAndParams } from '@/lib/auth/rbac'
 
 // Get a specific job listing
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export const GET = withAuthAndParams(
+  async (request: NextRequest, { supabase: authSupabase, tenantId: authTenantId }, { params }: { params: { id: string } }) => {
   try {
     const { id } = params
-    const tenantId = resolveTenantFromRequest(request)
-    const supabase = createServerSupabase(tenantId ?? undefined)
+    const tenantId = authTenantId || resolveTenantFromRequest(request)
+    const supabase = authSupabase || createServerSupabase(tenantId ?? undefined)
 
     const { data, error } = await supabase
       .from('job_listings')
@@ -39,17 +38,18 @@ export async function GET(
       { status: 500 }
     )
   }
-}
+},
+{
+  requireAdmin: true,
+})
 
 // Update a job listing (admin only)
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export const PATCH = withAuthAndParams(
+  async (request: NextRequest, { supabase: authSupabase, tenantId: authTenantId }, { params }: { params: { id: string } }) => {
   try {
     const { id } = params
-    const tenantId = resolveTenantFromRequest(request)
-    const supabase = createServerSupabase(tenantId ?? undefined)
+    const tenantId = authTenantId || resolveTenantFromRequest(request)
+    const supabase = authSupabase || createServerSupabase(tenantId ?? undefined)
 
     const body = await request.json()
 
@@ -79,17 +79,18 @@ export async function PATCH(
       { status: 500 }
     )
   }
-}
+},
+{
+  requireAdmin: true,
+})
 
 // Delete a job listing (admin only)
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export const DELETE = withAuthAndParams(
+  async (request: NextRequest, { supabase: authSupabase, tenantId: authTenantId }, { params }: { params: { id: string } }) => {
   try {
     const { id } = params
-    const tenantId = resolveTenantFromRequest(request)
-    const supabase = createServerSupabase(tenantId ?? undefined)
+    const tenantId = authTenantId || resolveTenantFromRequest(request)
+    const supabase = authSupabase || createServerSupabase(tenantId ?? undefined)
 
     const { error } = await supabase
       .from('job_listings')
@@ -109,5 +110,7 @@ export async function DELETE(
       { status: 500 }
     )
   }
-}
-
+},
+{
+  requireAdmin: true,
+})

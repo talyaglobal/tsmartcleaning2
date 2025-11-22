@@ -79,7 +79,7 @@ export const PATCH = withAuth(
       
       const { error } = await supabase
         .from('notifications')
-        .update({ read: true })
+        .update({ is_read: true })
         .eq('id', notificationId)
 
     return NextResponse.json({

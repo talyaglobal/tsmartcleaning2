@@ -9,10 +9,10 @@ import { isAdminRole } from '@/lib/auth/roles'
  * API endpoint for tracking analytics events
  * Stores custom analytics events in the database for analysis
  */
-export const POST = withRateLimit(async (request: NextRequest) => {
+export const POST = withAuth(async (request: NextRequest, auth) => {
   try {
-    const tenantId = resolveTenantFromRequest(request)
-    const supabase = createServerSupabase(tenantId || undefined)
+    const tenantId = auth.tenantId || resolveTenantFromRequest(request)
+    const supabase = auth.supabase
     
     const {
       eventName,
@@ -20,9 +20,11 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       eventLabel,
       value,
       metadata,
-      userId,
       sessionId,
     } = await request.json()
+
+    // Use authenticated user ID instead of accepting userId parameter
+    const userId = auth.user.id
 
     if (!eventName) {
       return NextResponse.json(
@@ -59,7 +61,7 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       { status: 500 }
     )
   }
-}, RateLimitPresets.analytics)
+})
 
 /**
  * GET endpoint to retrieve analytics events

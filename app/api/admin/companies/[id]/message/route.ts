@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabase } from '@/lib/supabase'
 import { sendWhatsAppMessage } from '@/lib/whatsapp'
+import { withAuthAndParams } from '@/lib/auth/rbac'
 
-export async function POST(
-	request: NextRequest,
-	{ params }: { params: { id: string } }
-) {
+export const POST = withAuthAndParams(
+	async (request: NextRequest, { supabase: authSupabase, tenantId: authTenantId }, { params }: { params: { id: string } }) => {
 	try {
 		const { channel, subject, message, recipientEmail, recipientPhone } = await request.json()
 
@@ -16,7 +15,7 @@ export async function POST(
 			)
 		}
 
-		const supabase = createServerSupabase()
+		const supabase = authSupabase || createServerSupabase()
 
 		// Get company details
 		const { data: company, error: companyError } = await supabase
@@ -103,5 +102,9 @@ export async function POST(
 			{ status: 500 }
 		)
 	}
+},
+{
+	requireAdmin: true,
 }
+)
 

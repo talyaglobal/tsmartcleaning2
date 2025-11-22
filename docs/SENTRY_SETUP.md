@@ -133,3 +133,4 @@ await Sentry.startSpan({
 - [Sentry Next.js Docs](https://docs.sentry.io/platforms/javascript/guides/nextjs/)
 - [Sentry Issues Page](https://talyaglobal.sentry.io/issues/?project=4510388988018768)
 
+

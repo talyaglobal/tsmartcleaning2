@@ -1,6 +1,6 @@
 # Component Documentation
 
-**Last Updated:** 2025-01-27  
+**Last Updated:** 2025-01-15  
 **Framework:** React 18.3.1 with Next.js 16.0.3  
 **UI Library:** Radix UI + Tailwind CSS
 
@@ -14,8 +14,9 @@
 4. [Booking Components](#booking-components)
 5. [Provider Components](#provider-components)
 6. [Marketing Components](#marketing-components)
-7. [Company Components](#company-components)
-8. [Component Patterns](#component-patterns)
+7. [Cleaner Directory Components](#cleaner-directory-components)
+8. [Company Components](#company-components)
+9. [Component Patterns](#component-patterns)
 
 ---
 
@@ -164,6 +165,86 @@ import {
   </DialogContent>
 </Dialog>
 ```
+
+---
+
+### FormField
+
+**Location:** `components/ui/form-field.tsx`
+
+Accessible form field wrapper that ensures proper label/input associations and error message announcements for screen readers.
+
+**Sub-components:**
+- `FormField` - Main wrapper component
+- `FormInput` - Input field with integrated label and error handling
+- `FormTextarea` - Textarea field with integrated label and error handling
+
+**Props:**
+```typescript
+interface FormFieldProps {
+  label: string
+  name: string
+  error?: string
+  required?: boolean
+  hint?: string
+  children?: React.ReactNode
+  className?: string
+}
+
+interface FormInputProps extends React.ComponentProps<typeof Input> {
+  label: string
+  error?: string
+  hint?: string
+  required?: boolean
+}
+
+interface FormTextareaProps extends React.ComponentProps<typeof Textarea> {
+  label: string
+  error?: string
+  hint?: string
+  required?: boolean
+}
+```
+
+**Usage:**
+```tsx
+import { FormField, FormInput, FormTextarea } from '@/components/ui/form-field'
+
+// Generic FormField wrapper
+<FormField 
+  label="Email"
+  name="email"
+  error={errors.email}
+  required
+  hint="We'll never share your email"
+>
+  <Input type="email" name="email" />
+</FormField>
+
+// Pre-composed FormInput
+<FormInput
+  label="Password"
+  type="password"
+  name="password"
+  error={errors.password}
+  required
+/>
+
+// Pre-composed FormTextarea
+<FormTextarea
+  label="Message"
+  name="message"
+  rows={4}
+  hint="Optional feedback"
+/>
+```
+
+**Accessibility Features:**
+- Proper label/input associations with `htmlFor` and `id`
+- Error announcements with `role="alert"` and `aria-live="polite"`
+- Required field indicators with `aria-required`
+- Hint text association with `aria-describedby`
+- Invalid state indication with `aria-invalid`
 
 ---
 
@@ -541,6 +622,172 @@ Tool for testing responsive design at different breakpoints.
 
 **Usage:**
 Only renders in development mode.
+
+---
+
+### KeyboardNavigation
+
+**Location:** `components/marketing/KeyboardNavigation.tsx`
+
+Enhances keyboard navigation support for Webflow-generated dropdown menus and interactive elements.
+
+**Features:**
+- Dropdown keyboard navigation (Enter, Space, Escape, Arrow keys)
+- Mobile menu keyboard support  
+- ARIA attribute management
+- Focus management for menu items
+- Automatic detection of Webflow dropdown patterns
+
+**Keyboard Shortcuts:**
+- `Enter`/`Space` - Open/close dropdown
+- `Escape` - Close dropdown and return focus
+- `↓` - Open dropdown or move to next item
+- `↑` - Move to previous menu item
+- `Home` - Focus first menu item
+- `End` - Focus last menu item
+
+**Usage:**
+```tsx
+import { KeyboardNavigation } from '@/components/marketing/KeyboardNavigation'
+
+// Include once in your app layout
+<KeyboardNavigation />
+```
+
+**Implementation Details:**
+- Uses MutationObserver to track dropdown state changes
+- Automatically adds `aria-expanded` attributes
+- Handles both `.w-dropdown` and `.w-nav-button` patterns
+- Returns null (headless component)
+
+---
+
+## Cleaner Directory Components
+
+### ServicePackages
+
+**Location:** `components/cleaners/ServicePackages.tsx`
+
+Displays service offerings and pricing for cleaning providers in the directory.
+
+**Props:**
+```typescript
+interface Service {
+  id: string
+  service_name: string
+  description?: string | null
+  base_price?: number | null
+  price_type?: string | null
+  duration?: number | null
+  available: boolean
+}
+
+interface ServicePackagesProps {
+  services: Service[]
+}
+```
+
+**Features:**
+- Responsive grid layout
+- Price formatting based on type (hourly, per sqft, flat)
+- Duration formatting (minutes to hours/minutes)
+- Availability indicators
+- Empty state handling
+
+**Usage:**
+```tsx
+import { ServicePackages } from '@/components/cleaners/ServicePackages'
+
+<ServicePackages services={cleanerServices} />
+```
+
+---
+
+### ReviewSection
+
+**Location:** `components/cleaners/ReviewSection.tsx`
+
+Comprehensive review display component with rating summaries, distribution charts, and detailed review listings.
+
+**Props:**
+```typescript
+interface Review {
+  id: string
+  rating: number
+  title?: string | null
+  comment?: string | null
+  customer_name?: string | null
+  verified?: boolean | null
+  service_type?: string | null
+  service_date?: string | null
+  created_at?: string | null
+  helpful_count?: number | null
+  company_response?: string | null
+  response_date?: string | null
+  photos?: Array<{ url: string }> | null
+}
+
+interface ReviewSectionProps {
+  reviews: Review[]
+  averageRating: number | null
+  totalReviews: number
+}
+```
+
+**Features:**
+- Overall rating summary with star display
+- Rating distribution chart with progress bars
+- Individual review cards with photos
+- Verified review indicators
+- Company response display
+- Helpfulness voting display
+- Empty state for no reviews
+
+**Usage:**
+```tsx
+import { ReviewSection } from '@/components/cleaners/ReviewSection'
+
+<ReviewSection 
+  reviews={cleanerReviews}
+  averageRating={4.5}
+  totalReviews={50}
+/>
+```
+
+---
+
+### ShareButton
+
+**Location:** `components/cleaners/ShareButton.tsx`
+
+Social sharing component with native share API support and fallback social media options.
+
+**Props:**
+```typescript
+interface ShareButtonProps {
+  url: string
+  title: string
+  description?: string
+}
+```
+
+**Features:**
+- Native Web Share API support (mobile)
+- Copy link functionality
+- Social media sharing (Facebook, Twitter, LinkedIn)
+- Email sharing
+- Visual feedback for copy action
+
+**Usage:**
+```tsx
+import { ShareButton } from '@/components/cleaners/ShareButton'
+
+<ShareButton 
+  url="https://example.com/cleaner/123"
+  title="Amazing Cleaning Services"
+  description="Professional cleaning with 5-star reviews"
+/>
+```
 
 ---
 

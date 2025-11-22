@@ -1,0 +1,95 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - navigation [ref=e3]:
+      - generic [ref=e5]:
+        - generic [ref=e6]:
+          - img [ref=e8]
+          - generic [ref=e12]: US GOURMET
+          - generic [ref=e13]: Analytics
+        - generic [ref=e14]:
+          - button "Sign In" [ref=e15]
+          - button "Get Started" [ref=e16]:
+            - text: Get Started
+            - img
+    - generic [ref=e17]:
+      - generic [ref=e19]:
+        - generic [ref=e20]:
+          - img [ref=e21]
+          - generic [ref=e23]: Powered by Advanced Analytics
+        - heading "Transform Your Financial Data Into Actionable Insights" [level=1] [ref=e24]:
+          - text: Transform Your Financial Data
+          - text: Into Actionable Insights
+        - paragraph [ref=e25]: Comprehensive financial analytics platform for US Gourmet Food LLC. Track performance, analyze trends, and make data-driven decisions with real-time dashboards.
+        - generic [ref=e26]:
+          - button "Access Dashboard" [ref=e27]:
+            - text: Access Dashboard
+            - img
+          - button "Learn More" [ref=e28]
+      - generic [ref=e30]:
+        - generic [ref=e31]:
+          - generic [ref=e32]: 24/7
+          - generic [ref=e33]: Real-Time Data
+        - generic [ref=e34]:
+          - generic [ref=e35]: Multiple
+          - generic [ref=e36]: Data Sources
+        - generic [ref=e37]:
+          - generic [ref=e38]: Advanced
+          - generic [ref=e39]: Analytics Tools
+        - generic [ref=e40]:
+          - generic [ref=e41]: 4+
+          - generic [ref=e42]: User Roles
+    - generic [ref=e44]:
+      - generic [ref=e45]:
+        - heading "Everything You Need for Financial Excellence" [level=2] [ref=e46]
+        - paragraph [ref=e47]: Powerful tools and insights to help you understand your business better
+      - generic [ref=e48]:
+        - generic [ref=e49]:
+          - img [ref=e51]
+          - heading "Real-Time Analytics" [level=3] [ref=e53]
+          - paragraph [ref=e54]: Monitor your financial performance with live data updates and comprehensive dashboards.
+        - generic [ref=e55]:
+          - img [ref=e57]
+          - heading "Financial Insights" [level=3] [ref=e59]
+          - paragraph [ref=e60]: Track revenue, expenses, profitability, and cash flow with advanced financial analytics.
+        - generic [ref=e61]:
+          - img [ref=e63]
+          - heading "Customer Intelligence" [level=3] [ref=e68]
+          - paragraph [ref=e69]: Understand your customers with detailed analytics, segmentation, and behavior tracking.
+        - generic [ref=e70]:
+          - img [ref=e72]
+          - heading "Inventory Management" [level=3] [ref=e76]
+          - paragraph [ref=e77]: Optimize inventory levels, track products, and manage supply chain operations.
+        - generic [ref=e78]:
+          - img [ref=e80]
+          - heading "Sales Performance" [level=3] [ref=e83]
+          - paragraph [ref=e84]: Analyze sales trends, team performance, and identify growth opportunities.
+        - generic [ref=e85]:
+          - img [ref=e87]
+          - heading "Secure & Reliable" [level=3] [ref=e89]
+          - paragraph [ref=e90]: Enterprise-grade security with role-based access control and data encryption.
+    - generic [ref=e92]:
+      - img [ref=e93]
+      - heading "Ready to Get Started?" [level=2] [ref=e97]
+      - paragraph [ref=e98]: Join US Gourmet Food LLC in making smarter financial decisions with our comprehensive analytics platform.
+      - button "Sign In to Dashboard" [ref=e99]:
+        - text: Sign In to Dashboard
+        - img
+    - contentinfo [ref=e100]:
+      - generic [ref=e102]:
+        - generic [ref=e103]:
+          - img [ref=e105]
+          - generic [ref=e109]: US GOURMET Analytics
+        - generic [ref=e110]: © 2025 US Gourmet Food LLC. All rights reserved.
+  - region "Notifications (F8)":
+    - list
+  - generic [ref=e111]:
+    - img [ref=e113]
+    - button "Open Tanstack query devtools" [ref=e161] [cursor=pointer]:
+      - img [ref=e162]
+  - button "Open Next.js Dev Tools" [ref=e215] [cursor=pointer]:
+    - img [ref=e216]
+  - alert [ref=e219]
+```

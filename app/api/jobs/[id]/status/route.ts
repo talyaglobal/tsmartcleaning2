@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabase, resolveTenantFromRequest } from '@/lib/supabase'
 import { logAuditEventFromRequest } from '@/lib/audit'
+import { withAuthAndParams } from '@/lib/auth/rbac'
 
 const VALID_STATUSES = ['pending', 'confirmed', 'in-progress', 'completed', 'cancelled', 'refunded'] as const
 type BookingStatus = typeof VALID_STATUSES[number]
@@ -14,7 +15,7 @@ const statusMap: Record<string, BookingStatus> = {
 	cancelled: 'cancelled',
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export const PATCH = withAuthAndParams(async (request: NextRequest, { supabase: authSupabase, tenantId: authTenantId }, { params }: { params: { id: string } }) => {
 	try {
 		const jobId = params.id
 		const { status } = await request.json()
@@ -23,8 +24,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 			return NextResponse.json({ error: 'status is required' }, { status: 400 })
 		}
 
-		const tenantId = resolveTenantFromRequest(request)
-		const supabase = createServerSupabase(tenantId ?? undefined)
+		const tenantId = authTenantId || resolveTenantFromRequest(request)
+		const supabase = authSupabase || createServerSupabase(tenantId ?? undefined)
 
 		// Verify the booking exists
 		const { data: booking, error: bookingError } = await supabase
@@ -125,6 +126,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 		console.error('[status] Error:', e)
 		return NextResponse.json({ error: e.message || 'Status update failed' }, { status: 500 })
 	}
-}
+},
+{
+	requireAdmin: true,
+})
 
 

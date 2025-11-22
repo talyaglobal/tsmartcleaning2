@@ -93,3 +93,4 @@ After creating the tables:
 2. Set up hourly aggregation cron job (see `docs/METRICS_DASHBOARD.md`)
 3. Configure alert thresholds via `/api/root-admin/metrics/thresholds`
 
+

@@ -1,6 +1,7 @@
 # Deployment Rollback Strategy
 
-This document outlines the procedures for rolling back deployments in case of issues.
+**Last Updated:** 2025-01-15  
+**Purpose:** Procedures for rolling back deployments in case of issues
 
 ## Overview
 
@@ -58,6 +59,76 @@ Our deployment strategy uses Vercel for hosting, which provides built-in rollbac
 
 **Time to rollback:** ~1-2 minutes
 
+### 4. Security Incident Rollback
+
+**When to use:** Security vulnerability discovered in production, RLS policies disabled, or authentication bypass detected
+
+**Steps:**
+1. **Immediate containment:**
+   ```bash
+   # If authentication is compromised, immediately redeploy last known secure version
+   vercel --prod --yes
+   ```
+
+2. **Database security rollback:**
+   ```sql
+   -- Re-enable RLS if disabled
+   ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+   ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
+   ALTER TABLE provider_profiles ENABLE ROW LEVEL SECURITY;
+   
+   -- Verify critical policies exist
+   SELECT schemaname, tablename, policyname 
+   FROM pg_policies 
+   WHERE schemaname = 'public' 
+   AND tablename IN ('users', 'bookings', 'provider_profiles');
+   ```
+
+3. **Verify authentication middleware:**
+   ```bash
+   # Check that admin routes are protected
+   grep -r "withAuth\|requireAdmin" app/api/admin/
+   ```
+
+4. **Invalidate compromised sessions:**
+   ```sql
+   -- Force logout all users if needed (extreme measure)
+   DELETE FROM auth.sessions WHERE updated_at < NOW() - INTERVAL '5 minutes';
+   ```
+
+**Time to rollback:** ~1-3 minutes (critical for security)
+
+### 5. Multi-Tenant Data Isolation Rollback
+
+**When to use:** Cross-tenant data leakage detected or tenant isolation failure
+
+**Steps:**
+1. **Verify tenant isolation:**
+   ```bash
+   npm run verify:tenant-isolation
+   ```
+
+2. **Check tenant context resolution:**
+   ```typescript
+   // Ensure all API routes properly resolve tenant
+   // Check lib/supabase.ts resolveTenantFromRequest function
+   ```
+
+3. **Validate RLS policies for multi-tenancy:**
+   ```sql
+   -- Ensure all policies include tenant checks
+   SELECT schemaname, tablename, policyname, cmd, qual 
+   FROM pg_policies 
+   WHERE qual LIKE '%tenant%' OR qual LIKE '%company%';
+   ```
+
+4. **Emergency tenant data audit:**
+   ```bash
+   npm run audit:tenant-data-access
+   ```
+
+**Time to rollback:** ~2-5 minutes (includes data verification)
+
 ## Pre-Deployment Checklist
 
 Before deploying, ensure:
@@ -93,8 +164,12 @@ After deployment, verify:
 | Issue Type | Severity | Rollback Method | Time |
 |------------|----------|----------------|------|
 | Site down | Critical | Vercel Dashboard | 30s |
+| Security vulnerability | Critical | Security rollback + containment | 1-3min |
 | Data corruption | Critical | Git revert + redeploy | 5min |
+| Cross-tenant data leakage | Critical | Multi-tenant rollback | 2-5min |
+| Authentication bypass | Critical | Security rollback | 1-3min |
 | Performance degradation | High | Vercel Dashboard | 30s |
+| RLS policies disabled | High | Database security rollback | 2min |
 | Feature broken | Medium | Git revert | 5min |
 | Minor UI issue | Low | Hotfix PR | 15min |
 
