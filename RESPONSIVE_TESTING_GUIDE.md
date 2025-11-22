@@ -140,9 +140,82 @@ The component includes these preset breakpoints:
 
 - **Component:** `components/marketing/ResponsiveDesignTest.tsx`
 - **Comprehensive Checklist:** `docs/RESPONSIVE_DESIGN_MANUAL_TESTING_CHECKLIST.md` - **Use this for detailed testing**
-- **Automated Tests:** `tests/responsive-design.test.ts`
+- **Static HTML Tests:** `tests/responsive-design.test.ts` - Tests HTML structure and CSS breakpoints
+- **E2E Browser Tests:** `tests/e2e/responsive-design.spec.ts` - **NEW!** Comprehensive Playwright tests for actual rendering
+- **Test Helpers:** `tests/utils/responsive-test-helpers.ts` - **NEW!** Utility functions for responsive testing
 - **Test Results:** `tests/RESPONSIVE_DESIGN_TEST_RESULTS.md`
 - **Homepage:** `app/page.tsx` (where the component is used)
+
+## Automated E2E Testing
+
+### Comprehensive Playwright Tests
+
+New comprehensive E2E tests have been added that test actual rendering and behavior across different viewport sizes:
+
+**File:** `tests/e2e/responsive-design.spec.ts`
+
+**Test Coverage:**
+- ✅ Mobile viewport tests (< 768px)
+  - No horizontal scroll
+  - Mobile navigation menu functionality
+  - Touch target sizes (minimum 44x44px)
+  - Responsive images
+  - Readable text (minimum 14px)
+  - Form usability
+- ✅ Tablet viewport tests (768px - 991px)
+  - No horizontal scroll
+  - Navigation adaptation
+  - Grid layout behavior
+- ✅ Desktop viewport tests (> 991px)
+  - No horizontal scroll
+  - Full navigation menu
+  - Multi-column layouts
+  - Hover states
+- ✅ Breakpoint transition tests
+- ✅ Visual regression tests (screenshots)
+- ✅ Cross-viewport consistency tests
+- ✅ Performance tests at different viewports
+- ✅ Tests across multiple key pages (homepage, find-cleaners, about, contact, etc.)
+
+### Running E2E Responsive Tests
+
+```bash
+# Run all responsive E2E tests
+npm run test:e2e -- tests/e2e/responsive-design.spec.ts
+
+# Run specific viewport tests
+npm run test:e2e -- tests/e2e/responsive-design.spec.ts -g "Mobile Viewport"
+npm run test:e2e -- tests/e2e/responsive-design.spec.ts -g "Tablet Viewport"
+npm run test:e2e -- tests/e2e/responsive-design.spec.ts -g "Desktop Viewport"
+
+# Run with UI mode for debugging
+npm run test:e2e:ui -- tests/e2e/responsive-design.spec.ts
+
+# Run in headed mode to see the browser
+npm run test:e2e:headed -- tests/e2e/responsive-design.spec.ts
+```
+
+### Test Helpers
+
+Utility functions are available in `tests/utils/responsive-test-helpers.ts`:
+
+- `hasHorizontalScroll(page)` - Check for horizontal scroll
+- `hasMinimumTouchTarget(page, selector)` - Verify touch target size (44x44px)
+- `isTextReadable(page, selector, minSize)` - Check font size readability
+- `checkResponsiveImages(page, maxWidth)` - Verify images are responsive
+- `testNavigationAtViewport(page, viewport)` - Test navigation behavior
+- `testFormUsability(page)` - Test form accessibility
+- `expectNoHorizontalScroll(page)` - Assertion helper for no horizontal scroll
+- Viewport size constants and breakpoint utilities
+
+### Visual Regression Testing
+
+Screenshots are captured for visual regression testing:
+- `homepage-mobile.png` - Mobile viewport screenshot
+- `homepage-tablet.png` - Tablet viewport screenshot
+- `homepage-desktop.png` - Desktop viewport screenshot
+
+Screenshots are stored in `test-results/` and can be compared across test runs to detect visual regressions.
 
 ## Comprehensive Testing Checklist
 

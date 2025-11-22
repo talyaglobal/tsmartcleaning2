@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { MapPin, Clock, User, Phone, Navigation, AlertCircle, CheckCircle, Bell } from 'lucide-react'
+import { MapPin, Clock, User, Phone, Navigation, AlertCircle, CheckCircle, Bell, Loader2 } from 'lucide-react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { createAnonSupabase } from '@/lib/supabase'
 import { TeamManagement } from './TeamManagement'
 import { ScheduleManagement } from './ScheduleManagement'
@@ -57,11 +58,20 @@ export function LiveDashboard() {
 	const [providers, setProviders] = useState<ProviderLite[]>([])
 	const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
 	const [notifications, setNotifications] = useState<Array<{ id: string; title: string; message: string; type: string }>>([])
+	const [loading, setLoading] = useState(true)
+	const [error, setError] = useState<string | null>(null)
 	const supabaseRef = useRef(createAnonSupabase())
 
 	useEffect(() => {
-		fetchLiveJobs()
-		fetchAvailableProviders()
+		setLoading(true)
+		setError(null)
+		Promise.all([fetchLiveJobs(), fetchAvailableProviders()])
+			.then(() => setLoading(false))
+			.catch((err) => {
+				console.error('Error loading dashboard:', err)
+				setError('Failed to load dashboard data. Please refresh the page.')
+				setLoading(false)
+			})
 		
 		// Set up real-time subscriptions
 		const supabase = supabaseRef.current
@@ -132,24 +142,28 @@ export function LiveDashboard() {
 	const fetchLiveJobs = async () => {
 		try {
 			const res = await fetch(`/api/operations/live-jobs?date=${selectedDate}`)
-			if (res.ok) {
-				const data = await res.json()
-				setLiveJobs(data)
+			if (!res.ok) {
+				throw new Error(`Failed to load jobs: ${res.status}`)
 			}
-		} catch (e) {
+			const data = await res.json()
+			setLiveJobs(data)
+		} catch (e: any) {
 			console.error('Error fetching live jobs:', e)
+			throw e
 		}
 	}
 
 	const fetchAvailableProviders = async () => {
 		try {
 			const res = await fetch('/api/providers/available')
-			if (res.ok) {
-				const data = await res.json()
-				setProviders(data)
+			if (!res.ok) {
+				throw new Error(`Failed to load providers: ${res.status}`)
 			}
-		} catch (e) {
+			const data = await res.json()
+			setProviders(data)
+		} catch (e: any) {
 			console.error('Error fetching providers:', e)
+			throw e
 		}
 	}
 
@@ -283,8 +297,25 @@ export function LiveDashboard() {
 	const inProgressJobs = liveJobs.filter((j) => j.status === 'in_progress')
 	const completedToday = liveJobs.filter((j) => j.status === 'completed').length
 
+	if (loading) {
+		return (
+			<div className="max-w-7xl mx-auto p-6">
+				<div className="flex items-center justify-center py-12">
+					<Loader2 className="h-8 w-8 animate-spin text-slate-500" />
+					<span className="ml-2 text-slate-600">Loading dashboard...</span>
+				</div>
+			</div>
+		)
+	}
+
 	return (
 		<div className="max-w-7xl mx-auto p-6">
+			{error && (
+				<Alert variant="destructive" className="mb-4">
+					<AlertCircle className="h-4 w-4" />
+					<AlertDescription>{error}</AlertDescription>
+				</Alert>
+			)}
 			{/* Notifications */}
 			{notifications.length > 0 && (
 				<div className="mb-4 space-y-2">

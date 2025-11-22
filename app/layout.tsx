@@ -114,7 +114,7 @@ export default async function RootLayout({
           ['--color-secondary' as any]: branding.secondaryColor,
         }}
       >
-        <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] rounded bg-gray-900 px-3 py-2 text-white">Skip to content</a>
+        <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] rounded bg-gray-900 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white">Skip to content</a>
         <LanguageProvider>
           <AuthProvider>
             <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
@@ -124,25 +124,35 @@ export default async function RootLayout({
                 <WebVitals />
                 <WebflowScripts />
                 <KeyboardNavigation />
-                <WebflowNavbar />
-                <LanguageSwitcher />
-                <main id="main">{children}</main>
+                <header role="banner">
+                  <WebflowNavbar />
+                  <LanguageSwitcher />
+                </header>
+                <main id="main" role="main" className="focus:outline-none" tabIndex={-1}>
+                  {children}
+                </main>
+                {/* Announcements for screen readers */}
+                <div id="live-region" aria-live="polite" aria-atomic="true" className="sr-only"></div>
+                <div id="live-region-assertive" aria-live="assertive" aria-atomic="true" className="sr-only"></div>
               </AnalyticsProvider>
               <Analytics />
               <SpeedInsights />
               {/* Global tSmartCard floating CTA */}
-              <a
-                href="/tsmartcard"
-                className="fixed bottom-5 left-5 z-[60] inline-flex items-center gap-3 rounded-full px-8 py-4 text-white shadow-lg transition-all hover:shadow-xl bg-gradient-to-tr from-indigo-500 to-purple-600"
-                aria-label="Get tSmartCard - Save 10%"
-              >
-                <span className="text-base font-bold text-white">tSmartCard</span>
-                <span className="text-sm rounded-full bg-white/15 px-3 py-1 text-white font-semibold">Save 10%</span>
-              </a>
+              <aside aria-labelledby="floating-cta-label">
+                <a
+                  href="/tsmartcard"
+                  id="floating-cta-label"
+                  className="fixed bottom-5 left-5 z-[60] inline-flex items-center gap-3 rounded-full px-8 py-4 text-white shadow-lg transition-all hover:shadow-xl focus:shadow-xl bg-gradient-to-tr from-indigo-500 to-purple-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white"
+                  aria-label="Get tSmartCard membership - Save 10% on all services"
+                >
+                  <span className="text-base font-bold text-white">tSmartCard</span>
+                  <span className="text-sm rounded-full bg-white/15 px-3 py-1 text-white font-semibold">Save 10%</span>
+                </a>
+              </aside>
               {/* WhatsApp floating button */}
               <WhatsAppFloatButton phoneNumber="+1 (561) 975-0455" />
               <ClientLocaleConsumer />
-              <footer className="bg-gray-50 border-t border-gray-200">
+              <footer role="contentinfo" className="bg-gray-50 border-t border-gray-200">
                 <div className="max-w-7xl mx-auto px-4 py-8">
                   <div className="mt-2 pt-2 border-t border-gray-200 flex justify-between items-center">
                     <p className="text-sm text-gray-500">
@@ -150,8 +160,9 @@ export default async function RootLayout({
                     </p>
                     <a
                       href="/root-admin/login"
-                      className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                      className="text-xs text-gray-400 hover:text-gray-600 focus:text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 rounded"
                       title="System Administration"
+                      aria-label="System Administration Login"
                     >
                       •
                     </a>

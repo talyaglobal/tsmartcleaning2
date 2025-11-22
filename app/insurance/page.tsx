@@ -9,7 +9,7 @@ import { CheckCircle2, ShieldCheck, Calculator, GitCompare, Check, X } from 'luc
 import { WebflowSection, WebflowButton, WebflowCard } from '@/components/webflow'
 import { createAnonSupabase } from '@/lib/supabase'
 import { JsonLd } from '@/components/seo/JsonLd'
-import { generateBreadcrumbSchema, generateServiceSchema } from '@/lib/seo'
+import { generateBreadcrumbSchema, generateServiceSchema, generateFAQSchema, generateProductSchema } from '@/lib/seo'
 
 export default function InsurancePage() {
   return (
@@ -30,6 +30,21 @@ export default function InsurancePage() {
             areaServed: 'US',
             serviceType: 'Insurance Service',
           }),
+          generateProductSchema({
+            name: 'CleanGuard Protection - Premium Plan',
+            description: 'Comprehensive insurance coverage for cleaning services with up to $25K property damage protection, theft coverage, and $500K liability protection.',
+            brand: 'tSmartCleaning',
+            offers: {
+              price: '19.99',
+              priceCurrency: 'USD',
+              availability: 'https://schema.org/InStock',
+              url: 'https://tsmartcleaning.com/insurance',
+            },
+          }),
+          generateFAQSchema(FAQ.map(f => ({
+            question: f.q,
+            answer: f.a,
+          }))),
         ]}
       />
       <div className="min-h-screen">

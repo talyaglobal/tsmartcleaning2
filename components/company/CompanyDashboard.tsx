@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Download, Settings, Building, Users, Calendar, Mail, TrendingUp } from 'lucide-react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Download, Settings, Building, Users, Calendar, Mail, TrendingUp, AlertCircle } from 'lucide-react'
 
 type Company = { id: string; name: string }
 
@@ -15,6 +16,7 @@ export function CompanyDashboard({ companyId }: { companyId: string }) {
 	const [analytics, setAnalytics] = useState<any | null>(null)
 	const [reports, setReports] = useState<any[]>([])
 	const [loading, setLoading] = useState(true)
+	const [error, setError] = useState<string | null>(null)
 
 	useEffect(() => {
 		fetchCompanyData()
@@ -22,6 +24,7 @@ export function CompanyDashboard({ companyId }: { companyId: string }) {
 	}, [companyId])
 
 	const fetchCompanyData = async () => {
+		setError(null)
 		try {
 			const [companyRes, propertiesRes, analyticsRes, reportsRes] = await Promise.all([
 				fetch(`/api/companies/${companyId}`),
@@ -29,6 +32,11 @@ export function CompanyDashboard({ companyId }: { companyId: string }) {
 				fetch(`/api/companies/${companyId}/analytics`),
 				fetch(`/api/companies/${companyId}/reports`),
 			])
+
+			// Check for errors
+			if (!companyRes.ok) {
+				throw new Error(`Failed to load company data: ${companyRes.status}`)
+			}
 
 			const [companyData, propertiesData, analyticsData, reportsData] = await Promise.all([
 				companyRes.json(),
@@ -41,8 +49,9 @@ export function CompanyDashboard({ companyId }: { companyId: string }) {
 			setProperties(Array.isArray(propertiesData) ? propertiesData : [])
 			setAnalytics(analyticsData)
 			setReports(Array.isArray(reportsData) ? reportsData : [])
-		} catch (error) {
+		} catch (error: any) {
 			console.error('Error fetching company data:', error)
+			setError(error?.message || 'Failed to load company data. Please try again.')
 		} finally {
 			setLoading(false)
 		}
@@ -137,6 +146,12 @@ export function CompanyDashboard({ companyId }: { companyId: string }) {
 
 	return (
 		<div className="space-y-6">
+			{error && (
+				<Alert variant="destructive">
+					<AlertCircle className="h-4 w-4" />
+					<AlertDescription>{error}</AlertDescription>
+				</Alert>
+			)}
 			<div className="flex justify-between items-center">
 				<div>
 					<h1 className="text-3xl font-bold">{company?.name ?? 'Company'}</h1>

@@ -7,6 +7,9 @@ import { Building2, Users, DollarSign, Activity } from "lucide-react";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { QuickActionCard } from "@/components/admin/QuickActionCard";
 import { DataTable, Column } from "@/components/admin/DataTable";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { LoadingSpinner } from "@/components/admin/LoadingSpinner";
+import { AlertCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const revenueData: Array<{ month: string; value: number }> = [];
@@ -20,22 +23,33 @@ export default function RootAdminDashboard() {
 	const [activeCleaners, setActiveCleaners] = useState<number>(0);
 	const [monthlyRevenue, setMonthlyRevenue] = useState<number>(0);
 	const [recentCompanies, setRecentCompanies] = useState<CompanyRow[]>([]);
+	const [loading, setLoading] = useState<boolean>(true);
+	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
 		(async () => {
+			setLoading(true);
+			setError(null);
 			try {
 				const r = await fetch("/api/admin/stats", { cache: "no-store" });
+				if (!r.ok) {
+					throw new Error(`Failed to load stats: ${r.status}`);
+				}
 				const s = await r.json();
 				setBookingsCount(s?.bookingsCount ?? s?.stats?.totalBookings ?? 0);
 				setActiveToday(s?.activeToday ?? s?.stats?.activeBookings ?? 0);
 				setTotalCompanies(s?.companiesCount ?? 0);
 				setActiveCleaners(s?.providersCount ?? s?.stats?.totalProviders ?? 0);
 				setMonthlyRevenue(s?.monthlyRevenue ?? s?.stats?.monthlyRevenue ?? 0);
-			} catch {
-				// ignore
+			} catch (err: any) {
+				console.error("Error loading stats:", err);
+				setError(err?.message || "Failed to load dashboard statistics");
 			}
 			try {
 				const rc = await fetch("/api/companies/search?limit=5&sort=featured", { cache: "no-store" });
+				if (!rc.ok) {
+					throw new Error(`Failed to load companies: ${rc.status}`);
+				}
 				const data = await rc.json();
 				const rows = Array.isArray(data?.results) ? data.results : [];
 				setRecentCompanies(
@@ -45,15 +59,33 @@ export default function RootAdminDashboard() {
 						createdAt: new Date().toISOString(), // If created_at not selected by API
 					}))
 				);
-			} catch {
-				// ignore
+			} catch (err: any) {
+				console.error("Error loading companies:", err);
+				// Don't set error for companies, just log it
+			} finally {
+				setLoading(false);
 			}
 		})();
 	}, []);
 
+	if (loading) {
+		return (
+			<div className="space-y-6">
+				<PageHeader title="Root Admin Dashboard" subtitle="Overview of platform-wide metrics" />
+				<LoadingSpinner label="Loading dashboard data..." />
+			</div>
+		);
+	}
+
 	return (
 		<div className="space-y-6">
 			<PageHeader title="Root Admin Dashboard" subtitle="Overview of platform-wide metrics" />
+			{error && (
+				<Alert variant="destructive">
+					<AlertCircle className="h-4 w-4" />
+					<AlertDescription>{error}</AlertDescription>
+				</Alert>
+			)}
 			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
 				<MetricCard
 					title="Total Companies"

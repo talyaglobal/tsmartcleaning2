@@ -313,3 +313,113 @@ export function generateWebsiteSchema(searchUrl?: string) {
   }
 }
 
+/**
+ * Generate FAQ JSON-LD structured data
+ */
+export function generateFAQSchema(faqs: Array<{ question: string; answer: string }>) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  }
+}
+
+/**
+ * Generate HowTo JSON-LD structured data
+ */
+export function generateHowToSchema(howTo: {
+  name: string
+  description: string
+  steps: Array<{
+    name: string
+    text: string
+    image?: string
+    url?: string
+  }>
+  totalTime?: string
+  estimatedCost?: {
+    currency: string
+    value: string
+  }
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: howTo.name,
+    description: howTo.description,
+    step: howTo.steps.map((step, index) => ({
+      '@type': 'HowToStep',
+      position: index + 1,
+      name: step.name,
+      text: step.text,
+      ...(step.image && { image: step.image }),
+      ...(step.url && { url: step.url }),
+    })),
+    ...(howTo.totalTime && { totalTime: howTo.totalTime }),
+    ...(howTo.estimatedCost && {
+      estimatedCost: {
+        '@type': 'MonetaryAmount',
+        currency: howTo.estimatedCost.currency,
+        value: howTo.estimatedCost.value,
+      },
+    }),
+  }
+}
+
+/**
+ * Generate Product JSON-LD structured data
+ */
+export function generateProductSchema(product: {
+  name: string
+  description: string
+  image?: string
+  brand?: string
+  offers?: {
+    price: string
+    priceCurrency: string
+    availability?: string
+    url?: string
+  }
+  aggregateRating?: {
+    ratingValue: number
+    reviewCount: number
+  }
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    description: product.description,
+    ...(product.image && { image: product.image }),
+    ...(product.brand && {
+      brand: {
+        '@type': 'Brand',
+        name: product.brand,
+      },
+    }),
+    ...(product.offers && {
+      offers: {
+        '@type': 'Offer',
+        price: product.offers.price,
+        priceCurrency: product.offers.priceCurrency,
+        availability: product.offers.availability || 'https://schema.org/InStock',
+        ...(product.offers.url && { url: product.offers.url }),
+      },
+    }),
+    ...(product.aggregateRating && {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: String(product.aggregateRating.ratingValue),
+        reviewCount: String(product.aggregateRating.reviewCount),
+      },
+    }),
+  }
+}
+

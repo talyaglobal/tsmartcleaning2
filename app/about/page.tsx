@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { WebflowSection, WebflowButton, WebflowCard, ScrollAnimation } from '@/components/webflow'
 import { Target, Users, Award, Heart, CheckCircle2, Sparkles, MapPin, Calendar, ExternalLink, Linkedin, Twitter, Mail } from 'lucide-react'
 import { JsonLd } from '@/components/seo/JsonLd'
-import { generateBreadcrumbSchema } from '@/lib/seo'
+import { generateBreadcrumbSchema, generateOrganizationSchema } from '@/lib/seo'
 import { cn } from '@/lib/utils'
 
 interface Stats {
@@ -125,10 +125,13 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen">
       <JsonLd
-        data={generateBreadcrumbSchema([
-          { name: 'Home', url: '/' },
-          { name: 'About', url: '/about' },
-        ])}
+        data={[
+          generateBreadcrumbSchema([
+            { name: 'Home', url: '/' },
+            { name: 'About', url: '/about' },
+          ]),
+          generateOrganizationSchema(),
+        ]}
       />
 
       {/* Hero Section */}

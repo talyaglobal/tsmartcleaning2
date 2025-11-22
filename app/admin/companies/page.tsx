@@ -12,7 +12,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { Search, Star, MapPin, ShieldCheck, BarChart3, Mail, FileText, CheckCircle2, XCircle, Loader2 } from 'lucide-react'
+import { Search, Star, MapPin, ShieldCheck, BarChart3, Mail, FileText, CheckCircle2, XCircle, Loader2, AlertCircle } from 'lucide-react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 
 type CompanySearchItem = {
   id: string
@@ -42,6 +43,7 @@ export default function AdminCompaniesPage() {
   const [results, setResults] = useState<CompanySearchItem[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [offset, setOffset] = useState(0)
   const limit = 20
 
@@ -82,15 +84,21 @@ export default function AdminCompaniesPage() {
     let canceled = false
     async function run() {
       setLoading(true)
+      setError(null)
       try {
         const res = await fetch(`/api/companies/search?${params}`, { cache: 'no-store' })
+        if (!res.ok) {
+          throw new Error(`Failed to load companies: ${res.status}`)
+        }
         const json = await res.json()
         if (!canceled) {
           setResults(json.results || [])
           setTotal(json.total || 0)
         }
-      } catch {
+      } catch (err: any) {
         if (!canceled) {
+          console.error('Error loading companies:', err)
+          setError(err?.message || 'Failed to load companies. Please try again.')
           setResults([])
           setTotal(0)
         }
@@ -240,6 +248,12 @@ export default function AdminCompaniesPage() {
       <DashboardNav userType="admin" userName="Admin User" />
 
       <div className="container mx-auto px-4 py-8">
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
         <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
           <div>
             <h1 className="text-3xl font-bold mb-1">Companies</h1>

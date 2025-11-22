@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Progress } from '@/components/ui/progress'
 import { JsonLd } from '@/components/seo/JsonLd'
-import { generateBreadcrumbSchema, generateServiceSchema } from '@/lib/seo'
+import { generateBreadcrumbSchema, generateServiceSchema, generateProductSchema } from '@/lib/seo'
 
 export default function TSmartCardPage() {
   const [amount, setAmount] = useState<number>(150)
@@ -81,15 +81,16 @@ export default function TSmartCardPage() {
             { name: 'Home', url: '/' },
             { name: 'tSmartCard', url: '/tsmartcard' },
           ]),
-          generateServiceSchema({
+          generateProductSchema({
             name: 'tSmartCard Premium Membership',
             description: 'Premium membership program offering 10% off every cleaning service, priority booking, and exclusive perks for $99/year.',
-            provider: {
-              name: 'tSmartCleaning',
-              url: 'https://tsmartcleaning.com',
+            brand: 'tSmartCleaning',
+            offers: {
+              price: '99',
+              priceCurrency: 'USD',
+              availability: 'https://schema.org/InStock',
+              url: 'https://tsmartcleaning.com/tsmartcard',
             },
-            areaServed: 'US',
-            serviceType: 'Membership Service',
           }),
         ]}
       />

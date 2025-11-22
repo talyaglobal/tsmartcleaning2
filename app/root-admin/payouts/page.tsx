@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useEffect, useState } from 'react'
 import { PageHeader } from "@/components/admin/PageHeader";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 type StatementItem = {
 	jobId: string
@@ -39,9 +41,11 @@ export default function AdminPayoutsPage() {
 	const [loading, setLoading] = useState<boolean>(false)
 	const [processing, setProcessing] = useState<boolean>(false)
 	const [data, setData] = useState<StatementResponse | null>(null)
+	const [error, setError] = useState<string | null>(null)
 
 	async function loadStatement() {
 		setLoading(true)
+		setError(null)
 		try {
 			const params = new URLSearchParams()
 			if (providerId) params.set('providerId', providerId)
@@ -49,8 +53,14 @@ export default function AdminPayoutsPage() {
 			if (start) params.set('start', start)
 			if (end) params.set('end', end)
 			const res = await fetch(`/api/payouts/statements?${params.toString()}`, { cache: 'no-store' })
+			if (!res.ok) {
+				throw new Error(`Failed to load statement: ${res.status}`)
+			}
 			const json = await res.json()
 			setData(json)
+		} catch (err: any) {
+			console.error('Error loading statement:', err)
+			setError(err?.message || 'Failed to load payout statement. Please try again.')
 		} finally {
 			setLoading(false)
 		}
@@ -77,6 +87,12 @@ export default function AdminPayoutsPage() {
 
 	return (
 		<div className="space-y-6">
+			{error && (
+				<Alert variant="destructive">
+					<AlertCircle className="h-4 w-4" />
+					<AlertDescription>{error}</AlertDescription>
+				</Alert>
+			)}
 			<PageHeader
 				title="Payouts"
 				subtitle="Provider payouts, statements, and settlements."

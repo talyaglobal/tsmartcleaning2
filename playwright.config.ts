@@ -52,6 +52,18 @@ export default defineConfig({
 			name: 'Mobile Safari',
 			use: { ...devices['iPhone 12'] },
 		},
+		{
+			name: 'Mobile Chrome Large',
+			use: { ...devices['Pixel 5 landscape'] },
+		},
+		{
+			name: 'Tablet Chrome',
+			use: { ...devices['iPad Pro'] },
+		},
+		{
+			name: 'Tablet Safari',
+			use: { ...devices['iPad Pro'] },
+		},
 	],
 
 	/* Run your local dev server before starting the tests */

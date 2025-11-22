@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Mail, Phone, MapPin, Clock, Sparkles, Loader2, CheckCircle2, AlertCircle } from 'lucide-react'
 import { WebflowSection, WebflowButton, WebflowCard } from '@/components/webflow'
 import { JsonLd } from '@/components/seo/JsonLd'
-import { generateBreadcrumbSchema, generateLocalBusinessSchema } from '@/lib/seo'
+import { generateBreadcrumbSchema, generateLocalBusinessSchema, generateFAQSchema } from '@/lib/seo'
 
 interface FormData {
   firstName: string
@@ -195,7 +195,29 @@ export default function ContactPage() {
               postalCode: '02101',
               addressCountry: 'US',
             },
+            openingHours: [
+              'Mo-Fr 08:00-20:00',
+              'Sa 09:00-17:00',
+            ],
           }),
+          generateFAQSchema([
+            {
+              question: 'How quickly can I book a cleaning service?',
+              answer: 'You can book a service in minutes! Many of our providers offer same-day or next-day availability.',
+            },
+            {
+              question: 'Are your cleaning professionals insured?',
+              answer: 'Yes, all our cleaning professionals are fully insured and background-checked for your safety and peace of mind.',
+            },
+            {
+              question: 'What if I\'m not satisfied with the service?',
+              answer: 'We offer a 100% satisfaction guarantee. If you\'re not happy with the service, contact us within 24 hours and we\'ll make it right.',
+            },
+            {
+              question: 'Do I need to provide cleaning supplies?',
+              answer: 'No, our professionals bring their own supplies and equipment. However, if you have specific products you\'d like us to use, just let us know!',
+            },
+          ]),
         ]}
       />
 

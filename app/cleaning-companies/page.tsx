@@ -3,10 +3,35 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { CheckCircle2, Users, TrendingUp, Zap, ArrowRight, Shield, Clock, DollarSign, Star, MapPin, Phone, Mail } from 'lucide-react'
 import Link from 'next/link'
+import type { Metadata } from 'next'
+import { generateSEOMetadata } from '@/lib/seo'
+import { JsonLd } from '@/components/seo/JsonLd'
+import { generateBreadcrumbSchema, generateServiceSchema } from '@/lib/seo'
+
+export const metadata: Metadata = generateSEOMetadata({
+  title: 'For Cleaning Companies — Access Reliable Labor & Streamline Operations',
+  description: 'Access reliable labor and streamline operations with our comprehensive platform designed specifically for cleaning businesses. Recruit, manage, and scale all in one app.',
+  path: '/cleaning-companies',
+  keywords: ['cleaning companies', 'cleaning business platform', 'labor management', 'cleaning company software', 'cleaning operations', 'cleaning business tools'],
+})
 
 export default function CleaningCompaniesPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+    <>
+      <JsonLd
+        data={[
+          generateBreadcrumbSchema([
+            { name: 'Home', url: '/' },
+            { name: 'For Cleaning Companies', url: '/cleaning-companies' },
+          ]),
+          generateServiceSchema({
+            name: 'Cleaning Company Platform',
+            description: 'Comprehensive platform for cleaning companies to access reliable labor, streamline operations, and scale their business.',
+            serviceType: 'Business Management Platform',
+          }),
+        ]}
+      />
+      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       <div className="container mx-auto px-4 py-12">
         {/* Hero Section */}
         <div className="text-center mb-16">
@@ -257,6 +282,9 @@ export default function CleaningCompaniesPage() {
           </div>
         </div>
       </div>
+    </>
+  )
+}
     </div>
   )
 }

@@ -34,9 +34,19 @@ npm run test:coverage
 - **Unit Tests**: Auth routes, booking routes, admin routes, role/permission tests
 - **Integration Tests**: Complete booking flow (create, update, cancel, reschedule)
 - **E2E Tests**: Critical user paths (homepage, navigation, forms, booking)
+- **Responsive Design Tests**: Comprehensive E2E tests for responsive design across mobile, tablet, and desktop viewports
+  - Horizontal scroll detection
+  - Touch target sizes (44x44px minimum)
+  - Navigation behavior at different breakpoints
+  - Image responsiveness
+  - Text readability
+  - Form usability
+  - Visual regression testing (screenshots)
+  - Cross-viewport consistency
+  - Performance at different viewports
 - **Performance Tests**: API response time measurements
 - **Load Tests**: k6 and Artillery configurations
-- **Test Infrastructure**: Mock utilities, test helpers, configuration
+- **Test Infrastructure**: Mock utilities, test helpers, configuration, responsive test helpers
 
 ### 📝 To Add (Incremental)
 
