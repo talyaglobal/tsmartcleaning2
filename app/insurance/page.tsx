@@ -67,7 +67,7 @@ export default function InsurancePage() {
             </div>
           </div>
         </div>
-      </section>
+      </WebflowSection>
 
       {/* WHO */}
       <WebflowSection id="who">

@@ -38,13 +38,13 @@ export function ProviderAvailabilityManager({ providerId }: ProviderAvailability
 
   const days = getNext7Days()
 
-  // Load existing availability on mount
-  useEffect(() => {
-    if (providerId) {
-      loadAvailability()
-    }
-  }, [providerId])
+  // Standard time slots
+  const standardTimeSlots = [
+    '08:00', '09:00', '10:00', '11:00', '12:00',
+    '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'
+  ]
 
+  // Load existing availability on mount
   const loadAvailability = async () => {
     if (!providerId) return
     
@@ -75,11 +75,12 @@ export function ProviderAvailabilityManager({ providerId }: ProviderAvailability
     }
   }
 
-  // Standard time slots
-  const standardTimeSlots = [
-    '08:00', '09:00', '10:00', '11:00', '12:00',
-    '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'
-  ]
+  useEffect(() => {
+    if (providerId) {
+      loadAvailability()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [providerId])
 
   const toggleTimeSlot = (date: string, timeSlot: string) => {
     setAvailability(prev => {
@@ -113,33 +114,6 @@ export function ProviderAvailabilityManager({ providerId }: ProviderAvailability
       delete newAvail[date]
       return newAvail
     })
-  }
-
-  useEffect(() => {
-    if (providerId) {
-      loadAvailability()
-    }
-  }, [providerId])
-
-  async function loadAvailability() {
-    if (!providerId) return
-    try {
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || ''
-      const res = await fetch(`${baseUrl}/api/availability?providerId=${providerId}`)
-      if (res.ok) {
-        const data = await res.json()
-        // Load existing availability if available
-        if (data.availability) {
-          const availMap: Record<string, string[]> = {}
-          data.availability.forEach((avail: any) => {
-            availMap[avail.date] = avail.time_slots || []
-          })
-          setAvailability(availMap)
-        }
-      }
-    } catch (error) {
-      console.error('Error loading availability:', error)
-    }
   }
 
   const saveAvailability = async () => {

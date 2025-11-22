@@ -1,3 +1,4 @@
+import 'server-only'
 import { headers as nextHeaders, cookies as nextCookies } from 'next/headers'
 
 export async function getTenantIdFromHeaders(): Promise<string | null> {

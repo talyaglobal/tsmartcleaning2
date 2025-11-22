@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabase } from '@/lib/supabase'
 import { withCache, generateCacheKey } from '@/lib/cache'
 import { withRateLimit, RateLimitPresets } from '@/lib/rate-limit'
+import { requireTenantContext } from '@/lib/tenant-validation'
 
 type CompanyRow = {
   id: string
@@ -43,6 +44,10 @@ function haversineMiles(lat1: number, lon1: number, lat2: number, lon2: number) 
 
 export const GET = withRateLimit(async (request: NextRequest) => {
   try {
+    // CRITICAL SECURITY FIX: Add tenant validation
+    const { response, tenantId } = await requireTenantContext()
+    if (response) return response
+
     const { searchParams } = new URL(request.url)
     const q = (searchParams.get('q') || '').trim()
     const lat = parseFloat(searchParams.get('lat') || '')
@@ -54,8 +59,9 @@ export const GET = withRateLimit(async (request: NextRequest) => {
     const offset = parseInt(searchParams.get('offset') || '0', 10)
     const sort = (searchParams.get('sort') || 'distance') as 'distance' | 'rating' | 'featured'
 
-    // Generate cache key
+    // Generate cache key - SECURITY FIX: Include tenant in cache key
     const cacheKey = generateCacheKey('companies:search', {
+      tenantId,
       q,
       lat,
       lng,
@@ -73,7 +79,7 @@ export const GET = withRateLimit(async (request: NextRequest) => {
       async () => {
         const supabase = createServerSupabase()
 
-        // Build base query
+        // Build base query - SECURITY FIX: Filter by tenant
         let query = supabase
           .from('companies')
           .select(
@@ -102,6 +108,7 @@ export const GET = withRateLimit(async (request: NextRequest) => {
             ].join(',')
           )
           .eq('status', 'active')
+          .eq('tenant_id', tenantId) // SECURITY FIX: Only show companies in current tenant
 
         // Optional text query across common fields
         if (q.length > 0) {

@@ -19,7 +19,9 @@ export async function GET(request: NextRequest) {
     
     const { category } = validation.data
     
-    // Resolve tenant from request (for RLS policies)
+    // Resolve tenant from request (optional - services can be public)
+    // Service role bypasses RLS, so we can show all active services
+    // If tenant is provided, we can optionally filter by it
     const tenantId = resolveTenantFromRequest(request)
     const supabase = createServerSupabase(tenantId ?? undefined)
     
@@ -27,6 +29,13 @@ export async function GET(request: NextRequest) {
       .from('services')
       .select('*')
       .eq('is_active', true)
+    
+    // Optional: Filter by tenant_id if provided and you want tenant-scoped services
+    // For now, we show all active services regardless of tenant (public endpoint)
+    // Uncomment below to enable tenant filtering:
+    // if (tenantId) {
+    //   query = query.eq('tenant_id', tenantId)
+    // }
     
     // Filter by category if provided
     if (category === 'residential') {
@@ -40,18 +49,37 @@ export async function GET(request: NextRequest) {
     const { data, error } = await query.order('name', { ascending: true })
 
     if (error) {
+      // Enhanced error logging with full context
       logError('services', error, { 
         operation: 'list_services', 
-        category,
+        category: category || 'all',
         tenantId: tenantId || 'none',
         errorMessage: error.message,
         errorCode: error.code,
-        errorDetails: error.details
+        errorDetails: error.details,
+        errorHint: error.hint
       })
-      return ApiErrors.databaseError('Failed to load services', { 
+      
+      // Return detailed error for debugging
+      const errorDetails: Record<string, unknown> = {
         error: error.message,
-        code: error.code 
-      })
+        code: error.code
+      }
+      
+      if (error.hint) {
+        errorDetails.hint = error.hint
+      }
+      
+      if (error.details) {
+        errorDetails.details = error.details
+      }
+      
+      return ApiErrors.databaseError(
+        process.env.NODE_ENV === 'development' 
+          ? `Failed to load services: ${error.message}` 
+          : 'Failed to load services',
+        errorDetails
+      )
     }
 
     return NextResponse.json({ services: data ?? [] })

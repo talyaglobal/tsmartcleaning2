@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabase, resolveTenantFromRequest } from '@/lib/supabase'
+import { requireTenantContext } from '@/lib/tenant-validation'
 import crypto from 'node:crypto'
 
 export const runtime = 'nodejs'
@@ -24,6 +25,10 @@ async function sendEmailViaApi(request: NextRequest, payload: { to: string; subj
 
 export async function POST(req: NextRequest) {
 	try {
+		// CRITICAL SECURITY FIX: Add authentication and tenant validation
+		const { response, tenantId, userId } = await requireTenantContext()
+		if (response) return response
+		
 		const contentType = req.headers.get('content-type') || ''
 		if (!contentType.includes('multipart/form-data')) {
 			return NextResponse.json({ message: 'Expected multipart/form-data' }, { status: 400 })
@@ -77,6 +82,8 @@ export async function POST(req: NextRequest) {
 			section2: payload.section2,
 			section3: { ...payload.section3, files },
 			section4: payload.section4,
+			tenant_id: tenantId, // SECURITY FIX: Add tenant isolation
+			submitted_by_user_id: userId // SECURITY FIX: Track who submitted
 		}
 
 		const { error: insertError } = await supabase.from('ngo_applications').insert(record as never)
