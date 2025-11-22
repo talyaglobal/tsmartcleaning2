@@ -187,11 +187,11 @@ export default function SupportImmigrantWomenPage() {
           <div className="container mx-auto px-4 max-w-4xl text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
               <Heart className="h-4 w-4" />
-              Supporting Immigrant Women
+              For Immigrant Women Cleaners
             </div>
-            <h1 className="text-3xl md:text-5xl font-bold mt-2">Empowering Immigrant Women Through Work</h1>
+            <h1 className="text-3xl md:text-5xl font-bold mt-2">Work with dignity, grow with support</h1>
             <p className="text-muted-foreground text-lg mt-4 max-w-2xl mx-auto">
-              We connect immigrant women with dignified employment opportunities while providing comprehensive support for their personal and professional growth.
+              Direct access to verified, well-paying cleaning jobs with comprehensive professional development, community support, and financial services designed specifically for immigrant women.
             </p>
           </div>
         </section>
@@ -206,14 +206,14 @@ export default function SupportImmigrantWomenPage() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-6 mb-12">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
               <Card className="p-6">
                 <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                  <Users className="h-6 w-6 text-primary" />
+                  <CheckCircle2 className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Job Placement</h3>
+                <h3 className="text-xl font-semibold mb-2">Direct Job Access</h3>
                 <p className="text-sm text-muted-foreground">
-                  Direct access to verified, well-paying cleaning jobs with reputable companies. No exploitation, no middlemen.
+                  Verified, well-paying jobs without exploitation or middlemen
                 </p>
               </Card>
 
@@ -221,9 +221,9 @@ export default function SupportImmigrantWomenPage() {
                 <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
                   <BookOpen className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Training & Development</h3>
+                <h3 className="text-xl font-semibold mb-2">Professional Development</h3>
                 <p className="text-sm text-muted-foreground">
-                  Free in-app training, certification courses, and professional development opportunities to advance your career.
+                  In-app training, certification courses, and career advancement opportunities
                 </p>
               </Card>
 
@@ -231,9 +231,19 @@ export default function SupportImmigrantWomenPage() {
                 <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
                   <Heart className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Community Support</h3>
+                <h3 className="text-xl font-semibold mb-2">Supportive Community</h3>
                 <p className="text-sm text-muted-foreground">
-                  Culturally sensitive environment with multi-lingual support, peer connections, and access to essential resources.
+                  Culturally sensitive environment with multi-lingual support and peer connections
+                </p>
+              </Card>
+
+              <Card className="p-6">
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                  <DollarSign className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Financial Services</h3>
+                <p className="text-sm text-muted-foreground">
+                  Future access to micro-loans, remittance services, and financial literacy tools
                 </p>
               </Card>
             </div>

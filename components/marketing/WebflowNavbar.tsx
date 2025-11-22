@@ -192,7 +192,7 @@ export function WebflowNavbar() {
                               </ul>
                             </div>
                             <div>
-                              <div className="eyebrow">Providers</div>
+                              <div className="eyebrow">Cleaning Companies</div>
                               <ul role="list" className="mega-nav_list w-list-unstyled">
                                 <li className="margin-bottom_none">
                                   <Link
@@ -258,7 +258,7 @@ export function WebflowNavbar() {
                                 </li>
                                 <li className="margin-bottom_none">
                                   <Link
-                                    href="/for-providers"
+                                    href="/cleaning-companies"
                                     className="mega-nav_link-item w-inline-block"
                                     role="menuitem"
                                   >
@@ -279,10 +279,10 @@ export function WebflowNavbar() {
                                     </div>
                                     <div className="w-node-_6bf376c4-1e42-910f-80c5-33de7f0d86ad-7f0d8653">
                                       <div>
-                                        <strong>How It Works</strong>
+                                        <strong>For Cleaning Companies</strong>
                                       </div>
                                       <div className="paragraph_small text-color_secondary">
-                                        Learn about providing services
+                                        Grow your cleaning business
                                       </div>
                                     </div>
                                   </Link>

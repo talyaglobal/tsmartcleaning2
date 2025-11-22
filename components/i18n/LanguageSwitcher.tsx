@@ -12,12 +12,13 @@ export default function LanguageSwitcher() {
     pt: { label: "Idioma", aria: "Selecionar idioma" },
     "fr-CA": { label: "Langue", aria: "Sélectionner la langue" },
     tr: { label: "Dil", aria: "Dil seçin" },
+    ht: { label: "Lang", aria: "Chwazi yon lang" },
   };
   const uiText = labelByLocale[locale] ?? labelByLocale.en;
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newLocale = e.target.value as AppLocale;
-    if (newLocale === "en" || newLocale === "es" || newLocale === "uk" || newLocale === "pt" || newLocale === "fr-CA" || newLocale === "tr") {
+    if (newLocale === "en" || newLocale === "es" || newLocale === "uk" || newLocale === "pt" || newLocale === "fr-CA" || newLocale === "tr" || newLocale === "ht") {
       setLocale(newLocale);
     }
   };

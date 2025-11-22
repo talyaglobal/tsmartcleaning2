@@ -139,7 +139,6 @@ export default function InsurancePage() {
               'Register up to 20 items; photo documentation',
             ]} limits={[ 'Ultimate only' ]} />
           </div>
-        </div>
       </WebflowSection>
 
       {/* PRICING CALCULATOR */}
@@ -204,8 +203,7 @@ export default function InsurancePage() {
             <div>All plans require active annual cleaning membership.</div>
             <div>30‑day money‑back guarantee. Cancel anytime; prorated refund available.</div>
           </div>
-        </div>
-      </section>
+      </WebflowSection>
 
       {/* CLAIMS */}
       <WebflowSection id="claims" variant="secondary">

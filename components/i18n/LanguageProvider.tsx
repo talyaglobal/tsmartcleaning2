@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 
-export type AppLocale = "en" | "es" | "uk" | "pt" | "fr-CA" | "tr";
+export type AppLocale = "en" | "es" | "uk" | "pt" | "fr-CA" | "tr" | "ht";
 
 type LanguageContextValue = {
   locale: AppLocale;
@@ -20,7 +20,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY) as AppLocale | null;
-      if (saved === "en" || saved === "es" || saved === "uk" || saved === "pt" || saved === "fr-CA" || saved === "tr") {
+      if (saved === "en" || saved === "es" || saved === "uk" || saved === "pt" || saved === "fr-CA" || saved === "tr" || saved === "ht") {
         setLocaleState(saved);
       }
     } catch {
@@ -51,6 +51,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       { code: "pt" as const, label: "Português" },
       { code: "fr-CA" as const, label: "Français (Canada)" },
       { code: "tr" as const, label: "Türkçe" },
+      { code: "ht" as const, label: "Kreyòl Ayisyen" },
     ],
     []
   );

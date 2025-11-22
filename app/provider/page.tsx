@@ -151,11 +151,10 @@ export default async function ProviderDashboard({
               return date >= lastMonthStart && date <= lastMonthEnd
             })
             .reduce((s: number, t: any) => s + Number(t.amount || 0), 0)
-        } catch {
+        } catch (error) {
           // Fallback to provider profile earnings if transactions API fails
           totalEarnings = Number(providerProfile?.total_earnings || 0)
         }
-      }
     }
   } catch (error) {
     console.error('Error fetching provider data:', error)
