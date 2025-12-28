@@ -26,6 +26,20 @@ export async function generateMetadata(): Promise<Metadata> {
   const branding = await loadBranding(tenantId);
   const siteName = "tSmartCleaning";
   const title = "Professional Cleaning Services Made Simple";
+  const metadataBase = new URL("https://tsmartcleaning.com");
+  
+  // Use PNG favicons for better WhatsApp compatibility
+  // WhatsApp specifically looks for 32x32 and 196x196 sizes
+  const faviconUrl = branding.faviconUrl.includes('.svg') 
+    ? '/icon-32.png' 
+    : branding.faviconUrl;
+  
+  // Use logo as OG image if available, otherwise use a default
+  // WhatsApp requires absolute URLs for Open Graph images
+  const ogImageUrl = branding.logoUrl 
+    ? (branding.logoUrl.startsWith('http') ? branding.logoUrl : `${metadataBase}${branding.logoUrl}`)
+    : `${metadataBase}/tsmart_cleaning_512.png`;
+  
   return {
     title: {
       default: siteName,
@@ -33,10 +47,23 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     description: "Connect with verified cleaning professionals in minutes. Book, manage, and pay for residential, commercial, and specialized cleaning services all in one place.",
     generator: "v0.app",
-    metadataBase: new URL("https://tsmartcleaning.com"),
+    metadataBase,
     // Avoid setting a blanket canonical so nested routes can use correct canonical URLs
     icons: {
-      icon: [{ url: branding.faviconUrl }],
+      icon: [
+        { url: '/favicon.ico', sizes: 'any' },
+        { url: '/icon-32.png', sizes: '32x32', type: 'image/png' },
+        { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+        { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+        { url: faviconUrl, sizes: 'any' },
+      ],
+      apple: [
+        { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
+        { url: '/images/webclip.png', sizes: '180x180', type: 'image/png' },
+      ],
+      other: [
+        { rel: 'mask-icon', url: '/icon.svg', color: branding.primaryColor },
+      ],
     },
     robots: {
       index: true,
@@ -48,11 +75,27 @@ export async function generateMetadata(): Promise<Metadata> {
       url: "https://tsmartcleaning.com",
       siteName,
       type: "website",
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${siteName} - ${title}`,
+        },
+        {
+          url: `${metadataBase}/tsmart_cleaning_512.png`,
+          width: 512,
+          height: 512,
+          alt: `${siteName} Logo`,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: `${title}`,
       description: "Connect with verified cleaning professionals in minutes.",
+      images: [ogImageUrl],
+      creator: "@tsmartcleaning",
     },
   };
 }
@@ -81,8 +124,19 @@ export default async function RootLayout({
         <link rel="stylesheet" href="/css/normalize.css" />
         <link rel="stylesheet" href="/css/webflow.css" />
         <link rel="stylesheet" href="/css/tsmartcleaning-ff34e6.webflow.css" />
-        <link rel="icon" href="/images/favicon.ico" />
+        {/* Primary favicon for browsers */}
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        {/* PNG favicons for better WhatsApp compatibility */}
+        <link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+        <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
+        {/* Android Chrome icon (WhatsApp uses this) */}
+        <link rel="icon" type="image/png" sizes="196x196" href="/icon-192.png" />
+        {/* Apple touch icons */}
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon.png" />
         <link rel="apple-touch-icon" href="/images/webclip.png" />
+        {/* Manifest for PWA support */}
+        <link rel="manifest" href="/manifest.json" />
         <link href="https://fonts.googleapis.com" rel="preconnect" />
         <link href="https://fonts.gstatic.com" rel="preconnect" crossOrigin="anonymous" />
         <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js" type="text/javascript"></script>

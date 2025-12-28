@@ -41,7 +41,7 @@ export type EffectiveBranding = {
 
 const DEFAULT_BRANDING: EffectiveBranding = {
 	logoUrl: '/tsmart_cleaning_orange.png',
-	faviconUrl: '/icon.svg',
+	faviconUrl: '/icon-32.png', // Use PNG for better WhatsApp compatibility
 	primaryColor: '#556B2F',
 	secondaryColor: '#f5f1eb',
 	theme: 'light',

@@ -887,3 +887,4 @@ COMMENT ON FUNCTION public.check_badge_eligibility IS 'Checks if a user is eligi
 COMMENT ON FUNCTION public.calculate_user_level IS 'Calculates and updates a user''s level based on points';
 COMMENT ON FUNCTION public.update_leaderboard IS 'Updates or creates a leaderboard for a specific type and timeframe';
 
+

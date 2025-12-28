@@ -143,3 +143,4 @@ This document summarizes the accessibility improvements made to meet WCAG 2.1 Le
 The application is now significantly more accessible and meets WCAG 2.1 Level AA standards for automated checks. Manual testing with screen readers is recommended before production deployment.
 
 
+
