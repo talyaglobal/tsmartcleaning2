@@ -371,8 +371,8 @@ export default async function ProviderDashboard({
             <Card className="p-6">
               <EmptyState
                 title="No upcoming jobs"
-                description="When you accept or get assigned a job, it will appear here."
-                action={<Button size="sm" variant="outline">Browse Requests</Button>}
+                subtitle="When you accept or get assigned a job, it will appear here."
+                actions={<Button size="sm" variant="outline">Browse Requests</Button>}
                 fullHeight
               />
             </Card>
@@ -436,7 +436,7 @@ export default async function ProviderDashboard({
             <Card className="p-6">
               <EmptyState
                 title="No recent jobs"
-                description="You haven't completed any jobs yet. Completed jobs will show here."
+                subtitle="You haven't completed any jobs yet. Completed jobs will show here."
                 fullHeight
               />
             </Card>

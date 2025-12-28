@@ -3,15 +3,17 @@ import { createServerSupabase, resolveTenantFromRequest } from '@/lib/supabase'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
+
     const tenantId = resolveTenantFromRequest(request)
     const supabase = createServerSupabase(tenantId ?? undefined)
     const { searchParams } = new URL(request.url)
     const dateRange = searchParams.get('dateRange') || '30d'
     
-    const providerId = params.id
+    const providerId = id
 
     // Verify provider exists
     const { data: provider } = await supabase

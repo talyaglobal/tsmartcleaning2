@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabase } from '@/lib/supabase'
 
-export async function GET(_request: NextRequest, context: { params: { token: string } }) {
+export async function GET(_request: NextRequest, context: { params: Promise<{ token: string }> }) {
 	try {
-		const token = (context.params.token || '').trim()
+		const params = await context.params
+		const token = (params.token || '').trim()
 		if (!token) {
 			return new NextResponse('Not Found', { status: 404 })
 		}

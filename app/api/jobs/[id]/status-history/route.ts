@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabase, resolveTenantFromRequest } from '@/lib/supabase'
 
 // Get status history for a job
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
-		const jobId = params.id
+		const { id: jobId } = await params
 		const tenantId = resolveTenantFromRequest(request)
 		const supabase = createServerSupabase(tenantId ?? undefined)
 

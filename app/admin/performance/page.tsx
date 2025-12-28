@@ -41,7 +41,7 @@ export default async function PerformancePage() {
     .limit(100)
 
   // Get performance summary - we'll fetch it client-side since we need proper auth headers
-  const summary = null
+  const summary = undefined
 
   return (
     <div className="container mx-auto px-4 py-8">

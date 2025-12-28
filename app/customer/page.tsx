@@ -403,8 +403,8 @@ export default async function CustomerDashboard({
             <Card className="p-6">
               <EmptyState
                 title="No upcoming bookings"
-                description="When you book a service, your upcoming bookings will appear here."
-                action={
+                subtitle="When you book a service, your upcoming bookings will appear here."
+                actions={
                   <Button asChild size="sm">
                     <Link href="/customer/book">Book a Service</Link>
                   </Button>
@@ -537,8 +537,8 @@ export default async function CustomerDashboard({
             <Card className="p-6">
               <EmptyState
                 title="No recent activity"
-                description="Your completed bookings and recent activity will show here."
-                action={
+                subtitle="Your completed bookings and recent activity will show here."
+                actions={
                   <Button asChild size="sm">
                     <Link href="/customer/book">Book Your First Service</Link>
                   </Button>

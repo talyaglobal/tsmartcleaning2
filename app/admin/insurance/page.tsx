@@ -211,7 +211,7 @@ export default function InsuranceAdminPage() {
 			effective_date: policy.effective_date,
 			expiration_date: policy.expiration_date,
 			billing_cycle: policy.billing_cycle as 'annual' | 'monthly',
-			status: policy.status,
+			status: policy.status as 'active' | 'cancelled' | 'pending_activation' | 'expired',
 			auto_renew: policy.auto_renew,
 		})
 		setShowPolicyModal(true)

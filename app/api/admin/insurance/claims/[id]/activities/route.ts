@@ -6,7 +6,7 @@ export const GET = withAuth(
 	async (
 		request: NextRequest,
 		{ supabase: authSupabase, tenantId: authTenantId },
-		{ params }: { params: { id: string } }
+		{ params }: { params: Promise<{ id: string }> }
 	) => {
 		try {
 			const tenantId = resolveTenantFromRequest(request) || authTenantId
@@ -37,7 +37,7 @@ export const POST = withAuth(
 	async (
 		request: NextRequest,
 		{ supabase: authSupabase, tenantId: authTenantId },
-		{ params }: { params: { id: string } }
+		{ params }: { params: Promise<{ id: string }> }
 	) => {
 		try {
 			const tenantId = resolveTenantFromRequest(request) || authTenantId

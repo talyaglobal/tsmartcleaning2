@@ -4,9 +4,11 @@ import { generateInvoicePdf } from '@/lib/invoice-pdf-generator'
 
 export async function GET(
 	request: NextRequest,
-	{ params }: { params: { id: string; invoiceId: string } }
+	{ params }: { params: Promise<{ id: string; invoiceId: string }> }
 ) {
 	try {
+    const { invoiceId, id } = await params
+
 		const supabase = createServerSupabase()
 
 		// Fetch invoice with company details
@@ -16,8 +18,8 @@ export async function GET(
 				*,
 				company:companies(*)
 			`)
-			.eq('id', params.invoiceId)
-			.eq('company_id', params.id)
+			.eq('id', invoiceId)
+			.eq('company_id', id)
 			.single()
 
 		if (invoiceError || !invoice) {
@@ -30,11 +32,11 @@ export async function GET(
 
 		// Update invoice with PDF URL if not already set
 		if (!invoice.pdf_url) {
-			const pdfUrl = `/api/companies/${params.id}/invoices/${params.invoiceId}/download`
+			const pdfUrl = `/api/companies/${id}/invoices/${invoiceId}/download`
 			await supabase
 				.from('invoices')
 				.update({ pdf_url: pdfUrl })
-				.eq('id', params.invoiceId)
+				.eq('id', invoiceId)
 		}
 
 		return new NextResponse(pdfBuffer, {

@@ -68,7 +68,7 @@ export const GET = withAuth(
 // Update user profile
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Validate route parameters

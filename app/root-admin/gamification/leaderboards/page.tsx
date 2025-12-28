@@ -428,7 +428,7 @@ export default function LeaderboardsPage() {
                 emptyState={
                   <EmptyState
                     title="No rankings found"
-                    description="No participants found for this leaderboard configuration."
+                    subtitle="No participants found for this leaderboard configuration."
                     icon={Trophy}
                   />
                 }
@@ -529,7 +529,7 @@ export default function LeaderboardsPage() {
           ) : (
             <EmptyState
               title="No history found"
-              description="No historical data available for the selected leaderboard."
+              subtitle="No historical data available for the selected leaderboard."
               icon={History}
             />
           )}
@@ -559,7 +559,7 @@ export default function LeaderboardsPage() {
             ) : (
               <EmptyState
                 title="No saved leaderboards"
-                description="Create a new leaderboard configuration to get started."
+                subtitle="Create a new leaderboard configuration to get started."
                 icon={Trophy}
               />
             )}

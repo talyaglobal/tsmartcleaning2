@@ -12,7 +12,7 @@ export const GET = withAuth(
   async (
     request: NextRequest,
     { supabase: authSupabase, tenantId: authTenantId, user },
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
   ) => {
     try {
       const { searchParams } = new URL(request.url)

@@ -5,7 +5,7 @@ import { withRootAdmin } from '@/lib/auth/rbac'
 // Get a company by ID
 export const GET = withRootAdmin(async (
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) => {
   try {
     const supabase = createServerSupabase(null)
@@ -40,7 +40,7 @@ export const GET = withRootAdmin(async (
 // Update a company
 export const PATCH = withRootAdmin(async (
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) => {
   try {
     const body = await request.json()

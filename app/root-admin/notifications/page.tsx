@@ -275,9 +275,9 @@ export default function NotificationsPage() {
 						emptyState={
 							<EmptyState
 								title="No notifications found"
-								description="Create and schedule notifications to keep users informed."
+								subtitle="Create and schedule notifications to keep users informed."
 								icon={<Bell className="h-8 w-8" />}
-								action={
+								actions={
 									<Button>
 										<Plus className="h-4 w-4 mr-2" />
 										New Notification
@@ -299,9 +299,9 @@ export default function NotificationsPage() {
 						emptyState={
 							<EmptyState
 								title="No templates found"
-								description="Create reusable notification templates for common messages."
+								subtitle="Create reusable notification templates for common messages."
 								icon={<FileText className="h-8 w-8" />}
-								action={
+								actions={
 									<Button>
 										<Plus className="h-4 w-4 mr-2" />
 										New Template

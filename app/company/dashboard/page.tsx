@@ -178,25 +178,25 @@ export default function CompanyDashboard() {
 			<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 				<QuickActionCard 
 					title="Schedule job" 
-					description="Create a new job" 
+					subtitle="Create a new job" 
 					href="/company/jobs" 
 					icon={<Calendar className="w-5 h-5" />}
 				/>
 				<QuickActionCard 
 					title="Add cleaner" 
-					description="Invite a cleaner" 
+					subtitle="Invite a cleaner" 
 					href="/company/cleaners" 
 					icon={<Plus className="w-5 h-5" />}
 				/>
 				<QuickActionCard 
 					title="View teams" 
-					description="Manage teams" 
+					subtitle="Manage teams" 
 					href="/company/teams" 
 					icon={<Users className="w-5 h-5" />}
 				/>
 				<QuickActionCard 
 					title="Generate report" 
-					description="Run payroll report" 
+					subtitle="Run payroll report" 
 					href="/company/invoices" 
 					icon={<Download className="w-5 h-5" />}
 				/>

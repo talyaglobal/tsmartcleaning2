@@ -6,7 +6,7 @@ export const PATCH = withAuthAndParams(
   async (
     request: NextRequest,
     auth,
-    { params }: { params: { id: string; addressId: string } }
+    { params }: { params: Promise<{ id: string; addressId: string }> }
   ) => {
     try {
       // Verify user owns this resource (or is admin)
@@ -64,7 +64,7 @@ export const DELETE = withAuthAndParams(
   async (
     request: NextRequest,
     auth,
-    { params }: { params: { id: string; addressId: string } }
+    { params }: { params: Promise<{ id: string; addressId: string }> }
   ) => {
     try {
       // Verify user owns this resource (or is admin)

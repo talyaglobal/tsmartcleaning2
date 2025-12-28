@@ -185,7 +185,7 @@ export default function AgenciesPage() {
 				emptyState={
 					<EmptyState
 						title="No agencies found"
-						description="Agency management interface. Connect to your agencies API endpoint to display data."
+						subtitle="Agency management interface. Connect to your agencies API endpoint to display data."
 						icon={<Home className="h-8 w-8" />}
 					/>
 				}

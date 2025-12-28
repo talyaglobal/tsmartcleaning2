@@ -309,7 +309,7 @@ export default function ReviewsPage() {
 				emptyState={
 					<EmptyState
 						title="No reviews found"
-						description="Review moderation interface. Connect to your reviews API endpoint to display data."
+						subtitle="Review moderation interface. Connect to your reviews API endpoint to display data."
 						icon={<Star className="h-8 w-8" />}
 					/>
 				}

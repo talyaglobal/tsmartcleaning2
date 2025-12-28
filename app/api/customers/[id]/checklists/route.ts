@@ -6,7 +6,7 @@ export const GET = withAuthAndParams(
   async (
     _request: NextRequest,
     auth,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
   ) => {
     try {
       // Verify user owns this resource (or is admin)
@@ -38,7 +38,7 @@ export const POST = withAuthAndParams(
   async (
     request: NextRequest,
     auth,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
   ) => {
     try {
       // Verify user owns this resource (or is admin)
@@ -82,7 +82,7 @@ export const PATCH = withAuthAndParams(
   async (
     request: NextRequest,
     auth,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
   ) => {
     try {
       // Verify user owns this resource (or is admin)
@@ -131,7 +131,7 @@ export const DELETE = withAuthAndParams(
   async (
     request: NextRequest,
     auth,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
   ) => {
     try {
       // Verify user owns this resource (or is admin)

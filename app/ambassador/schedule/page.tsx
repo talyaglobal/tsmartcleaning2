@@ -85,8 +85,8 @@ export default function AmbassadorSchedulePage() {
 		<div className="p-6 space-y-6">
 			<PageHeader
 				title="Schedule"
-				description="View and manage your team's schedule"
-				action={
+				subtitle="View and manage your team's schedule"
+				actions={
 					<div className="flex items-center gap-2">
 						<Button variant="outline" size="sm" onClick={() => navigateWeek('prev')}>
 							<ChevronLeft className="h-4 w-4" />

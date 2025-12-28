@@ -132,6 +132,10 @@ export function withRootAdmin<T = any>(
   return async (request: NextRequest, context?: any): Promise<NextResponse<T>> => {
     try {
       await requireRootAdmin(request)
+      // If context has params that are a Promise, await them
+      if (context?.params && typeof context.params === 'object' && 'then' in context.params) {
+        context = { ...context, params: await context.params }
+      }
       return handler(request, context)
     } catch (error) {
       // If it's already a NextResponse (from requireRootAdmin), return it
@@ -300,25 +304,31 @@ export function withAuthAndParams<T = any, P = any>(
     requireRootAdmin?: boolean
   }
 ) {
-  return async (request: NextRequest, context: { params: P }): Promise<NextResponse<T>> => {
+  return async (request: NextRequest, context: { params: P | Promise<P> }): Promise<NextResponse<T>> => {
     try {
+      // Await params if it's a Promise
+      const resolvedParams = context.params && typeof context.params === 'object' && 'then' in context.params
+        ? await context.params
+        : context.params
+      const resolvedContext = { params: resolvedParams }
+
       // Root admin check takes precedence
       if (options?.requireRootAdmin) {
         await requireRootAdmin(request)
         const authResult = await requireAuth(request)
-        return handler(request, authResult, context)
+        return handler(request, authResult, resolvedContext)
       }
 
       // Admin check
       if (options?.requireAdmin) {
         const authResult = await requireAdmin(request)
-        return handler(request, authResult, context)
+        return handler(request, authResult, resolvedContext)
       }
 
       // Role-based check
       if (options?.roles && options.roles.length > 0) {
         const authResult = await requireRole(request, options.roles)
-        return handler(request, authResult, context)
+        return handler(request, authResult, resolvedContext)
       }
 
       // Permission-based check
@@ -338,12 +348,12 @@ export function withAuthAndParams<T = any, P = any>(
           )
         }
 
-        return handler(request, authResult, context)
+        return handler(request, authResult, resolvedContext)
       }
 
       // Just require authentication
       const authResult = await requireAuth(request)
-      return handler(request, authResult, context)
+      return handler(request, authResult, resolvedContext)
     } catch (error) {
       // If it's already a NextResponse (from requireAuth, etc.), return it
       if (error instanceof NextResponse) {

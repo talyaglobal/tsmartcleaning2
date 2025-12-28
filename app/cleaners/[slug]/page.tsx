@@ -7,40 +7,42 @@ import { JsonLd } from '@/components/seo/JsonLd'
 import { generateSEOMetadata, generateBreadcrumbSchema, generateLocalBusinessSchema, generateReviewSchema } from '@/lib/seo'
 
 type PageProps = {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
+    const { slug } = await params
     const supabase = createServerSupabase()
     const { data } = await supabase
       .from('companies')
       .select('name, company_name, description, tagline, logo_url, cover_image_url')
-      .eq('slug', params.slug)
+      .eq('slug', slug)
       .eq('status', 'active')
       .single()
 
     if (!data) {
-      const name = params.slug.replace(/-/g, ' ')
+      const name = slug.replace(/-/g, ' ')
       return {
         title: `${name} — Cleaning Company`,
         description: 'View services, ratings, and request a booking.',
       }
     }
 
-    const name = data.name || data.company_name || params.slug.replace(/-/g, ' ')
+    const name = data.name || data.company_name || slug.replace(/-/g, ' ')
     const description = data.description || data.tagline || 'View services, ratings, and request a booking.'
     const image = data.cover_image_url || data.logo_url
 
     return generateSEOMetadata({
       title: `${name} — Cleaning Company`,
       description,
-      path: `/cleaners/${params.slug}`,
+      path: `/cleaners/${slug}`,
       image: image || undefined,
       type: 'profile',
     })
   } catch (error) {
-    const name = params.slug.replace(/-/g, ' ')
+    const { slug } = await params
+    const name = slug.replace(/-/g, ' ')
     return {
       title: `${name} — Cleaning Company`,
       description: 'View services, ratings, and request a booking.',
@@ -51,11 +53,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function CleanerProfilePage({ params }: PageProps) {
   try {
+    const { slug } = await params
     const supabase = createServerSupabase()
     const { data: company, error } = await supabase
       .from('companies')
       .select('*')
-      .eq('slug', params.slug)
+      .eq('slug', slug)
       .eq('status', 'active')
       .single()
 
@@ -63,18 +66,18 @@ export default async function CleanerProfilePage({ params }: PageProps) {
       notFound()
     }
 
-    const name = company.name || company.company_name || params.slug.replace(/-/g, ' ')
+    const name = company.name || company.company_name || slug.replace(/-/g, ' ')
     const jsonLdData = [
       generateBreadcrumbSchema([
         { name: 'Home', url: '/' },
         { name: 'Find Cleaners', url: '/find-cleaners' },
-        { name, url: `/cleaners/${params.slug}` },
+        { name, url: `/cleaners/${slug}` },
       ]),
       generateLocalBusinessSchema({
         name,
         description: company.description || company.tagline || undefined,
         image: company.cover_image_url || company.logo_url || undefined,
-        url: `https://tsmartcleaning.com/cleaners/${params.slug}`,
+        url: `https://tsmartcleaning.com/cleaners/${slug}`,
         priceRange: company.price_range || undefined,
         rating: company.average_rating
           ? {
@@ -105,7 +108,7 @@ export default async function CleanerProfilePage({ params }: PageProps) {
     return (
       <main className="min-h-screen">
         <JsonLd data={jsonLdData} />
-        <CleanerProfileClient slug={params.slug} company={company} />
+        <CleanerProfileClient slug={slug} company={company} />
       </main>
     )
   } catch (error) {

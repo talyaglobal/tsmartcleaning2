@@ -274,7 +274,7 @@ export default function CompaniesPage() {
 				emptyState={
 					<EmptyState
 						title="No companies found"
-						description="There are no companies matching your filters."
+						subtitle="There are no companies matching your filters."
 						icon={<Building2 className="h-8 w-8" />}
 					/>
 				}

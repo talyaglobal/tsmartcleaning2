@@ -183,7 +183,7 @@ export default function FinancesPage() {
 					emptyState={
 						<EmptyState
 							title="No transactions found"
-							description="Transaction history will appear here once data is available."
+							subtitle="Transaction history will appear here once data is available."
 							icon={<DollarSign className="h-8 w-8" />}
 						/>
 					}
@@ -196,7 +196,7 @@ export default function FinancesPage() {
 				<div className="bg-white rounded-lg border border-slate-200 p-6">
 					<EmptyState
 						title="Payout tracking"
-						description="Payout tracking and processing interface coming soon."
+						subtitle="Payout tracking and processing interface coming soon."
 						icon={<DollarSign className="h-8 w-8" />}
 						compact
 					/>

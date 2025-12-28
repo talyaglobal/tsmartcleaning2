@@ -484,26 +484,26 @@ export default function AgencyDashboard() {
 				<MetricCard 
 					title="Total Candidates" 
 					value={totalCandidates.toString()} 
-					subtitle={`${activeCandidates} active`}
+							subtitle={`${activeCandidates} active`}
 					icon={<Users className="w-6 h-6" />} 
 				/>
 				<MetricCard 
 					title="Total Placements" 
 					value={totalPlacements.toString()} 
-					subtitle={`${activePlacements} active, ${pendingPlacements} pending`}
+							subtitle={`${activePlacements} active, ${pendingPlacements} pending`}
 					change={{ value: parseFloat(successRate), positive: true, label: `${successRate}% success rate` }} 
 					icon={<UserCheck className="w-6 h-6" />} 
 				/>
 				<MetricCard 
 					title="Placed Candidates" 
 					value={placedCandidates.toString()} 
-					subtitle={`${completedPlacements} completed`}
+							subtitle={`${completedPlacements} completed`}
 					icon={<CheckCircle className="w-6 h-6" />} 
 				/>
 				<MetricCard 
 					title="Total Revenue" 
 					value={`$${totalRevenue.toLocaleString()}`} 
-					subtitle={`$${monthlyRevenue.toLocaleString()} active`}
+							subtitle={`$${monthlyRevenue.toLocaleString()} active`}
 					icon={<DollarSign className="w-6 h-6" />} 
 				/>
 			</div>
@@ -513,25 +513,25 @@ export default function AgencyDashboard() {
 				<div className="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1">
 					<QuickActionCard 
 						title="Add candidate" 
-						description="Register new candidate" 
+						description="Register new candidate"
 						href="/agency/candidates" 
 						icon={<Plus className="w-5 h-5" />}
 					/>
 					<QuickActionCard 
 						title="Match to job" 
-						description="Create new placement" 
+							description="Create new placement" 
 						href="/agency/placements" 
 						icon={<Briefcase className="w-5 h-5" />}
 					/>
 					<QuickActionCard 
 						title="Schedule training" 
-						description="Organize training session" 
+							description="Organize training session" 
 						href="/agency/training" 
 						icon={<Calendar className="w-5 h-5" />}
 					/>
 					<QuickActionCard 
 						title="Contact company" 
-						description="Reach out to partners" 
+							description="Reach out to partners" 
 						href="/agency/companies" 
 						icon={<Building2 className="w-5 h-5" />}
 					/>

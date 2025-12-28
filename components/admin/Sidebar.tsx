@@ -33,14 +33,14 @@ import {
 	Headphones,
 	FileEdit,
 	Megaphone,
-		Map,
-		MapPinned,
-		Star,
-		ShieldCheck,
-		FileCheck2,
-		IdCard,
-		Bell,
-		FileBarChart,
+	Map,
+	MapPinned,
+	Star,
+	ShieldCheck,
+	FileCheck2,
+	IdCard,
+	Bell,
+	FileBarChart,
 	Building,
 	CreditCard,
 	Trophy,
@@ -49,6 +49,13 @@ import {
 	Target,
 	CheckSquare,
 	BarChart,
+	Database,
+	Code,
+	BookOpen,
+	HelpCircle,
+	MessageCircle,
+	Wrench,
+	Plug,
 } from "lucide-react";
 import React from "react";
 
@@ -76,27 +83,37 @@ const isNavSection = (item: MenuItem): item is NavSection => {
 
 const ROOT_ADMIN_MENU: MenuItem[] = [
 	{ name: "Dashboard", icon: LayoutDashboard, path: "/root-admin" },
-	{ name: "System Analytics", icon: BarChart3, path: "/root-admin/analytics" },
+	{
+		title: "Analytics & Insights",
+		items: [
+			{ name: "System Analytics", icon: BarChart3, path: "/root-admin/analytics" },
+		],
+	},
 	{ name: "Directory", icon: MapPinned, path: "/root-admin/directory" },
-	{ name: "Companies", icon: Building2, path: "/root-admin/companies" },
+	{
+		title: "User Management",
+		items: [
+			{ name: "Cleaning Companies", icon: Building2, path: "/root-admin/companies" },
+			{ name: "Cleaners", icon: UserCheck, path: "/root-admin/users?type=cleaners" },
+			{ name: "Admins & Roles", icon: UserCog, path: "/root-admin/users?type=admins" },
+			{ name: "All Users", icon: Users, path: "/root-admin/users" },
+		],
+	},
+	{
+		title: "Business Operations",
+		items: [
+			{ name: "Job Management", icon: ClipboardList, path: "/root-admin/booking-requests" },
+			{ name: "Payments & Billing", icon: Wallet, path: "/root-admin/payouts" },
+			{ name: "Financial Overview", icon: DollarSign, path: "/root-admin/finances" },
+			{ name: "Support & Tickets", icon: MessageCircle, path: "/root-admin/support" },
+		],
+	},
 	{ name: "Reviews", icon: Star, path: "/root-admin/reviews" },
-	{ name: "Booking Requests", icon: ClipboardList, path: "/root-admin/booking-requests" },
+	{ name: "Notifications & Alerts", icon: Bell, path: "/root-admin/notifications" },
 	{ name: "Insurance", icon: ShieldCheck, path: "/root-admin/insurance" },
 	{ name: "Claims", icon: FileCheck2, path: "/root-admin/claims" },
 	{ name: "Policies", icon: IdCard, path: "/root-admin/policies" },
-	{ name: "Notifications", icon: Bell, path: "/root-admin/notifications" },
-	{ name: "Payouts", icon: Wallet, path: "/root-admin/payouts" },
 	{ name: "Revenue Share Rules", icon: DollarSign, path: "/root-admin/revenue-share-rules" },
-	{ name: "Reports", icon: FileBarChart, path: "/root-admin/reports" },
-	{ name: "All Users", icon: Users, path: "/root-admin/users" },
-	{ name: "Tenants", icon: Building2, path: "/root-admin/tenants" },
-	{ name: "Territories", icon: Map, path: "/root-admin/territories" },
-	{ name: "Branding", icon: Settings, path: "/root-admin/branding" },
-	{ name: "Team Management", icon: UsersRound, path: "/root-admin/team" },
-	{ name: "NGO/Agencies", icon: Home, path: "/root-admin/agencies" },
-	{ name: "Financial Overview", icon: DollarSign, path: "/root-admin/finances" },
-	{ name: "System Settings", icon: Settings, path: "/root-admin/settings" },
-	{ name: "Audit Logs", icon: ScrollText, path: "/root-admin/logs" },
 	{
 		title: "Gamification",
 		items: [
@@ -116,6 +133,34 @@ const ROOT_ADMIN_MENU: MenuItem[] = [
 			{ name: "KPI Dashboard", icon: BarChart, path: "/root-admin/progress/kpi" },
 		],
 	},
+	{
+		title: "Reports & Exports",
+		items: [
+			{ name: "Standard Reports", icon: FileBarChart, path: "/root-admin/reports" },
+		],
+	},
+	{
+		title: "System Configuration",
+		items: [
+			{ name: "Platform Settings", icon: Settings, path: "/root-admin/settings" },
+			{ name: "Gamification Rules", icon: Wrench, path: "/root-admin/settings/gamification" },
+			{ name: "Integrations", icon: Plug, path: "/root-admin/settings/integrations" },
+		],
+	},
+	{
+		title: "Admin Tools",
+		items: [
+			{ name: "Database Management", icon: Database, path: "/root-admin/tools/database" },
+			{ name: "System Logs", icon: ScrollText, path: "/root-admin/logs" },
+			{ name: "Developer Tools", icon: Code, path: "/root-admin/tools/developer" },
+		],
+	},
+	{ name: "Documentation", icon: BookOpen, path: "/root-admin/docs" },
+	{ name: "Tenants", icon: Building2, path: "/root-admin/tenants" },
+	{ name: "Territories", icon: Map, path: "/root-admin/territories" },
+	{ name: "Branding", icon: Settings, path: "/root-admin/branding" },
+	{ name: "Team Management", icon: UsersRound, path: "/root-admin/team" },
+	{ name: "NGO/Agencies", icon: Home, path: "/root-admin/agencies" },
 ];
 
 const COMPANY_MENU: NavItem[] = [

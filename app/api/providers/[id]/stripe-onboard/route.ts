@@ -4,9 +4,11 @@ import { createServerSupabase, resolveTenantFromRequest } from '@/lib/supabase'
 
 export async function POST(
 	_request: NextRequest,
-	{ params }: { params: { id: string } }
+	{ params }: { params: Promise<{ id: string }> }
 ) {
 	try {
+    const { id } = await params
+
 		if (!isStripeConfigured()) {
 			return NextResponse.json(
 				{ error: 'Stripe not configured' },
@@ -22,7 +24,7 @@ export async function POST(
 		const { data: provider, error: providerError } = await supabase
 			.from('provider_profiles')
 			.select('id, stripe_account_id')
-			.eq('id', params.id)
+			.eq('id', id)
 			.single()
 		if (providerError || !provider) {
 			return NextResponse.json({ error: 'Provider not found' }, { status: 404 })
@@ -42,7 +44,7 @@ export async function POST(
 			const { error: updateError } = await supabase
 				.from('provider_profiles')
 				.update({ stripe_account_id: accountId })
-				.eq('id', params.id)
+				.eq('id', id)
 			if (updateError) {
 				return NextResponse.json(
 					{ error: 'Failed to save Stripe account' },

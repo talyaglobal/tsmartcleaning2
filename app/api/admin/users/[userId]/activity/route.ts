@@ -7,7 +7,7 @@ export const GET = withAuth(
   async (
     request: NextRequest,
     { supabase: authSupabase },
-    { params }: { params: { userId: string } }
+    { params }: { params: Promise<{ userId: string }> }
   ) => {
     try {
       const { searchParams } = new URL(request.url)

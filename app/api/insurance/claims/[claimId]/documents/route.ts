@@ -94,11 +94,11 @@ async function sendEmailViaApi(request: NextRequest, payload: { to: string; subj
 	}
 }
 
-export async function GET(request: NextRequest, { params }: { params: { claimId: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ claimId: string }> }) {
 	try {
+		const { claimId } = await params
 		const tenantId = resolveTenantFromRequest(request)
 		const supabase = createServerSupabase(tenantId || undefined)
-		const claimId = params.claimId
 		if (!claimId) return NextResponse.json({ error: 'Missing claimId' }, { status: 400 })
 
 		const { searchParams } = new URL(request.url)
@@ -184,11 +184,11 @@ export async function GET(request: NextRequest, { params }: { params: { claimId:
 	}
 }
 
-export async function POST(request: NextRequest, { params }: { params: { claimId: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ claimId: string }> }) {
 	try {
+		const { claimId } = await params
 		const tenantId = resolveTenantFromRequest(request)
 		const supabase = createServerSupabase(tenantId || undefined)
-		const claimId = params.claimId
 		if (!claimId) return NextResponse.json({ error: 'Missing claimId' }, { status: 400 })
 
 		// Verify claim exists and get the actual claim UUID
@@ -346,11 +346,11 @@ export async function POST(request: NextRequest, { params }: { params: { claimId
 	}
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { claimId: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ claimId: string }> }) {
 	try {
+		const { claimId } = await params
 		const tenantId = resolveTenantFromRequest(request)
 		const supabase = createServerSupabase(tenantId || undefined)
-		const claimId = params.claimId
 		if (!claimId) return NextResponse.json({ error: 'Missing claimId' }, { status: 400 })
 
 		const { searchParams } = new URL(request.url)

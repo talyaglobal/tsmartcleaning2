@@ -103,31 +103,31 @@ export default function AmbassadorAttendancePage() {
 	}
 
 	const columns: Column<AttendanceRecord>[] = [
-		{ key: 'memberName', label: 'Team Member' },
-		{ key: 'date', label: 'Date' },
+		{ key: 'memberName', header: 'Team Member' },
+		{ key: 'date', header: 'Date' },
 		{ 
 			key: 'status', 
-			label: 'Status',
+			header: 'Status',
 			render: (record) => getStatusBadge(record.status)
 		},
 		{ 
 			key: 'clockIn', 
-			label: 'Clock In',
+			header: 'Clock In',
 			render: (record) => record.clockIn || '-'
 		},
 		{ 
 			key: 'clockOut', 
-			label: 'Clock Out',
+			header: 'Clock Out',
 			render: (record) => record.clockOut || '-'
 		},
 		{ 
 			key: 'hoursWorked', 
-			label: 'Hours',
+			header: 'Hours',
 			render: (record) => record.hoursWorked ? `${record.hoursWorked.toFixed(1)}h` : '-'
 		},
 		{
 			key: 'actions',
-			label: 'Actions',
+			header: 'Actions',
 			render: (record) => (
 				<div className="flex gap-2">
 					{record.status !== 'present' && (
@@ -155,7 +155,7 @@ export default function AmbassadorAttendancePage() {
 		<div className="p-6 space-y-6">
 			<PageHeader
 				title="Attendance"
-				description="Track your team's attendance"
+				subtitle="Track your team's attendance"
 			/>
 
 			<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -253,7 +253,6 @@ export default function AmbassadorAttendancePage() {
 					<DataTable
 						data={filteredAttendance}
 						columns={columns}
-						searchKeys={['memberName']}
 					/>
 				</CardContent>
 			</Card>

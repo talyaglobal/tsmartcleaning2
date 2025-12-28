@@ -6,7 +6,7 @@ export const PATCH = withAuth(
 	async (
 		request: NextRequest,
 		{ supabase: authSupabase },
-		{ params }: { params: { id: string } }
+		{ params }: { params: Promise<{ id: string }> }
 	) => {
 		try {
 			const { verified, notes } = await request.json().catch(() => ({}))

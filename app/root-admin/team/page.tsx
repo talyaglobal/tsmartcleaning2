@@ -251,9 +251,9 @@ export default function TeamPage() {
 						emptyState={
 							<EmptyState
 								title="No team members found"
-								description="Add team members to manage your platform."
+								subtitle="Add team members to manage your platform."
 								icon={<UsersRound className="h-8 w-8" />}
-								action={
+								actions={
 									<Button>
 										<Plus className="h-4 w-4 mr-2" />
 										Add Member
@@ -269,7 +269,7 @@ export default function TeamPage() {
 				<div className="py-12 text-center">
 					<EmptyState
 						title="Role & Permission Management"
-						description="Configure roles and permissions for team members. This interface will allow you to create custom roles and assign specific permissions."
+						subtitle="Configure roles and permissions for team members. This interface will allow you to create custom roles and assign specific permissions."
 						icon={<Shield className="h-8 w-8" />}
 					/>
 				</div>
@@ -285,7 +285,7 @@ export default function TeamPage() {
 						emptyState={
 							<EmptyState
 								title="No activity logs found"
-								description="Activity logs will appear here once team members start using the system."
+								subtitle="Activity logs will appear here once team members start using the system."
 								icon={<Clock className="h-8 w-8" />}
 							/>
 						}

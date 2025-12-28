@@ -6,12 +6,12 @@ export const dynamic = 'force-dynamic'
 // PATCH endpoint for updating document review status
 export async function PATCH(
 	request: NextRequest,
-	{ params }: { params: { claimId: string; documentId: string } }
+	{ params }: { params: Promise<{ claimId: string; documentId: string }> }
 ) {
 	try {
 		const tenantId = resolveTenantFromRequest(request)
 		const supabase = createServerSupabase(tenantId || undefined)
-		const { claimId, documentId } = params
+		const { claimId, documentId } = await params
 
 		if (!claimId || !documentId) {
 			return NextResponse.json({ error: 'claimId and documentId are required' }, { status: 400 })

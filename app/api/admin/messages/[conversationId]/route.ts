@@ -8,11 +8,11 @@ export const GET = withAuth(
   async (
     request: NextRequest,
     { supabase: authSupabase, tenantId: authTenantId },
-    { params }: { params: { conversationId: string } }
+    { params }: { params: Promise<{ conversationId: string }> }
   ) => {
     try {
       const tenantId = requireTenantId(request) || authTenantId
-    const { conversationId } = params
+    const { conversationId } = await params
     const { searchParams } = new URL(request.url)
     const limit = parseInt(searchParams.get('limit') || '50')
     const offset = parseInt(searchParams.get('offset') || '0')
@@ -78,11 +78,11 @@ export const POST = withAuth(
   async (
     request: NextRequest,
     { supabase: authSupabase, tenantId: authTenantId },
-    { params }: { params: { conversationId: string } }
+    { params }: { params: Promise<{ conversationId: string }> }
   ) => {
     try {
       const tenantId = requireTenantId(request) || authTenantId
-      const { conversationId } = params
+      const { conversationId } = await params
       const { sender_id, recipient_id, content } = await request.json()
 
       if (!sender_id || !recipient_id || !content) {
@@ -143,11 +143,11 @@ export const PATCH = withAuth(
   async (
     request: NextRequest,
     { supabase: authSupabase, tenantId: authTenantId },
-    { params }: { params: { conversationId: string } }
+    { params }: { params: Promise<{ conversationId: string }> }
   ) => {
     try {
       const tenantId = requireTenantId(request) || authTenantId
-      const { conversationId } = params
+      const { conversationId } = await params
       const { user_id } = await request.json()
 
       if (!user_id) {

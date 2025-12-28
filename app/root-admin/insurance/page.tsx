@@ -643,7 +643,7 @@ export default function InsurancePage() {
 					) : (
 						<EmptyState
 							title="No analytics data"
-							description="Analytics data will appear here once policies are created."
+							subtitle="Analytics data will appear here once policies are created."
 							icon={<BarChart3 className="h-8 w-8" />}
 						/>
 					)}
@@ -684,9 +684,9 @@ export default function InsurancePage() {
 						emptyState={
 							<EmptyState
 								title="No policies found"
-								description="There are no insurance policies matching your filters."
+								subtitle="There are no insurance policies matching your filters."
 								icon={<ShieldCheck className="h-8 w-8" />}
-								action={
+								actions={
 									<Button onClick={handleCreatePolicy}>
 										<Plus className="h-4 w-4 mr-2" />
 										Create Policy
@@ -708,9 +708,9 @@ export default function InsurancePage() {
 						emptyState={
 							<EmptyState
 								title="No plans found"
-								description="Insurance plan configuration. Add plans to manage pricing and features."
+								subtitle="Insurance plan configuration. Add plans to manage pricing and features."
 								icon={<FileText className="h-8 w-8" />}
-								action={
+								actions={
 									<Button onClick={handleCreatePlan}>
 										<Plus className="h-4 w-4 mr-2" />
 										Add Plan

@@ -10,10 +10,12 @@ import Stripe from 'stripe'
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const transactionId = params.id
+    const { id } = await params
+
+    const transactionId = id
     const { paymentMethodId } = await request.json()
 
     if (!paymentMethodId) {

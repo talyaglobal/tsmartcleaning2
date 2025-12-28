@@ -7,10 +7,10 @@ import { isAdminRole } from '@/lib/auth/roles'
 // Get provider profile (public, no auth required)
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params
+    const { id } = await params
 
     const tenantId = resolveTenantFromRequest(request)
     const supabase = createServerSupabase(tenantId ?? undefined)
@@ -60,10 +60,10 @@ export const PATCH = withAuthAndParams(
   async (
     request: NextRequest,
     auth,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
   ) => {
     try {
-      const { id } = params
+      const { id } = await params
       const updates = await request.json()
 
       // Verify user owns this provider profile (or is admin)

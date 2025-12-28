@@ -17,10 +17,10 @@ const overlaps = (a: Interval, b: Interval) => a.start < b.end && b.start < a.en
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params
+    const { id } = await params
     const tenantId = resolveTenantFromRequest(request)
     const supabase = createServerSupabase(tenantId || undefined)
     

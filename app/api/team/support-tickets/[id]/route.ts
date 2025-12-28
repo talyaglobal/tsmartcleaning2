@@ -4,9 +4,11 @@ import { createServerSupabase } from '@/lib/supabase'
 // Get a single support ticket
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
+
     const supabase = createServerSupabase()
 
     const { data: ticket, error: ticketError } = await supabase
@@ -37,7 +39,7 @@ export async function GET(
           )
         )
       `)
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
 
     if (ticketError || !ticket) {
@@ -60,7 +62,7 @@ export async function GET(
 // Update a support ticket
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const body = await request.json()
@@ -86,7 +88,7 @@ export async function PATCH(
     const { data: ticket, error: ticketError } = await supabase
       .from('support_tickets')
       .update(updateData)
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single()
 
@@ -111,7 +113,7 @@ export async function PATCH(
 // Add a message to a support ticket
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const body = await request.json()
@@ -129,7 +131,7 @@ export async function POST(
     const { data: ticketMessage, error: messageError } = await supabase
       .from('support_ticket_messages')
       .insert({
-        ticket_id: params.id,
+        ticket_id: id,
         user_id,
         message,
         is_internal: is_internal || false
@@ -149,7 +151,7 @@ export async function POST(
     await supabase
       .from('support_tickets')
       .update({ updated_at: new Date().toISOString() })
-      .eq('id', params.id)
+      .eq('id', id)
 
     return NextResponse.json({ message: ticketMessage }, { status: 201 })
   } catch (error) {

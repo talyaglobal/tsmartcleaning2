@@ -3,9 +3,9 @@ import { createServerSupabase } from '@/lib/supabase'
 
 export async function GET(
 	_request: Request,
-	{ params }: { params: { id: string } }
+	{ params }: { params: Promise<{ id: string }> }
 ) {
-	const { id } = params
+	const { id } = await params
 	try {
 		const supabase = createServerSupabase()
 		// Attempt to read progress from a 'campaign_progress' table if it exists

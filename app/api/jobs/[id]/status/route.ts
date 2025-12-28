@@ -15,7 +15,7 @@ const statusMap: Record<string, BookingStatus> = {
 	cancelled: 'cancelled',
 }
 
-export const PATCH = withAuthAndParams(async (request: NextRequest, { supabase: authSupabase, tenantId: authTenantId }, { params }: { params: { id: string } }) => {
+export const PATCH = withAuthAndParams(async (request: NextRequest, { supabase: authSupabase, tenantId: authTenantId }, { params }: { params: Promise<{ id: string }> }) => {
 	try {
 		const jobId = params.id
 		const { status } = await request.json()

@@ -201,9 +201,9 @@ export default function PoliciesPage() {
 				emptyState={
 					<EmptyState
 						title="No policies found"
-						description="Create your first policy to manage terms, privacy, and service agreements."
+						subtitle="Create your first policy to manage terms, privacy, and service agreements."
 						icon={<IdCard className="h-8 w-8" />}
-						action={
+						actions={
 							<Button>
 								<Plus className="h-4 w-4 mr-2" />
 								Create Policy

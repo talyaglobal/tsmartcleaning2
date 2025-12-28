@@ -260,7 +260,7 @@ export default function BookingRequestsPage() {
 				emptyState={
 					<EmptyState
 						title="No booking requests found"
-						description="Booking request SLA tracking interface. Connect to your booking requests API endpoint to display data."
+						subtitle="Booking request SLA tracking interface. Connect to your booking requests API endpoint to display data."
 						icon={<ClipboardList className="h-8 w-8" />}
 					/>
 				}

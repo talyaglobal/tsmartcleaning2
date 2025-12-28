@@ -229,7 +229,7 @@ export default function AdminReportsPage() {
                 <div>
                   <Label htmlFor="reportType">Report Type</Label>
                   <Select value={reportType} onValueChange={(v) => setReportType(v as ReportType)}>
-                    <SelectTrigger id="reportType">
+                    <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -245,7 +245,7 @@ export default function AdminReportsPage() {
                 <div>
                   <Label htmlFor="period">Time Period</Label>
                   <Select value={period} onValueChange={(v) => setPeriod(v as ReportPeriod)}>
-                    <SelectTrigger id="period">
+                    <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -261,7 +261,7 @@ export default function AdminReportsPage() {
                 <div>
                   <Label htmlFor="format">Export Format</Label>
                   <Select value={format} onValueChange={(v) => setFormat(v as ReportFormat)}>
-                    <SelectTrigger id="format">
+                    <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>

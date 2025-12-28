@@ -3,14 +3,16 @@ import { createServerSupabase } from '@/lib/supabase'
 
 export async function GET(
 	_request: NextRequest,
-	{ params }: { params: { slug: string } }
+	{ params }: { params: Promise<{ slug: string }> }
 ) {
 	try {
+    const { slug } = await params
+
 		const supabase = createServerSupabase()
 		const { data, error } = await supabase
 			.from('companies')
 			.select('*')
-			.eq('slug', params.slug)
+			.eq('slug', slug)
 			.eq('status', 'active')
 			.single()
 

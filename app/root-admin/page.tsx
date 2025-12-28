@@ -1,134 +1,173 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { MetricCard } from "@/components/admin/MetricCard";
-import { LineChart as RLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { Building2, Users, DollarSign, Activity } from "lucide-react";
+import { Users, DollarSign, Briefcase, TrendingUp } from "lucide-react";
 import { PageHeader } from "@/components/admin/PageHeader";
-import { QuickActionCard } from "@/components/admin/QuickActionCard";
-import { DataTable, Column } from "@/components/admin/DataTable";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { LoadingSpinner } from "@/components/admin/LoadingSpinner";
 import { AlertCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { GTMProgressBar } from "@/components/admin/dashboard/GTMProgressBar";
+import { TeamTODOCompletion } from "@/components/admin/dashboard/TeamTODOCompletion";
+import { RecentActivityFeed } from "@/components/admin/dashboard/RecentActivityFeed";
+import { QuickActionsPanel } from "@/components/admin/dashboard/QuickActionsPanel";
 
-const revenueData: Array<{ month: string; value: number }> = [];
-
-type CompanyRow = { name: string; city: string; createdAt: string };
+type StatsData = {
+	metrics: {
+		totalUsers: {
+			total: number;
+			companies: number;
+			cleaners: number;
+			growthRate: number;
+		};
+		activeJobs: {
+			active: number;
+			completedToday: number;
+			completionRate: number;
+		};
+		monthlyRevenue: {
+			mrr: number;
+			target: number;
+			progress: number;
+		};
+		engagementScore: {
+			overall: number;
+			company: number;
+			cleaner: number;
+		};
+	};
+	gtmProgress: {
+		currentPhase: string;
+		overallProgress: number;
+		nextMilestone: string;
+		daysRemaining: number;
+	};
+	teamProgress: {
+		volkan: { completed: number; total: number; percentage: number };
+		ozgun: { completed: number; total: number; percentage: number };
+		overall: { completed: number; total: number; percentage: number };
+		overdue: number;
+	};
+	recentActivities: Array<{
+		type: string;
+		description: string;
+		timestamp: string;
+	}>;
+};
 
 export default function RootAdminDashboard() {
-	const [bookingsCount, setBookingsCount] = useState<number>(0);
-	const [activeToday, setActiveToday] = useState<number>(0);
-	const [totalCompanies, setTotalCompanies] = useState<number>(0);
-	const [activeCleaners, setActiveCleaners] = useState<number>(0);
-	const [monthlyRevenue, setMonthlyRevenue] = useState<number>(0);
-	const [recentCompanies, setRecentCompanies] = useState<CompanyRow[]>([]);
+	const [data, setData] = useState<StatsData | null>(null);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
-		(async () => {
+		const fetchStats = async () => {
 			setLoading(true);
 			setError(null);
 			try {
-				const r = await fetch("/api/admin/stats", { cache: "no-store" });
-				if (!r.ok) {
-					throw new Error(`Failed to load stats: ${r.status}`);
+				const response = await fetch("/api/root-admin/gamification/stats", { cache: "no-store" });
+				if (!response.ok) {
+					throw new Error(`Failed to load stats: ${response.status}`);
 				}
-				const s = await r.json();
-				setBookingsCount(s?.bookingsCount ?? s?.stats?.totalBookings ?? 0);
-				setActiveToday(s?.activeToday ?? s?.stats?.activeBookings ?? 0);
-				setTotalCompanies(s?.companiesCount ?? 0);
-				setActiveCleaners(s?.providersCount ?? s?.stats?.totalProviders ?? 0);
-				setMonthlyRevenue(s?.monthlyRevenue ?? s?.stats?.monthlyRevenue ?? 0);
+				const statsData = await response.json();
+				setData(statsData);
 			} catch (err: any) {
-				console.error("Error loading stats:", err);
+				console.error("Error loading gamification stats:", err);
 				setError(err?.message || "Failed to load dashboard statistics");
-			}
-			try {
-				const rc = await fetch("/api/companies/search?limit=5&sort=featured", { cache: "no-store" });
-				if (!rc.ok) {
-					throw new Error(`Failed to load companies: ${rc.status}`);
-				}
-				const data = await rc.json();
-				const rows = Array.isArray(data?.results) ? data.results : [];
-				setRecentCompanies(
-					rows.map((c: any) => ({
-						name: c?.name ?? "Unknown",
-						city: c?.city ?? "",
-						createdAt: new Date().toISOString(), // If created_at not selected by API
-					}))
-				);
-			} catch (err: any) {
-				console.error("Error loading companies:", err);
-				// Don't set error for companies, just log it
 			} finally {
 				setLoading(false);
 			}
-		})();
+		};
+
+		fetchStats();
+		// Set up polling every 30 seconds for real-time updates
+		const interval = setInterval(fetchStats, 30000);
+		return () => clearInterval(interval);
 	}, []);
 
 	if (loading) {
 		return (
 			<div className="space-y-6">
-				<PageHeader title="Root Admin Dashboard" subtitle="Overview of platform-wide metrics" />
+				<PageHeader title="Gamification Root Admin Dashboard" subtitle="Monitor gamification system and platform metrics" />
 				<LoadingSpinner label="Loading dashboard data..." />
+			</div>
+		);
+	}
+
+	if (error || !data) {
+		return (
+			<div className="space-y-6">
+				<PageHeader title="Gamification Root Admin Dashboard" subtitle="Monitor gamification system and platform metrics" />
+				<Alert variant="destructive">
+					<AlertCircle className="h-4 w-4" />
+					<AlertDescription>{error || "Failed to load dashboard data"}</AlertDescription>
+				</Alert>
 			</div>
 		);
 	}
 
 	return (
 		<div className="space-y-6">
-			<PageHeader title="Root Admin Dashboard" subtitle="Overview of platform-wide metrics" />
-			{error && (
-				<Alert variant="destructive">
-					<AlertCircle className="h-4 w-4" />
-					<AlertDescription>{error}</AlertDescription>
-				</Alert>
-			)}
+			<PageHeader title="Gamification Root Admin Dashboard" subtitle="Monitor gamification system and platform metrics" />
+
+			{/* Key Metrics Cards */}
 			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
 				<MetricCard
-					title="Total Companies"
-					value={String(totalCompanies)}
-					change={{ value: 6.2, positive: true }}
-					icon={<Building2 className="w-6 h-6" />}
+					title="Total Users"
+					value={data.metrics.totalUsers.total.toLocaleString()}
+					change={{
+						value: data.metrics.totalUsers.growthRate,
+						positive: data.metrics.totalUsers.growthRate >= 0,
+						label: `${data.metrics.totalUsers.growthRate >= 0 ? "+" : ""}${data.metrics.totalUsers.growthRate}% growth`,
+					}}
+					icon={<Users className="w-6 h-6" />}
+					subtitle={`${data.metrics.totalUsers.companies} companies + ${data.metrics.totalUsers.cleaners} cleaners`}
 				/>
-				<MetricCard title="Active Cleaners" value={String(activeCleaners)} change={{ value: 2.1, positive: true }} icon={<Users className="w-6 h-6" />} />
-				<MetricCard title="Monthly Revenue" value={`$${monthlyRevenue.toLocaleString()}`} change={{ value: 0, positive: true }} icon={<DollarSign className="w-6 h-6" />} />
-				<MetricCard title="System Uptime" value="99.97%" subtitle="Last 30 days" icon={<Activity className="w-6 h-6" />} />
+				<MetricCard
+					title="Active Jobs"
+					value={data.metrics.activeJobs.active.toLocaleString()}
+					change={{
+						value: data.metrics.activeJobs.completionRate,
+						positive: true,
+						label: `${data.metrics.activeJobs.completionRate}% completion rate`,
+					}}
+					icon={<Briefcase className="w-6 h-6" />}
+					subtitle={`${data.metrics.activeJobs.completedToday} completed today`}
+				/>
+				<MetricCard
+					title="Monthly Revenue"
+					value={`$${data.metrics.monthlyRevenue.mrr.toLocaleString()}`}
+					change={{
+						value: data.metrics.monthlyRevenue.progress,
+						positive: data.metrics.monthlyRevenue.progress >= 0,
+						label: `${data.metrics.monthlyRevenue.progress}% of target`,
+					}}
+					icon={<DollarSign className="w-6 h-6" />}
+					subtitle={`Target: $${data.metrics.monthlyRevenue.target.toLocaleString()}`}
+				/>
+				<MetricCard
+					title="Engagement Score"
+					value={`${data.metrics.engagementScore.overall}%`}
+					change={{
+						value: 0,
+						positive: true,
+						label: "Overall engagement",
+					}}
+					icon={<TrendingUp className="w-6 h-6" />}
+					subtitle={`Company: ${data.metrics.engagementScore.company}% | Cleaner: ${data.metrics.engagementScore.cleaner}%`}
+				/>
 			</div>
-			<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-				<QuickActionCard title="Add new company" description="Create and onboard a company" href="/root-admin/companies/new" />
-				<QuickActionCard title="Generate report" description="Export platform analytics" href="/root-admin/reports" />
-				<QuickActionCard title="View analytics" description="Explore detailed charts" href="/root-admin/analytics" />
-				<QuickActionCard title="System settings" description="Manage platform configuration" href="/root-admin/settings" />
+
+			{/* Progress Tracking Section */}
+			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+				<GTMProgressBar data={data.gtmProgress} />
+				<TeamTODOCompletion data={data.teamProgress} />
 			</div>
-			<div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-				<div className="xl:col-span-2 rounded-lg border border-slate-200 bg-white p-4">
-					<p className="text-sm font-medium text-slate-700 mb-3">Revenue trend (last 6 months)</p>
-					<div className="h-64">
-						<ResponsiveContainer width="100%" height="100%">
-							<RLineChart data={revenueData}>
-								<CartesianGrid strokeDasharray="3 3" />
-								<XAxis dataKey="month" />
-								<YAxis />
-								<Tooltip />
-								<Line type="monotone" dataKey="value" stroke="#2563eb" strokeWidth={2} />
-							</RLineChart>
-						</ResponsiveContainer>
-					</div>
-				</div>
-				<div className="rounded-lg border border-slate-200 bg-white p-4">
-					<p className="text-sm font-medium text-slate-700 mb-3">Recent company registrations</p>
-					<DataTable<CompanyRow>
-						columns={[
-							{ key: "name", header: "Company" },
-							{ key: "city", header: "City" },
-							{ key: "createdAt", header: "Created" },
-						]}
-						data={recentCompanies}
-					/>
-				</div>
+
+			{/* Activity Feed & Quick Actions */}
+			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+				<RecentActivityFeed activities={data.recentActivities} />
+				<QuickActionsPanel />
 			</div>
 		</div>
 	);

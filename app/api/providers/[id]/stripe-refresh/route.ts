@@ -4,9 +4,11 @@ import { createServerSupabase, resolveTenantFromRequest } from '@/lib/supabase'
 
 export async function POST(
 	request: NextRequest,
-	{ params }: { params: { id: string } }
+	{ params }: { params: Promise<{ id: string }> }
 ) {
 	try {
+    const { id } = await params
+
 		if (!isStripeConfigured()) {
 			return NextResponse.json(
 				{ error: 'Stripe not configured' },
@@ -20,7 +22,7 @@ export async function POST(
 		const { data: provider, error: providerError } = await supabase
 			.from('provider_profiles')
 			.select('stripe_account_id')
-			.eq('id', params.id)
+			.eq('id', id)
 			.single()
 		if (providerError || !provider) {
 			return NextResponse.json({ error: 'Provider not found' }, { status: 404 })

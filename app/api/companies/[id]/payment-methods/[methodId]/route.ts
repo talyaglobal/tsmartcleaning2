@@ -3,9 +3,11 @@ import { createServerSupabase } from '@/lib/supabase'
 
 export async function PATCH(
 	request: NextRequest,
-	{ params }: { params: { id: string; methodId: string } }
+	{ params }: { params: Promise<{ id: string; methodId: string }> }
 ) {
 	try {
+    const { id, methodId } = await params
+
 		const body = await request.json()
 		const { is_default, status } = body
 
@@ -19,8 +21,8 @@ export async function PATCH(
 				await supabase
 					.from('company_payment_methods')
 					.update({ is_default: false })
-					.eq('company_id', params.id)
-					.neq('id', params.methodId)
+					.eq('company_id', id)
+					.neq('id', methodId)
 			}
 		}
 		if (status !== undefined) updateData.status = status
@@ -28,8 +30,8 @@ export async function PATCH(
 		const { data, error } = await supabase
 			.from('company_payment_methods')
 			.update(updateData)
-			.eq('id', params.methodId)
-			.eq('company_id', params.id)
+			.eq('id', methodId)
+			.eq('company_id', id)
 			.select()
 			.single()
 
@@ -50,15 +52,15 @@ export async function PATCH(
 
 export async function DELETE(
 	_request: NextRequest,
-	{ params }: { params: { id: string; methodId: string } }
+	{ params }: { params: Promise<{ id: string; methodId: string }> }
 ) {
 	try {
 		const supabase = createServerSupabase()
 		const { error } = await supabase
 			.from('company_payment_methods')
 			.delete()
-			.eq('id', params.methodId)
-			.eq('company_id', params.id)
+			.eq('id', methodId)
+			.eq('company_id', id)
 
 		if (error) {
 			console.error('[v0] Company payment method DELETE error:', error)

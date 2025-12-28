@@ -22,12 +22,13 @@ async function sendEmailViaApi(request: NextRequest, payload: { to: string; subj
 
 export async function GET(
 	request: NextRequest,
-	{ params }: { params: { claimId: string } }
+	{ params }: { params: Promise<{ claimId: string }> }
 ) {
 	try {
+    const { claimId } = await params
+
 		const tenantId = resolveTenantFromRequest(request)
 		const supabase = createServerSupabase(tenantId || undefined)
-		const claimId = params.claimId
 
 		if (!claimId) {
 			return NextResponse.json({ error: 'claimId is required' }, { status: 400 })
@@ -78,12 +79,12 @@ export async function GET(
 
 export async function PATCH(
 	request: NextRequest,
-	{ params }: { params: { claimId: string } }
+	{ params }: { params: Promise<{ claimId: string }> }
 ) {
 	try {
 		const tenantId = resolveTenantFromRequest(request)
 		const supabase = createServerSupabase(tenantId || undefined)
-		const claimId = params.claimId
+		const claimId = claimId
 
 		if (!claimId) {
 			return NextResponse.json({ error: 'claimId is required' }, { status: 400 })

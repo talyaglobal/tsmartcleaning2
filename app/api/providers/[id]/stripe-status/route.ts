@@ -4,9 +4,11 @@ import { createServerSupabase, resolveTenantFromRequest } from '@/lib/supabase'
 
 export async function GET(
 	_request: NextRequest,
-	{ params }: { params: { id: string } }
+	{ params }: { params: Promise<{ id: string }> }
 ) {
 	try {
+    const { id } = await params
+
 		if (!isStripeConfigured()) {
 			// Return a sane default so UI can render without Stripe setup
 			return NextResponse.json({
@@ -25,7 +27,7 @@ export async function GET(
 		const { data: provider, error } = await supabase
 			.from('provider_profiles')
 			.select('stripe_account_id, payouts_enabled, details_submitted')
-			.eq('id', params.id)
+			.eq('id', id)
 			.single()
 		if (error || !provider) {
 			return NextResponse.json({ error: 'Provider not found' }, { status: 404 })

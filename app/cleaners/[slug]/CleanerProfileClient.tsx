@@ -206,7 +206,7 @@ export function CleanerProfileClient({ slug, company }: CleanerProfileClientProp
                       <ShareButton
                         url={profileUrl}
                         title={displayName}
-                        description={company.description || company.tagline || undefined}
+                        subtitle={company.description || company.tagline || undefined}
                       />
                     </div>
                   </div>

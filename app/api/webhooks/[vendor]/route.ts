@@ -37,14 +37,15 @@ async function logWebhookEvent(
 // Minimal scaffold for multiple vendors (e.g., persona, veriff, checkr, etc.)
 export async function POST(
   request: NextRequest,
-  context: { params: { vendor: string } }
+  { params }: { params: Promise<{ vendor: string }> }
 ) {
-  const vendor = context.params.vendor
   const supabase = createServerSupabase()
   let payload: any
   let eventId: string = `vendor-${Date.now()}`
 
   try {
+    const { vendor } = await params
+
     payload = await request.json()
 
     // Log webhook received

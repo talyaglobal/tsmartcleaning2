@@ -93,10 +93,10 @@ export default function AmbassadorTodayJobsPage() {
 	}
 
 	const columns: Column<Job>[] = [
-		{ key: 'customerName', label: 'Customer' },
+		{ key: 'customerName', header: 'Customer' },
 		{ 
 			key: 'address', 
-			label: 'Address',
+			header: 'Address',
 			render: (job) => (
 				<div className="flex items-center gap-2">
 					<MapPin className="h-4 w-4 text-muted-foreground" />
@@ -104,10 +104,10 @@ export default function AmbassadorTodayJobsPage() {
 				</div>
 			)
 		},
-		{ key: 'service', label: 'Service' },
+		{ key: 'service', header: 'Service' },
 		{ 
 			key: 'time', 
-			label: 'Time',
+			header: 'Time',
 			render: (job) => (
 				<div className="flex items-center gap-2">
 					<Clock className="h-4 w-4 text-muted-foreground" />
@@ -117,12 +117,12 @@ export default function AmbassadorTodayJobsPage() {
 		},
 		{ 
 			key: 'status', 
-			label: 'Status',
+			header: 'Status',
 			render: (job) => getStatusBadge(job.status)
 		},
 		{ 
 			key: 'actions',
-			label: 'Actions',
+			header: 'Actions',
 			render: (job) => (
 				<div className="flex gap-2">
 					{job.status === 'scheduled' && (
@@ -148,7 +148,7 @@ export default function AmbassadorTodayJobsPage() {
 		<div className="p-6 space-y-6">
 			<PageHeader
 				title="Today's Jobs"
-				description={`Jobs scheduled for ${new Date().toLocaleDateString()}`}
+				subtitle={`Jobs scheduled for ${new Date().toLocaleDateString()}`}
 			/>
 
 			<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -194,7 +194,6 @@ export default function AmbassadorTodayJobsPage() {
 					<DataTable
 						data={jobs}
 						columns={columns}
-						searchKeys={['customerName', 'address', 'service']}
 					/>
 				</CardContent>
 			</Card>

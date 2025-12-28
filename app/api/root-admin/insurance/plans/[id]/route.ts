@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabase } from '@/lib/supabase'
 import { withRootAdmin } from '@/lib/auth/rbac'
 
-export const PATCH = withRootAdmin(async (req: NextRequest, { params }: { params: { id: string } }) => {
+export const PATCH = withRootAdmin(async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
 	try {
 		const supabase = createServerSupabase()
 		const body = await req.json()
@@ -36,7 +36,7 @@ export const PATCH = withRootAdmin(async (req: NextRequest, { params }: { params
 	}
 });
 
-export const DELETE = withRootAdmin(async (req: NextRequest, { params }: { params: { id: string } }) => {
+export const DELETE = withRootAdmin(async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
 	try {
 		const supabase = createServerSupabase()
 

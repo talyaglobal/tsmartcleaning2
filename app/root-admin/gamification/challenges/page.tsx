@@ -538,9 +538,9 @@ export default function ChallengesPage() {
             emptyState={
               <EmptyState
                 title="No challenges found"
-                description="Create your first challenge to get started."
+                subtitle="Create your first challenge to get started."
                 icon={Target}
-                action={
+                actions={
                   <Button onClick={openCreateDialog}>
                     <Plus className="w-4 h-4 mr-2" />
                     Create Challenge
@@ -768,7 +768,7 @@ export default function ChallengesPage() {
                       emptyState={
                         <EmptyState
                           title="No participants"
-                          description="No users have joined this challenge yet."
+                          subtitle="No users have joined this challenge yet."
                           icon={Users}
                         />
                       }
@@ -780,7 +780,7 @@ export default function ChallengesPage() {
           ) : (
             <EmptyState
               title="No analytics available"
-              description="Select a challenge to view its analytics."
+              subtitle="Select a challenge to view its analytics."
               icon={BarChart3}
             />
           )}

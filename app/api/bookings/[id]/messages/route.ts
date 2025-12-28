@@ -5,10 +5,10 @@ import { sendWhatsAppMessage } from '@/lib/whatsapp'
 // Get messages for a booking (using notifications or creating a simple message log)
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params
+    const { id } = await params
     const tenantId = resolveTenantFromRequest(request)
     const supabase = createServerSupabase(tenantId || undefined)
 
@@ -51,10 +51,10 @@ export async function GET(
 // Send a message for a booking
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params
+    const { id } = await params
     const tenantId = resolveTenantFromRequest(request)
     const supabase = createServerSupabase(tenantId || undefined)
     const { message, recipientPhone, recipientEmail } = await request.json()

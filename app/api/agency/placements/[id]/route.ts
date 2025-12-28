@@ -4,10 +4,10 @@ import { requireTenantId } from '@/lib/tenant'
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params
+    const { id } = await params
     const tenantId = requireTenantId(request)
     const body = await request.json()
     const { status, endDate, notes } = body

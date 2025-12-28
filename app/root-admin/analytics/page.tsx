@@ -56,14 +56,14 @@ export default async function Page() {
 	return (
 		<>
 			<PageHeader
-				title="System Analytics"
-				subtitle="Platform-wide KPIs, trends, and gamification performance."
+				title="Analytics & Insights"
+				subtitle="Platform metrics, gamification performance, and revenue insights"
 				withBorder
 				breadcrumb={
 					<div>
 						<Link href="/root-admin" className="hover:underline">Root Admin</Link>
 						<span className="mx-1">/</span>
-						<span>System Analytics</span>
+						<span>Analytics & Insights</span>
 					</div>
 				}
 			/>

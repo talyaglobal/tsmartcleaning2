@@ -10,9 +10,11 @@ export const dynamic = 'force-dynamic'
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
+
     const { searchParams } = new URL(request.url)
     const format = searchParams.get('format') || 'html'
 
@@ -36,7 +38,7 @@ export async function GET(
     const { data: report, error } = await supabase
       .from('reports')
       .select('*, company_id, property_id')
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
 
     if (error || !report) {
@@ -116,7 +118,7 @@ export async function GET(
       return new NextResponse(buffer, {
         headers: {
           'Content-Type': contentType,
-          'Content-Disposition': `attachment; filename="${report.title || 'report'}-${params.id}.${fileExt}"`,
+          'Content-Disposition': `attachment; filename="${report.title || 'report'}-${id}.${fileExt}"`,
           'Cache-Control': 'private, max-age=3600',
         },
       })

@@ -904,7 +904,7 @@ export default function DirectoryPage() {
 						emptyState={
 							<EmptyState
 								title="No companies found"
-								description="There are no companies matching your filters."
+								subtitle="There are no companies matching your filters."
 								icon={<MapPinned className="h-8 w-8" />}
 							/>
 						}
@@ -978,7 +978,7 @@ export default function DirectoryPage() {
 						emptyState={
 							<EmptyState
 								title="No reviews found"
-								description="There are no reviews matching your filters."
+								subtitle="There are no reviews matching your filters."
 								icon={<Star className="h-8 w-8" />}
 							/>
 						}
@@ -1049,7 +1049,7 @@ export default function DirectoryPage() {
 						emptyState={
 							<EmptyState
 								title="No booking requests found"
-								description="There are no booking requests matching your filters."
+								subtitle="There are no booking requests matching your filters."
 								icon={<Clock className="h-8 w-8" />}
 							/>
 						}

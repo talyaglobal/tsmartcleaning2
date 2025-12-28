@@ -239,7 +239,7 @@ export default function ClaimsPage() {
 				emptyState={
 					<EmptyState
 						title="No claims found"
-						description="There are no insurance claims matching your filters."
+						subtitle="There are no insurance claims matching your filters."
 						icon={<FileCheck2 className="h-8 w-8" />}
 					/>
 				}

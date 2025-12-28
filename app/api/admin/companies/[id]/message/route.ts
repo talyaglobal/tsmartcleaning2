@@ -4,7 +4,7 @@ import { sendWhatsAppMessage } from '@/lib/whatsapp'
 import { withAuthAndParams } from '@/lib/auth/rbac'
 
 export const POST = withAuthAndParams(
-	async (request: NextRequest, { supabase: authSupabase, tenantId: authTenantId }, { params }: { params: { id: string } }) => {
+	async (request: NextRequest, { supabase: authSupabase, tenantId: authTenantId }, { params }: { params: Promise<{ id: string }> }) => {
 	try {
 		const { channel, subject, message, recipientEmail, recipientPhone } = await request.json()
 

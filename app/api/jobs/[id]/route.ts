@@ -4,9 +4,9 @@ import { withAuthAndParams } from '@/lib/auth/rbac'
 
 // Get a specific job listing
 export const GET = withAuthAndParams(
-  async (request: NextRequest, { supabase: authSupabase, tenantId: authTenantId }, { params }: { params: { id: string } }) => {
+  async (request: NextRequest, { supabase: authSupabase, tenantId: authTenantId }, { params }: { params: Promise<{ id: string }> }) => {
   try {
-    const { id } = params
+    const { id } = await params
     const tenantId = authTenantId || resolveTenantFromRequest(request)
     const supabase = authSupabase || createServerSupabase(tenantId ?? undefined)
 
@@ -45,9 +45,9 @@ export const GET = withAuthAndParams(
 
 // Update a job listing (admin only)
 export const PATCH = withAuthAndParams(
-  async (request: NextRequest, { supabase: authSupabase, tenantId: authTenantId }, { params }: { params: { id: string } }) => {
+  async (request: NextRequest, { supabase: authSupabase, tenantId: authTenantId }, { params }: { params: Promise<{ id: string }> }) => {
   try {
-    const { id } = params
+    const { id } = await params
     const tenantId = authTenantId || resolveTenantFromRequest(request)
     const supabase = authSupabase || createServerSupabase(tenantId ?? undefined)
 
@@ -86,9 +86,9 @@ export const PATCH = withAuthAndParams(
 
 // Delete a job listing (admin only)
 export const DELETE = withAuthAndParams(
-  async (request: NextRequest, { supabase: authSupabase, tenantId: authTenantId }, { params }: { params: { id: string } }) => {
+  async (request: NextRequest, { supabase: authSupabase, tenantId: authTenantId }, { params }: { params: Promise<{ id: string }> }) => {
   try {
-    const { id } = params
+    const { id } = await params
     const tenantId = authTenantId || resolveTenantFromRequest(request)
     const supabase = authSupabase || createServerSupabase(tenantId ?? undefined)
 

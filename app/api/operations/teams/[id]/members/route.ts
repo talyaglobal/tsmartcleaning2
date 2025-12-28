@@ -3,9 +3,9 @@ import { createServerSupabase, resolveTenantFromRequest } from '@/lib/supabase'
 import { logAuditEventFromRequest } from '@/lib/audit'
 
 // Add member to team
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
-		const teamId = params.id
+		const { id: teamId } = await params
 		const tenantId = resolveTenantFromRequest(request)
 		const supabase = createServerSupabase(tenantId ?? undefined)
 		const { userId, role } = await request.json()
@@ -80,9 +80,9 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 }
 
 // Remove member from team
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
-		const teamId = params.id
+		const { id: teamId } = await params
 		const tenantId = resolveTenantFromRequest(request)
 		const supabase = createServerSupabase(tenantId ?? undefined)
 		const { searchParams } = new URL(request.url)

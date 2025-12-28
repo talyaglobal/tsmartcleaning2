@@ -126,8 +126,8 @@ export default function AmbassadorTeamPage() {
 		<div className="p-6 space-y-6">
 			<PageHeader
 				title="My Team"
-				description="Manage your team members"
-				action={
+				subtitle="Manage your team members"
+				actions={
 					<Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
 						<DialogTrigger asChild>
 							<Button>
@@ -185,7 +185,6 @@ export default function AmbassadorTeamPage() {
 					<DataTable
 						data={teamMembers}
 						columns={columns}
-						searchKeys={['name', 'email', 'phone']}
 					/>
 				</CardContent>
 			</Card>

@@ -101,7 +101,7 @@ export default function AmbassadorMessagesPage() {
 		<div className="p-6 space-y-6">
 			<PageHeader
 				title="Messages"
-				description="Communicate with your team and management"
+				subtitle="Communicate with your team and management"
 			/>
 
 			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

@@ -166,7 +166,7 @@ export default function AdminJobApplicationsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <DashboardNav />
+      <DashboardNav userType="admin" userName="Admin User" />
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Job Applications</h1>

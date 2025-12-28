@@ -4,9 +4,11 @@ import { createServerSupabase, resolveTenantFromRequest } from '@/lib/supabase'
 // Provider responds to a review
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
+
     const tenantId = resolveTenantFromRequest(request)
     const supabase = createServerSupabase(tenantId ?? undefined)
     const { response } = await request.json()
@@ -29,7 +31,7 @@ export async function PATCH(
     const { data: review, error: reviewError } = await supabase
       .from('reviews')
       .select('id, provider_id, response')
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
 
     if (reviewError || !review) {
@@ -55,7 +57,7 @@ export async function PATCH(
         responded_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       })
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single()
 
@@ -83,7 +85,7 @@ export async function PATCH(
 // Update existing response
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const tenantId = resolveTenantFromRequest(request)
@@ -108,7 +110,7 @@ export async function PUT(
     const { data: review, error: reviewError } = await supabase
       .from('reviews')
       .select('id')
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
 
     if (reviewError || !review) {
@@ -125,7 +127,7 @@ export async function PUT(
         response: response.trim(),
         updated_at: new Date().toISOString()
       })
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single()
 
@@ -153,7 +155,7 @@ export async function PUT(
 // Delete response
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const tenantId = resolveTenantFromRequest(request)
@@ -163,7 +165,7 @@ export async function DELETE(
     const { data: review, error: reviewError } = await supabase
       .from('reviews')
       .select('id')
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
 
     if (reviewError || !review) {
@@ -181,7 +183,7 @@ export async function DELETE(
         responded_at: null,
         updated_at: new Date().toISOString()
       })
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single()
 

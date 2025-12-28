@@ -4,7 +4,7 @@ import { withRootAdmin } from '@/lib/auth/rbac'
 
 export const PATCH = withRootAdmin(async (
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) => {
   try {
     const { action, reason } = await request.json()

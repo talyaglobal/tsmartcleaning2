@@ -317,7 +317,7 @@ export default function BadgesPage() {
             <EmptyState
               icon={Award}
               title="No badges found"
-              description={
+              subtitle={
                 searchQuery || userTypeFilter !== 'all'
                   ? 'Try adjusting your search or filters'
                   : 'Create your first badge to get started'

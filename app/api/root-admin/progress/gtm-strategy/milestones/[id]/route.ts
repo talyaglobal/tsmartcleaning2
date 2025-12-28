@@ -3,11 +3,13 @@ import { createServerSupabase } from '@/lib/supabase'
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
+
     const supabase = createServerSupabase()
-    const milestoneId = params.id
+    const milestoneId = id
     const body = await request.json()
 
     // In a real implementation, you would update the milestone in your database
@@ -75,11 +77,11 @@ export async function PATCH(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createServerSupabase()
-    const milestoneId = params.id
+    const milestoneId = id
 
     // In production, fetch the specific milestone from database
     // For now, return mock data

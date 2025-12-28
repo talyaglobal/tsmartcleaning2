@@ -9,7 +9,7 @@ export const POST = withAuth(
   async (
     request: NextRequest,
     { supabase: authSupabase },
-    { params }: { params: { userId: string } }
+    { params }: { params: Promise<{ userId: string }> }
   ) => {
   try {
     const body = await request.json()

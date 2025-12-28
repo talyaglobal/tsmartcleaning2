@@ -104,8 +104,8 @@ export default function AmbassadorProfilePage() {
 		<div className="p-6 space-y-6">
 			<PageHeader
 				title="Profile"
-				description="Manage your profile information"
-				action={
+				subtitle="Manage your profile information"
+				actions={
 					editing ? (
 						<div className="flex gap-2">
 							<Button variant="outline" onClick={() => { setEditing(false); fetchProfile(); }}>

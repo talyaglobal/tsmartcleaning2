@@ -4,10 +4,10 @@ import { createServerSupabase, resolveTenantFromRequest } from '@/lib/supabase'
 // Get notes for a booking
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params
+    const { id } = await params
     const tenantId = resolveTenantFromRequest(request)
     const supabase = createServerSupabase(tenantId || undefined)
 
@@ -42,10 +42,10 @@ export async function GET(
 // Update notes for a booking
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params
+    const { id } = await params
     const tenantId = resolveTenantFromRequest(request)
     const supabase = createServerSupabase(tenantId || undefined)
     const { notes, specialInstructions } = await request.json()

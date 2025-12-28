@@ -3,11 +3,13 @@ import { createServerSupabase } from '@/lib/supabase'
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
+
     const supabase = createServerSupabase()
-    const taskId = params.id
+    const taskId = id
     const body = await request.json()
 
     // Validate enum values if provided
@@ -111,11 +113,11 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createServerSupabase()
-    const taskId = params.id
+    const taskId = id
 
     // In production, you would delete from database:
     // const { error } = await supabase
@@ -149,11 +151,11 @@ export async function DELETE(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createServerSupabase()
-    const taskId = params.id
+    const taskId = id
 
     // In production, fetch from database:
     // const { data, error } = await supabase

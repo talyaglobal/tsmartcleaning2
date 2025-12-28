@@ -9,10 +9,10 @@ import { RevenueShareRuleInput, validateRuleInput } from '../route'
  */
 export const GET = withRootAdmin(async (
 	req: NextRequest,
-	{ params }: { params: { id: string } }
+	{ params }: { params: Promise<{ id: string }> }
 ) => {
 	const supabase = createServerSupabase(null)
-	const { id } = params
+	const { id } = await params
 
 	const { data, error } = await supabase
 		.from('revenue_share_rules')
@@ -43,10 +43,10 @@ export const GET = withRootAdmin(async (
  */
 export const PATCH = withRootAdmin(async (
 	req: NextRequest,
-	{ params }: { params: { id: string } }
+	{ params }: { params: Promise<{ id: string }> }
 ) => {
 	const supabase = createServerSupabase(null)
-	const { id } = params
+	const { id } = await params
 	const body = await req.json().catch(() => ({})) as Partial<RevenueShareRuleInput>
 
 	// Validate input
@@ -110,10 +110,10 @@ export const PATCH = withRootAdmin(async (
  */
 export const DELETE = withRootAdmin(async (
 	req: NextRequest,
-	{ params }: { params: { id: string } }
+	{ params }: { params: Promise<{ id: string }> }
 ) => {
 	const supabase = createServerSupabase(null)
-	const { id } = params
+	const { id } = await params
 
 	const { error } = await supabase
 		.from('revenue_share_rules')

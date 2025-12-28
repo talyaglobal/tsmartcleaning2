@@ -5,10 +5,10 @@ import { sendJobApplicationStatusUpdate } from '@/lib/emails/job-applications'
 // Get a specific job application
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params
+    const { id } = await params
     const tenantId = resolveTenantFromRequest(request)
     const supabase = createServerSupabase(tenantId ?? undefined)
 
@@ -39,10 +39,10 @@ export async function GET(
 // Update a job application (admin only, for status updates)
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params
+    const { id } = await params
     const tenantId = resolveTenantFromRequest(request)
     const supabase = createServerSupabase(tenantId ?? undefined)
 

@@ -73,16 +73,16 @@ export default function AmbassadorPerformancePage() {
 	}))
 
 	const columns: Column<PerformanceMetric>[] = [
-		{ key: 'memberName', label: 'Team Member' },
-		{ key: 'jobsCompleted', label: 'Jobs Completed' },
+		{ key: 'memberName', header: 'Team Member' },
+		{ key: 'jobsCompleted', header: 'Jobs Completed' },
 		{ 
 			key: 'completionRate', 
-			label: 'Completion Rate',
+			header: 'Completion Rate',
 			render: (metric) => `${metric.completionRate.toFixed(1)}%`
 		},
 		{ 
 			key: 'averageRating', 
-			label: 'Rating',
+			header: 'Rating',
 			render: (metric) => (
 				<div className="flex items-center gap-1">
 					<Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
@@ -92,12 +92,12 @@ export default function AmbassadorPerformancePage() {
 		},
 		{ 
 			key: 'hoursWorked', 
-			label: 'Hours Worked',
+			header: 'Hours Worked',
 			render: (metric) => `${metric.hoursWorked.toFixed(1)}h`
 		},
 		{ 
 			key: 'onTimeRate', 
-			label: 'On-Time Rate',
+			header: 'On-Time Rate',
 			render: (metric) => `${metric.onTimeRate.toFixed(1)}%`
 		},
 	]
@@ -110,8 +110,8 @@ export default function AmbassadorPerformancePage() {
 		<div className="p-6 space-y-6">
 			<PageHeader
 				title="Team Performance"
-				description="Track your team's performance metrics"
-				action={
+				subtitle="Track your team's performance metrics"
+				actions={
 					<Select value={period} onValueChange={setPeriod}>
 						<SelectTrigger className="w-[180px]">
 							<SelectValue placeholder="Select period" />
@@ -216,7 +216,6 @@ export default function AmbassadorPerformancePage() {
 					<DataTable
 						data={performance}
 						columns={columns}
-						searchKeys={['memberName']}
 					/>
 				</CardContent>
 			</Card>

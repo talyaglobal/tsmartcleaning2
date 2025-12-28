@@ -3,7 +3,7 @@ import { createServerSupabase, resolveTenantFromRequest } from '@/lib/supabase'
 import { logAuditEventFromRequest } from '@/lib/audit'
 import { withAuthAndParams } from '@/lib/auth/rbac'
 
-export const POST = withAuthAndParams(async (request: NextRequest, { supabase: authSupabase, tenantId: authTenantId }, { params }: { params: { id: string } }) => {
+export const POST = withAuthAndParams(async (request: NextRequest, { supabase: authSupabase, tenantId: authTenantId }, { params }: { params: Promise<{ id: string }> }) => {
 	try {
 		const jobId = params.id
 		const { providerId } = await request.json()

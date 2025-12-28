@@ -4,9 +4,10 @@ import { requireTenantId } from '@/lib/tenant'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const tenantId = requireTenantId(request)
     const { providerId } = await request.json()
 
@@ -16,7 +17,7 @@ export async function POST(
     const { data, error } = await supabase
       .from('bookings')
       .update({ provider_id: providerId || null })
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('tenant_id', tenantId)
       .select()
       .single()

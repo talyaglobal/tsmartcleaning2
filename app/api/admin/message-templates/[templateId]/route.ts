@@ -8,11 +8,11 @@ export const PATCH = withAuth(
   async (
     request: NextRequest,
     { supabase: authSupabase, tenantId: authTenantId },
-    { params }: { params: { templateId: string } }
+    { params }: { params: Promise<{ templateId: string }> }
   ) => {
     try {
       const tenantId = requireTenantId(request) || authTenantId
-      const { templateId } = params
+      const { templateId } = await params
       const updates = await request.json()
 
       const supabase = authSupabase || createServerSupabase()
@@ -45,11 +45,11 @@ export const DELETE = withAuth(
   async (
     request: NextRequest,
     { supabase: authSupabase, tenantId: authTenantId },
-    { params }: { params: { templateId: string } }
+    { params }: { params: Promise<{ templateId: string }> }
   ) => {
     try {
       const tenantId = requireTenantId(request) || authTenantId
-      const { templateId } = params
+      const { templateId } = await params
 
       const supabase = authSupabase || createServerSupabase()
 

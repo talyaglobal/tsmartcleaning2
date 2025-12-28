@@ -95,19 +95,19 @@ export default function AmbassadorJobHistoryPage() {
 	}
 
 	const columns: Column<Job>[] = [
-		{ key: 'date', label: 'Date' },
-		{ key: 'customerName', label: 'Customer' },
-		{ key: 'address', label: 'Address' },
-		{ key: 'service', label: 'Service' },
-		{ key: 'duration', label: 'Duration (hrs)' },
+		{ key: 'date', header: 'Date' },
+		{ key: 'customerName', header: 'Customer' },
+		{ key: 'address', header: 'Address' },
+		{ key: 'service', header: 'Service' },
+		{ key: 'duration', header: 'Duration (hrs)' },
 		{ 
 			key: 'amount', 
-			label: 'Amount',
+			header: 'Amount',
 			render: (job) => `$${job.amount.toFixed(2)}`
 		},
 		{ 
 			key: 'status', 
-			label: 'Status',
+			header: 'Status',
 			render: (job) => getStatusBadge(job.status)
 		},
 	]
@@ -120,8 +120,8 @@ export default function AmbassadorJobHistoryPage() {
 		<div className="p-6 space-y-6">
 			<PageHeader
 				title="Job History"
-				description="View past and completed jobs"
-				action={
+				subtitle="View past and completed jobs"
+				actions={
 					<Button variant="outline">
 						<Download className="h-4 w-4 mr-2" />
 						Export
@@ -178,7 +178,6 @@ export default function AmbassadorJobHistoryPage() {
 					<DataTable
 						data={filteredJobs}
 						columns={columns}
-						searchKeys={['customerName', 'address', 'service']}
 					/>
 				</CardContent>
 			</Card>
