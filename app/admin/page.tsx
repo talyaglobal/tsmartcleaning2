@@ -2,8 +2,33 @@ import { DashboardNav } from '@/components/dashboard/dashboard-nav'
 import { Card } from '@/components/ui/card'
 import { PageHeader } from '@/components/admin/PageHeader'
 import { Users, Calendar, DollarSign, TrendingUp, AlertCircle, CheckCircle2 } from 'lucide-react'
+import { createServerSupabase } from '@/lib/supabase'
+import { formatRoleName } from '@/lib/utils/role-format'
+import { Badge } from '@/components/ui/badge'
+import { cookies } from 'next/headers'
 
-export default function AdminDashboard() {
+export default async function AdminDashboard({
+  searchParams,
+}: {
+  searchParams?: { userId?: string }
+}) {
+  const supabase = createServerSupabase()
+  const userId = searchParams?.userId
+  
+  // Fetch user role
+  let userRole: string | null = null
+  if (userId) {
+    try {
+      const { data: user } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', userId)
+        .single()
+      userRole = user?.role || null
+    } catch (err) {
+      console.error('Error fetching user role:', err)
+    }
+  }
   const recentActivity = [
     {
       id: 1,
@@ -40,12 +65,24 @@ export default function AdminDashboard() {
       <DashboardNav userType="admin" userName="Admin User" />
       
       <div className="container mx-auto px-4 py-8">
-        <PageHeader
-          eyebrow="Administration"
-          title="Admin Dashboard"
-          subtitle="Platform overview and management"
-          withBorder
-        />
+        <div className="mb-6">
+          <div className="flex items-start gap-3">
+            <div className="flex-1">
+              <PageHeader
+                eyebrow="Administration"
+                title="Admin Dashboard"
+                subtitle="Platform overview and management"
+                withBorder={false}
+              />
+            </div>
+            {userRole && (
+              <Badge variant="secondary" className="text-sm mt-6">
+                {formatRoleName(userRole)}
+              </Badge>
+            )}
+          </div>
+          <div className="border-b pb-4 mt-4"></div>
+        </div>
 
         {/* Key Metrics */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

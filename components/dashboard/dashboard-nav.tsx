@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { Home, Calendar, User, Settings, LogOut, LayoutDashboard, Users, DollarSign, FileText, Menu, X, ShieldCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { BrandLogoClient } from '@/components/BrandLogoClient'
@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { useAuth } from '@/components/auth/AuthProvider'
 
 interface DashboardNavProps {
   userType: 'customer' | 'provider' | 'admin'
@@ -23,7 +24,20 @@ interface DashboardNavProps {
 
 export function DashboardNav({ userType, userName }: DashboardNavProps) {
   const pathname = usePathname()
+  const router = useRouter()
+  const { signOut } = useAuth()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+      router.push('/login')
+    } catch (error) {
+      console.error('Error signing out:', error)
+      // Still redirect to login even if there's an error
+      router.push('/login')
+    }
+  }
 
   const customerLinks = [
     { href: '/customer', label: 'Dashboard', icon: Home },
@@ -113,11 +127,9 @@ export function DashboardNav({ userType, userName }: DashboardNavProps) {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href="/login" className="cursor-pointer">
-                <LogOut className="mr-2 h-4 w-4" />
-                Log out
-              </Link>
+            <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
+              <LogOut className="mr-2 h-4 w-4" />
+              Log out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

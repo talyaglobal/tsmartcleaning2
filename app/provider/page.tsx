@@ -10,6 +10,7 @@ import Link from 'next/link'
 import { ProviderAvailabilityManager } from '@/components/providers/ProviderAvailabilityManager'
 import { UpcomingJobsCalendar } from '@/components/providers/UpcomingJobsCalendar'
 import { RatingReviewSummary } from '@/components/providers/RatingReviewSummary'
+import { formatRoleName } from '@/lib/utils/role-format'
 
 export default async function ProviderDashboard({
   searchParams,
@@ -18,6 +19,21 @@ export default async function ProviderDashboard({
 }) {
   const supabase = createServerSupabase()
   const providerId = searchParams?.userId
+
+  // Fetch user role
+  let userRole: string | null = null
+  if (providerId) {
+    try {
+      const { data: user } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', providerId)
+        .single()
+      userRole = user?.role || null
+    } catch (err) {
+      console.error('Error fetching user role:', err)
+    }
+  }
 
   // Fetch provider profile data
   let providerProfile: any = null
@@ -196,7 +212,14 @@ export default async function ProviderDashboard({
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Provider Dashboard</h1>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-3xl font-bold">Provider Dashboard</h1>
+            {userRole && (
+              <Badge variant="secondary" className="text-sm">
+                {formatRoleName(userRole)}
+              </Badge>
+            )}
+          </div>
           <p className="text-muted-foreground">Manage your bookings and track your earnings</p>
         </div>
 

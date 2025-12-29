@@ -9,6 +9,7 @@ import { ShieldCheck } from 'lucide-react'
 import EmptyState from '@/components/admin/EmptyState'
 import EnsureDashboardUser from '@/components/auth/EnsureDashboardUser'
 import { Progress } from '@/components/ui/progress'
+import { formatRoleName } from '@/lib/utils/role-format'
 
 export default async function CustomerDashboard({
   searchParams,
@@ -17,6 +18,21 @@ export default async function CustomerDashboard({
 }) {
   const supabase = createServerSupabase()
   const customerId = searchParams?.userId
+  
+  // Fetch user role
+  let userRole: string | null = null
+  if (customerId) {
+    try {
+      const { data: user } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', customerId)
+        .single()
+      userRole = user?.role || null
+    } catch (err) {
+      console.error('Error fetching user role:', err)
+    }
+  }
   
   // Fetch all dashboard data in parallel
   let upcomingRaw: any[] = []
@@ -179,7 +195,14 @@ export default async function CustomerDashboard({
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Welcome back!</h1>
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-3xl font-bold">Welcome back!</h1>
+              {userRole && (
+                <Badge variant="secondary" className="text-sm">
+                  {formatRoleName(userRole)}
+                </Badge>
+              )}
+            </div>
             <p className="text-muted-foreground">Manage your cleaning services and bookings</p>
           </div>
           <Button size="lg" asChild>
