@@ -11,9 +11,6 @@ import { GTMProgressBar } from "@/components/admin/dashboard/GTMProgressBar";
 import { TeamTODOCompletion } from "@/components/admin/dashboard/TeamTODOCompletion";
 import { RecentActivityFeed } from "@/components/admin/dashboard/RecentActivityFeed";
 import { QuickActionsPanel } from "@/components/admin/dashboard/QuickActionsPanel";
-import { useAuth } from "@/components/auth/AuthProvider";
-import { formatRoleName } from "@/lib/utils/role-format";
-import { Badge } from "@/components/ui/badge";
 
 type StatsData = {
 	metrics: {
@@ -59,7 +56,6 @@ type StatsData = {
 };
 
 export default function RootAdminDashboard() {
-	const { user } = useAuth();
 	const [data, setData] = useState<StatsData | null>(null);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
@@ -92,34 +88,16 @@ export default function RootAdminDashboard() {
 	if (loading) {
 		return (
 			<div className="space-y-6">
-				<div className="flex items-start gap-3">
-					<div className="flex-1">
-						<PageHeader title="Gamification Root Admin Dashboard" subtitle="Monitor gamification system and platform metrics" />
-					</div>
-					{user?.role && (
-						<Badge variant="secondary" className="text-sm mt-6">
-							{formatRoleName(user.role)}
-						</Badge>
-					)}
-				</div>
+				<PageHeader title="Gamification Root Admin Dashboard" subtitle="Monitor gamification system and platform metrics" />
 				<LoadingSpinner label="Loading dashboard data..." />
 			</div>
 		);
 	}
 
 	if (error || !data) {
-		return (
-			<div className="space-y-6">
-				<div className="flex items-start gap-3">
-					<div className="flex-1">
-						<PageHeader title="Gamification Root Admin Dashboard" subtitle="Monitor gamification system and platform metrics" />
-					</div>
-					{user?.role && (
-						<Badge variant="secondary" className="text-sm mt-6">
-							{formatRoleName(user.role)}
-						</Badge>
-					)}
-				</div>
+	return (
+		<div className="space-y-6">
+				<PageHeader title="Gamification Root Admin Dashboard" subtitle="Monitor gamification system and platform metrics" />
 				<Alert variant="destructive">
 					<AlertCircle className="h-4 w-4" />
 					<AlertDescription>{error || "Failed to load dashboard data"}</AlertDescription>
@@ -130,16 +108,7 @@ export default function RootAdminDashboard() {
 
 	return (
 		<div className="space-y-6">
-			<div className="flex items-start gap-3">
-				<div className="flex-1">
-					<PageHeader title="Gamification Root Admin Dashboard" subtitle="Monitor gamification system and platform metrics" />
-				</div>
-				{user?.role && (
-					<Badge variant="secondary" className="text-sm mt-6">
-						{formatRoleName(user.role)}
-					</Badge>
-				)}
-			</div>
+			<PageHeader title="Gamification Root Admin Dashboard" subtitle="Monitor gamification system and platform metrics" />
 
 			{/* Key Metrics Cards */}
 			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">

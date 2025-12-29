@@ -92,12 +92,12 @@ export default function AmbassadorTeamPage() {
 	}
 
 	const columns: Column<TeamMember>[] = [
-		{ key: 'name', label: 'Name' },
-		{ key: 'email', label: 'Email' },
-		{ key: 'phone', label: 'Phone' },
+		{ key: 'name', header: 'Name' },
+		{ key: 'email', header: 'Email' },
+		{ key: 'phone', header: 'Phone' },
 		{ 
 			key: 'status', 
-			label: 'Status',
+			header: 'Status',
 			render: (member) => (
 				<Badge variant={member.status === 'active' ? 'default' : 'secondary'}>
 					{member.status === 'active' ? 'Active' : member.status === 'on_leave' ? 'On Leave' : 'Unavailable'}
@@ -106,7 +106,7 @@ export default function AmbassadorTeamPage() {
 		},
 		{ 
 			key: 'rating', 
-			label: 'Rating',
+			header: 'Rating',
 			render: (member) => (
 				<div className="flex items-center gap-1">
 					<Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
@@ -114,8 +114,8 @@ export default function AmbassadorTeamPage() {
 				</div>
 			)
 		},
-		{ key: 'jobsCompleted', label: 'Jobs Completed' },
-		{ key: 'lastActive', label: 'Last Active' },
+		{ key: 'jobsCompleted', header: 'Jobs Completed' },
+		{ key: 'lastActive', header: 'Last Active' },
 	]
 
 	if (loading) {
